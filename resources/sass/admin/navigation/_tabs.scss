@@ -1,0 +1,42 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: layout/navigation/tabs
+ * -----------------------------------------------------------------------------
+ */
+
+nav.tabs {
+    @include responsive-prop('margin-bottom', $space-lg);
+    @include responsive-prop('margin-top', $space-md);
+
+    ul {
+        @extend %clearfix;
+    }
+
+    li {
+        float: left;
+        margin-right: 10px;
+        text-align: center;
+        width: 25%;
+    }
+
+    a {
+        color: $color--medium-grey;
+        display: block;
+        @include font-bold();
+        @include responsive-prop('padding-bottom', $space-xs);
+        @include responsive-prop('padding-top', $space-xs);
+        text-transform: uppercase;
+        width: 100%;
+
+        &:hover,
+        &.is-active {
+            border-bottom: 2px solid $color--dark;
+            color: $color--dark;
+        }
+
+        &.has-error {
+            color: $color--danger;
+            border-bottom: 2px solid $color--danger;
+        }
+    }
+}

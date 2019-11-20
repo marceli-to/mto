@@ -1,0 +1,155 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: component/lists/global
+ * -----------------------------------------------------------------------------
+ *
+ */
+
+// List view
+.list-items {}
+
+.list-item {
+    border-top: 2px solid $color--light-grey;
+    display: grid;
+    grid-template-columns: auto 102px;
+    @include responsive-prop('padding-top', $space-xs);
+    @include responsive-prop('margin-bottom', $space-xs);
+
+    &:last-child {
+        border-bottom: 2px solid $color--light-grey;
+        @include responsive-prop('padding-bottom', $space-xs);
+    }
+
+    &[data-icons="2"] {
+        grid-template-columns: auto 46px;
+    }
+    
+    &[data-icons="3"] {
+        grid-template-columns: auto 74px;
+    }
+
+    &[data-icons="5"] {
+        grid-template-columns: auto 130px;
+    }
+
+    &[data-icons="6"] {
+        grid-template-columns: auto 158px;
+    }
+
+    &.is-disabled {
+        * {
+            opacity: .7;
+        }
+    }
+
+    &.is-sortable {
+        cursor: move;
+    }
+}
+
+.list-item-body {
+    @include responsive-prop('padding-right', $space-sm);
+    
+    p {
+        margin-bottom: 10px !important;
+        &:last-of-type {
+            margin-bottom: 0 !important;
+        }
+    }
+
+    .item-date {
+        @include font-size($fs-xxs);
+        color: $color--medium-grey;
+        display: block;
+        margin-top: 5px;
+    }
+
+    .item-tag {
+        background-color: $color--light-grey;
+        border-radius: 2px;
+        color: $color--dark;
+        display: inline-block;
+        @include font-mono();
+        @include font-size($fs-xxs);
+        line-height: 1 !important;
+        padding: 5px;
+        width: auto;
+    }
+}
+
+.list-item-action {
+    display: grid;
+    grid-template-columns: repeat(4, 18px);
+    grid-gap: 10px;
+    text-align: right;
+
+    &[data-icons="1"] {
+        grid-template-columns: 1fr;
+        justify-items: flex-end;
+    }
+
+    &[data-icons="2"] {
+        grid-template-columns: repeat(2, 18px);
+    }
+
+    &[data-icons="3"] {
+        grid-template-columns: repeat(3, 18px);
+    }
+
+    &[data-icons="5"] {
+        grid-template-columns: repeat(5, 18px);
+    }
+
+    &[data-icons="6"] {
+        grid-template-columns: repeat(6, 18px);
+    }
+}
+
+// Cards
+.list-item-cards {
+    @include responsive-prop('margin-bottom', $space-md);
+
+    > div {
+        align-items: center;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-gap: 15px;
+        @include responsive-prop('margin-bottom', $space-sm);
+        margin-top: 10px;
+    }
+
+    .btn-add {
+        left: 5px;
+        right: auto;
+        position: relative;
+        text-align: center;
+        top: auto;
+        width: 100%;
+    }
+}
+
+.list-item-card {
+    border: 2px solid $color--dark;
+    border-radius: 2px;
+    display: inline-block;
+    padding: 10px;
+
+    &:hover {
+        cursor: move;
+    }
+
+    span {
+        display: block;
+    }
+
+    &.is-disabled {
+        opacity: .7;
+    }
+}
+
+.list-item-card__action {
+    display: grid;
+    grid-template-columns: repeat(4, 18px);
+    grid-gap: 10px;
+    @include responsive-prop('margin-top', $space-xs);
+}

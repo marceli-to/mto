@@ -1,0 +1,50 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/typo/helpers
+ * -----------------------------------------------------------------------------
+ *
+ * Helper classes for typography
+ *
+ */
+
+.uc { text-transform: uppercase;}
+
+.lc { text-transform: lowercase; }
+
+.cap { text-transform: capitalize; }
+
+.nobr { white-space: nowrap; }
+
+.fs-xs {
+	@include font-size($fs-xs);
+}
+
+.fs-sm {
+	@include font-size($fs-sm);
+}
+
+.fs-md {
+	@include font-size($fs-md);
+}
+
+.fs-lg {
+	@include font-size($fs-lg);
+}
+
+.mono {
+	@include font-mono();
+}
+
+
+/**
+ * Typography - Generic elements
+ * -----------------------------------------------------------------------------
+ */
+
+strong, b {
+	@include font-bold();
+}
+
+p {
+	@include responsive-prop('margin-bottom', $space-sm);
+}

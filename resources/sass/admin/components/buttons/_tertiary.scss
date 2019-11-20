@@ -1,0 +1,23 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/buttons/tertiary
+ * -----------------------------------------------------------------------------
+ */
+
+.btn-tertiary {
+  @extend %btn-ib;
+  background-color: $color--blue;
+  border-radius: 2px;
+  border: none;
+  color: $color--white !important;
+  @include font-size($fs-sm);
+  @include font-bold();
+  padding: 12px 24px;
+  text-decoration: none !important;
+  width: auto;
+  @include transition(background-color .16s ease-out);
+
+  &:hover {
+    background-color: darken($color--blue, 10);
+  }
+}

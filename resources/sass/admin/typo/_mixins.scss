@@ -1,0 +1,104 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/typo/mixins
+ * -----------------------------------------------------------------------------
+ *
+ * Mixins for typography
+ *
+ */
+ 
+/**
+ * Font smoothing
+ * -----------------------------------------------------------------------------
+ *
+ */
+
+@mixin font-smoothing() {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale; 	
+}
+
+
+/**
+ * Font: regular
+ * -----------------------------------------------------------------------------
+ * 
+ */
+
+@mixin font-regular() {
+  font-family: 'basis-grotesque-regular-pro', Arial, Helvetica, sans-serif;
+  font-display: auto;
+  font-style: normal;
+  font-stretch: normal;
+  font-weight: normal;
+}
+
+/**
+ * Font: medium
+ * -----------------------------------------------------------------------------
+ * 
+ */
+ 
+@mixin font-bold() {
+  font-family: 'basis-grotesque-medium-pro', monospace;
+  font-display: auto;
+  font-style: normal;
+  font-stretch: normal;
+  font-weight: normal;
+}
+
+/**
+ * Font: mono
+ * -----------------------------------------------------------------------------
+ * 
+ */
+ 
+ @mixin font-mono() {
+  font-family: Monaco, "Courier New", Courier, monospace;
+  font-display: auto;
+  font-style: normal;
+  font-stretch: normal;
+  font-weight: normal;
+}
+
+
+
+/**
+ * Define the font size
+ * -----------------------------------------------------------------------------
+ * 
+ *
+ */
+ 
+@mixin font-size($fs-map, $fs-breakpoints: $breakpoints) {
+  @each $fs-breakpoint, $fs-font-size in $fs-map {
+    @if $fs-breakpoint == null {
+      @include make-font-size($fs-font-size);
+    }
+    @else {
+      // If $fs-font-size is a key that exists in
+      // $fs-breakpoints, use the value
+      @if map-has-key($fs-breakpoints, $fs-breakpoint) {
+        $fs-breakpoint: map-get($fs-breakpoints, $fs-breakpoint);
+      }
+      @media screen and (min-width: $fs-breakpoint) {
+        @include make-font-size($fs-font-size);
+      }
+    }
+  }
+}
+
+// Utility function for mixin font-size
+@mixin make-font-size($fs-font-size) {
+  // If $fs-font-size is a list, include
+  // both font-size and line-height
+  @if type-of($fs-font-size) == "list" {
+    font-size: nth($fs-font-size, 1);
+    @if (length($fs-font-size) > 1) {
+      line-height: nth($fs-font-size, 2);
+    }
+  }
+  @else {
+    font-size: $fs-font-size;
+  }
+}

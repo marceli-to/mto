@@ -1,0 +1,13 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/icons/close
+ * -----------------------------------------------------------------------------
+ */
+
+.icon-plus {
+    @extend %icon-dashboard;
+    background-image: url($url-icons + 'plus.svg');
+    right: 20px;
+    position: absolute;
+    top: 0;
+}

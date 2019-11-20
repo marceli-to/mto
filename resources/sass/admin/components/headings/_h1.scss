@@ -1,0 +1,11 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/headings/h1
+ * -----------------------------------------------------------------------------
+ */
+
+h1 {
+    @include font-bold();
+    @include font-size($fs-sm);
+    @include responsive-prop('margin-bottom', $space-sm);
+}

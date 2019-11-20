@@ -1,0 +1,12 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/headings/h2
+ * -----------------------------------------------------------------------------
+ */
+
+h2 {
+    //color: $color--grey;
+    @include font-regular();
+    @include font-size($fs-md);
+    @include responsive-prop('margin-bottom', $space-xxs);
+}

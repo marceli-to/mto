@@ -1,0 +1,13 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/icons/trello
+ * -----------------------------------------------------------------------------
+ */
+
+.icon-menu {
+    @extend %icon-dashboard;
+    background-image: url($url-icons + 'menu.svg');
+    right: 20px;
+    position: absolute;
+    top: auto;
+}

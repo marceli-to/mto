@@ -1,0 +1,119 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: dashboard
+ * -----------------------------------------------------------------------------
+ */
+
+
+// Settings
+@import 'config/colors';
+@import 'config/buttons';
+@import 'config/form';
+@import 'config/icons';
+@import 'config/global';
+@import 'config/spaces';
+@import 'config/typo';
+
+// Helpers 
+@import 'helpers/normalize';
+@import 'helpers/flexbox';
+@import 'helpers/functions';
+@import 'helpers/mixins';
+@import 'helpers/utilities';
+
+// Typo
+@import 'typo/webfonts';
+@import 'typo/mixins';
+@import 'typo/helpers'; 
+
+// Components
+@import 'components/animations';
+@import 'components/blocks';
+@import 'components/badges/global';
+@import 'components/bubbles/global';
+@import 'components/buttons/global';
+@import 'components/buttons/preview';
+@import 'components/buttons/primary';
+@import 'components/buttons/secondary';
+@import 'components/buttons/tertiary';
+@import 'components/buttons/add';
+@import 'components/buttons/add-media';
+@import 'components/buttons/add-media-highlight';
+@import 'components/buttons/add-article';
+@import 'components/buttons/crop';
+@import 'components/buttons/toggle-layout';
+@import 'components/buttons/trash';
+@import 'components/cards/global';
+@import 'components/cards/post';
+@import 'components/grid/global';
+@import 'components/headings/global';
+@import 'components/headings/h1';
+@import 'components/headings/h2';
+@import 'components/headings/h3';
+@import 'components/icons/global';
+@import 'components/icons/add';
+@import 'components/icons/menu';
+@import 'components/icons/close';
+@import 'components/icons/copy';
+@import 'components/icons/edit';
+@import 'components/icons/eye';
+@import 'components/icons/external-link';
+@import 'components/icons/grid';
+@import 'components/icons/layout';
+@import 'components/icons/logout';
+@import 'components/icons/plus';
+@import 'components/icons/star';
+@import 'components/icons/trash';
+@import 'components/icons/users';
+@import 'components/lists/global';
+
+@import 'components/overlay/global';
+@import 'components/images';
+@import 'components/tables/global';
+@import 'components/pagination/global';
+
+// Forms
+@import 'form/global';
+@import 'form/autocomplete';
+@import 'form/input';
+@import 'form/forms';
+@import 'form/label';
+@import 'form/layout';
+@import 'form/radio';
+@import 'form/placeholder';
+@import 'form/select';
+@import 'form/switch';
+@import 'form/validation';
+
+// Navigation
+@import 'navigation/global';
+@import 'navigation/site';
+@import 'navigation/tabs';
+
+// Layout
+@import 'layout/base';
+@import 'layout/container';
+@import 'layout/footer';
+@import 'layout/main';
+@import 'layout/header';
+@import 'layout/sidebar';
+
+// Theme
+@import 'theme/brand';
+
+// UI
+@import 'ui';
+
+// Modules
+@import 'modules/timer';
+
+
+// Vendor - Dropzone
+@import 'vendor/dropzone';
+@import 'vendor/dropzone-custom';
+
+// Vendor - Notifications
+@import 'vendor/notifications';
+
+// Vendor - Draggable
+@import 'vendor/draggable';

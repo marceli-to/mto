@@ -1,0 +1,21 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: form/label
+ * -----------------------------------------------------------------------------
+ */
+ 
+label {
+    color: $color--dark;
+    display: block;
+    @include font-bold();
+    @include font-size($fs-sm);
+    margin-bottom: 5px;
+
+    &.is-sm {
+        @include font-size($fs-xs);
+    }
+
+    &.is-narrow {
+        margin-bottom: 5px !important;
+    }
+}

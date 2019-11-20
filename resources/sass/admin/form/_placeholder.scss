@@ -1,0 +1,30 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: form/placeholder
+ * -----------------------------------------------------------------------------
+ */
+
+input[type=text]::-webkit-input-placeholder {
+    color: $color--light-grey;
+    @include font-size($fs-xs);
+}
+
+// Search bar
+input[type=text].search::-webkit-input-placeholder {
+    color: $color--grey;
+    @include font-size($fs-xs);
+}
+
+// Time
+input[type=text].is-datetime::-webkit-input-placeholder {
+    color: $color--light-grey;
+    @include font-bold();
+    @include font-size($fs-xs);
+}
+
+// Date
+input[type=text].is-datepicker::-webkit-input-placeholder {
+    color: $color--dark;
+    @include font-bold();
+    @include font-size($fs-xs);
+}

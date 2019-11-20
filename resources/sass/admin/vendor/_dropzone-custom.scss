@@ -1,0 +1,195 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: admin/vendor/dropzone-custom
+ * -----------------------------------------------------------------------------
+ */
+
+.dropzone {
+    background-color: transparent;
+    border: 2px solid $color--dark;
+    border-radius: 2px;
+    padding: 6px !important;
+    position: relative;
+}
+
+.dropzone .dz-message {
+    margin: 0 !important;
+    text-align: center;
+    width: 100%;
+    @include vertical-center(absolute);
+}
+
+.dropzone .dz-preview .dz-image {
+    border-radius: 0 !important;
+}
+
+.dropzone .dz-preview.dz-image-preview {
+    background-color: transparent;
+}
+
+.dz-remove {
+    color: $color--dark;
+    text-decoration: underline; 
+}
+
+.dropzone .dz-preview .dz-image {
+    height: 100px;
+    width: 100px;
+}
+
+.dz-image img,
+.dropzone .dz-preview .dz-image img {
+    height: auto;
+    width: 100%;
+}
+
+.dropzone .dz-preview .dz-remove {
+    text-align: left;
+}
+
+.dropzone .dz-preview.dz-image-preview {
+    background-color: #f9f9f9;
+    padding: 6px;
+}
+
+.dropzone .dz-preview {
+    margin: 0 6px 12px 6px;
+}
+
+.dropzone .dz-preview .dz-details {
+    top: 10px;
+}
+
+
+.dropzone-existing-assets {
+    margin-top: 12px;
+    background-color: transparent;
+
+    
+    > div {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-gap: 15px;
+    }
+
+    .dz-existing-asset {
+        box-shadow: $box-shadow-sm;
+        width: 100% !important;
+    }
+
+    &.has-images,
+    &.has-files {
+        > div {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-gap: 15px;
+        }
+
+        .dz-existing-asset {
+            width: 100%;
+        }
+    }
+
+    &.has-sortable-images {
+        position: relative;
+        > div {
+            display: block;
+
+            > div {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                grid-gap: 15px;
+            }
+        }
+
+        .dz-existing-asset {
+            width: 100%;
+        }
+    }
+
+    &.has-files {
+        > div {
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        }        
+    }
+    
+    .dz-existing-asset {
+        //background-color: $color--light-grey;
+        //border-radius: 2px;
+        display: inline-block;
+        //padding: 10px;
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+        min-height: 100px;
+        width: 160px;
+
+        img {
+            display: block;
+            height: auto;
+            opacity: 1;
+            width: 100%;
+            transition: opacity .12s ease-out;
+        }
+
+        &.is-image {
+            img {
+                background-color: $color--white;
+                padding: 10px;
+            }
+        }
+
+        &.is-draggable {
+            &:hover {
+                cursor: move;
+            }
+        }
+
+        &.is-disabled {
+            img {
+                opacity: 0.6;
+            }
+        }
+
+        .dz-toolbar {
+            background-color: $color--white;
+            //border-top: 2px solid $color--light-grey;
+            display: grid;
+            line-height: 1;
+            grid-template-columns: repeat(5, 18px);
+            grid-gap: 10px;
+            padding: 10px;
+        }
+    }
+
+    .dz-file-preview {
+        display: block;
+        text-decoration: none;
+        position: relative;
+        width: 100%;
+
+        .dz-file-preview__caption {
+            bottom: 10px;
+            @include font-mono();
+            @include font-size($fs-xxs);
+            left: 10px;
+            padding: 4px;
+            position: absolute;
+            width: 100%;
+        }
+    }
+}
+
+.dz-remove {
+    @include background-default();
+    background-image: url($url-icons + 'trash.svg');
+    background-size: 16px 16px;
+    font-size: 14px;
+    line-height: 1 !important;
+    display: block;
+    cursor: pointer;
+    border: none;
+    padding-left: 20px;
+    padding-top: 2px;
+    min-height: 16px;
+}

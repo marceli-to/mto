@@ -1,0 +1,22 @@
+.icon-grid {
+  @extend %icon-dashboard;
+  background-image: url($url-icons + 'grid.svg');
+  pointer-events: all;
+
+  &.is-disabled {
+    background-image: url($url-icons + 'grid-off.svg');
+    pointer-events: none;
+  }
+}
+
+.icon-grid-list {
+  display: block;
+  height: auto;
+  width: auto;
+
+  img {
+    display: block;
+    height: auto;
+    width: 60px;
+  }
+}

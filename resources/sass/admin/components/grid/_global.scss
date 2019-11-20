@@ -1,0 +1,66 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: component/grid/global
+ * -----------------------------------------------------------------------------
+ *
+ */
+
+[class^='grid-'] {
+    display: grid;
+    @include responsive-prop('grid-gap', $space-md);
+}
+
+.grid-2x1fr {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-2fr-1fr {
+    grid-template-columns: 2fr 1fr;
+}
+
+.grid-3fr-1fr {
+    grid-template-columns: 3fr 1fr;
+}
+
+.grid-timer {
+    grid-template-columns: auto 30px 140px 40px 140px;
+    grid-gap: 0 !important;
+
+    div {
+        @extend %v-center;
+
+        &.is-separator {
+            @extend %h-center;
+            @include font-bold();
+            color: $color--light-grey;
+            svg {
+                display: block;
+                height: auto;
+                width: 24px;
+            }
+        }
+    }
+}
+
+.grid-table-positions {
+
+    > div {
+        border-bottom: 2px solid $color--light-grey;
+        display: grid;
+        grid-template-columns: 1fr 3fr 1fr 1fr;
+        grid-gap: 10px;
+
+        div {
+            padding: 10px 4px;
+        }
+    }
+
+    &.is-header {
+        border-top: 2px solid $color--light-grey;
+        @include responsive-prop('margin-top', $space-sm);
+    }
+
+    &.is-body:nth-child(2n+1) {
+        background-color: #f9f9f9;
+    }
+}

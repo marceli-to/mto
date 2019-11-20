@@ -1,0 +1,29 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: layout/main
+ * -----------------------------------------------------------------------------
+ */
+ 
+$space-bottom: (
+   null:  80px,
+   sm:    80px,
+   md:    120px,
+   lg:    120px
+ );
+
+main.content {
+    @include responsive-prop('padding-top', $space-md);
+    @include responsive-prop('padding-bottom', $space-bottom);
+
+    > div {
+        @extend %page-block;
+    }
+}
+main.content-auth {
+    background-color: $color--light;
+    box-shadow: $box-shadow;
+    margin-left: auto;
+    margin-right: auto;
+    @include responsive-prop('padding', $space-sm);
+    width: 400px;
+}

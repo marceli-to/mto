@@ -1,0 +1,25 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/badges/global
+ * -----------------------------------------------------------------------------
+ */
+
+%badge,
+.badge {
+  background-color: transparent;
+  border-radius: 2px;
+  border: none;
+  color: $color--white;
+  display: inline-block !important;
+  @include font-mono();
+  @include font-size($fs-xxs);
+  line-height: 1 !important;
+  padding: 6px 8px 6px 8px;
+  position: relative;
+  width: auto;
+
+  strong {
+    @include font-mono();
+    font-weight: 700;
+  }
+}

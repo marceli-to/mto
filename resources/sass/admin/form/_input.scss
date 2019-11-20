@@ -1,0 +1,40 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: form/input
+ * -----------------------------------------------------------------------------
+ */
+
+input {
+
+    &.is-md {
+        padding: 7px;
+    }
+
+    &.is-tiny {
+        background-color: $color--dark-grey;
+        border: none;
+        color: $color--white;
+        display: inline-block !important;
+        padding: 2px 4px 1px 4px;
+        width: 60px;
+    }
+
+    &.is-caption {
+        border: 2px solid $color--dark-grey;
+        @include font-size($fs-xs);
+        line-height: 1 !important;
+        padding: 7px 5px 5px 5px;
+        width: 100%;
+    }
+
+    &.is-time {
+        max-width: 150px;
+    }
+
+    &.is-datepicker {
+        @include background-default();
+        background-image: url($url-icons + 'calendar.svg');
+        background-position: center right 8px;
+        background-size: 22px auto;
+    }
+}

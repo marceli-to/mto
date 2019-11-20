@@ -1,0 +1,43 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: component/cards/post-preview
+ * -----------------------------------------------------------------------------
+ *
+ */
+
+.posts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, .5fr));
+    grid-gap: 10px;
+}
+
+.post {
+    border-radius: 2px;
+    border: 2px solid $color--dark;
+    @include responsive-prop('padding', $space-xs);
+
+    .post-text {
+        margin-bottom: 10px;
+    }
+
+    .post-media {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, 50px);
+        grid-gap: 10px;
+
+        figure {
+
+            img {
+                opacity: .6;
+                -webkit-transition: opacity .1s ease-out;
+                transition: opacity .1s ease-out;
+            }
+
+            &:hover {
+                img {
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}

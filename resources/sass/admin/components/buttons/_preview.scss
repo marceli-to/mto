@@ -1,0 +1,27 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/buttons/preview
+ * -----------------------------------------------------------------------------
+ */
+
+ .btn-preview {
+  @extend %btn-ib;
+  @extend %btn-bg;
+  background-color: $color--success;
+  background-image: url($url-icons + 'external-link-white.svg');
+  background-size: 18px auto;
+  background-position: center left 8px;
+  border-radius: 2px;
+  border: none;
+  color: $color--white;
+  @include font-size($fs-sm);
+  @include font-bold();
+  line-height: 1 !important;
+  padding: 12px 24px 12px 36px;
+  width: auto;
+  @include transition(background-color .16s ease-out);
+
+  &:hover {
+    background-color: darken($color--success, 10);
+  }
+}

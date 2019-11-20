@@ -1,0 +1,21 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/tables/global
+ * -----------------------------------------------------------------------------
+ */
+
+table {
+    width: 100%;
+
+    thead {
+        border-bottom: 2px solid $color--medium-grey;
+    }
+
+    th {
+        color: $color--medium-grey;
+        @include font-bold();
+        @include font-size($fs-sm);
+        text-align: left;
+        vertical-align: middle;
+    }
+}

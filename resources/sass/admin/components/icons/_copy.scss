@@ -1,0 +1,11 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/icons/copy
+ * -----------------------------------------------------------------------------
+ */
+
+.icon-copy {
+    @extend %icon-dashboard;
+    background-image: url($url-icons + 'copy.svg');
+    display: block;
+}

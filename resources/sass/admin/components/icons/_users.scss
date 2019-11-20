@@ -1,0 +1,11 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/icons/users
+ * -----------------------------------------------------------------------------
+ */
+
+ .icon-users {
+  @extend %icon-dashboard;
+  background-image: url($url-icons + 'users.svg');
+  display: block;
+}

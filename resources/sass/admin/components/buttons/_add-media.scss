@@ -1,0 +1,12 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/buttons/add-media
+ * -----------------------------------------------------------------------------
+ */
+
+.btn-add-media {
+    @extend %btn-ib;
+    @extend %btn-icon;
+    @extend %btn-light;
+    background-image: url($url-icons + 'file-plus.svg');
+}

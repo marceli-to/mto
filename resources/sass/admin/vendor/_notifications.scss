@@ -1,0 +1,38 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: admin/vendor/notifications
+ * -----------------------------------------------------------------------------
+ *
+ * Source: https://www.npmjs.com/package/vue-notification
+ */
+
+.notification {
+    border-radius: 2px;
+    padding: 10px;
+    margin: 10px 10px 0 0;
+    @include font-size($fs-xs);
+
+    color: #ffffff;
+    background: $color--info;
+    border-left: 5px solid #187FE7;
+    border-left: none !important;
+
+    &.warn {
+        background: $color--warning;
+        border-left-color: #f48a06;
+    }
+
+    &.error {
+        background: $color--danger;
+        border-left-color: #B82E24;
+    }
+
+    &.success {
+        background: $color--success;
+        border-left-color: #42A85F;
+    }
+
+    .notification-title {
+        @include font-bold();
+    }
+}

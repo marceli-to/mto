@@ -1,0 +1,28 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/icons/add
+ * -----------------------------------------------------------------------------
+ */
+
+.icon-add {
+  @extend %icon;
+  @extend %icon-ib;
+  @include background-default();
+  background-image: url($url-icons + 'plus.svg');
+  background-size: 16px;
+  background-position: center left;
+  @include font-size($fs-xs);
+  height: 16px;
+  color: $color--dark;
+  padding-left: 20px;
+  position: absolute;
+  right: 0;
+  text-decoration: none;
+  transition: color .12s ease-in;
+  top: 0;
+  width: auto; 
+
+  &:hover {
+    color: $color--grey;
+  }
+}

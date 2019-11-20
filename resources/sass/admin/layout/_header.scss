@@ -1,0 +1,26 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: layout/header
+ * -----------------------------------------------------------------------------
+ */
+
+header.site-header {
+    background-color: $color--white;
+    @include responsive-prop('height', $header-heights);
+    position: relative;
+    width: 100%;
+    z-index: 100;
+
+    > div {
+        @extend %page-block;
+        @extend %v-center;
+        @include responsive-prop('height', $header-heights);
+    }
+}
+
+header.auth-header {
+    @include responsive-prop('margin-bottom', $space-sm);
+    h1 {
+        @include responsive-prop('margin-bottom', $space-sm);
+    }
+}

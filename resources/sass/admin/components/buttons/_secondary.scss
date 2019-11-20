@@ -1,0 +1,22 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/buttons/secondary
+ * -----------------------------------------------------------------------------
+ */
+
+.btn-secondary {
+    @extend %btn-ib;
+    background-color: $color--success;
+	border-radius: 2px;
+	border: none;
+    color: $color--white;
+	@include font-size($fs-sm);
+	@include font-bold();
+	padding: 12px 24px;
+	width: auto;
+	@include transition(background-color .16s ease-out);
+
+	&:hover {
+		background-color: darken($color--success, 10);
+	}
+}

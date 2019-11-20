@@ -1,0 +1,35 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/buttons/trash
+ * -----------------------------------------------------------------------------
+ */
+
+.btn-trash {
+    @extend %btn-ib;
+    @extend %btn-icon;
+    @extend %btn-danger;
+    @extend %btn-loading;
+    background-image: url($url-icons + 'trash-light.svg');
+    margin-bottom: 15px;
+    margin-top: 5px;
+    position: relative;
+}
+
+.btn-trash-mini {
+    @extend %btn-icon;
+    @extend %btn-danger;
+    @extend %btn-loading;
+    background-image: url($url-icons + 'trash-light.svg');
+    background-position: center center;
+    border: 1px solid $color--danger;
+    cursor: pointer !important;
+    display: inline-block !important;
+    height: 22px;
+    line-height: 1 !important;
+    padding: 0 !important;
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    width: 22px;
+    z-index: 70;
+}

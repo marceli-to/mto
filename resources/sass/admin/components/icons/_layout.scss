@@ -1,0 +1,22 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/icons/layout
+ * -----------------------------------------------------------------------------
+ */
+
+.icon-layout {
+  @extend %icon-ib;
+  @extend %icon-bg;
+  background-image: url($url-icons + 'layout.svg');
+  background-size: 18px auto;
+  color: $color--dark;
+  padding-left: 24px;
+  position: absolute;
+  right: 20px;
+  top: 0;
+  z-index: 100;
+
+  &.is-home {
+    top: 10px;
+  }
+}

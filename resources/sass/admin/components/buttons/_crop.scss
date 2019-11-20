@@ -1,0 +1,14 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/buttons/crop
+ * -----------------------------------------------------------------------------
+ */
+
+.btn-crop {
+  @extend %btn-ib;
+  @extend %btn-icon;
+  @extend %btn-info;
+  @extend %btn-loading;
+  background-image: url($url-icons + 'crop.svg');
+  position: relative;
+}

@@ -1,0 +1,23 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/buttons/add
+ * -----------------------------------------------------------------------------
+ */
+
+.btn-add {
+    @extend %btn;
+    @extend %btn-ib;
+    @extend %v-center;
+    @include background-default();
+    background-image: url($url-icons + 'plus.svg');
+    background-size: 18px 18px;
+    background-position: center left;
+    height: auto;
+    min-height: 18px;
+    color: $color--dark;
+    padding: 5px 0 5px 24px;
+    position: absolute;
+    right: 20px;
+    top: 0;
+    width: auto;
+}

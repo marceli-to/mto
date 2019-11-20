@@ -1,0 +1,57 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: form/radio
+ * -----------------------------------------------------------------------------
+ */
+ 
+.form-control {
+  @include background-default();
+  @extend %h-center;
+  @extend %v-center;
+  background-color: transparent;
+  border: 2px solid $color--light-grey;
+  border-radius: 2px;
+  color: $color--dark;
+  cursor: pointer;
+  display: inline-block !important;
+  @include font-size($fs-xs);
+  margin-bottom: 0;
+  margin-right: 12px;
+  height: 24px;
+  position: relative;
+  text-align: center;
+  transition: background-color .1s ease-out, border-color .12s ease-out;
+  width: 24px;
+
+  svg {
+    display: none;
+    height: auto;
+    left: calc(50% - 9px);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+  }
+}
+
+.form-radio {
+  width: 100%;
+
+  input[type="radio"],
+  input[type="checkbox"] {
+    @extend %visually-hidden;
+  }
+}
+
+input[type="radio"]:checked + .form-control,
+input[type="checkbox"]:checked + .form-control {
+  background-color: $color--light-grey;
+  color: $color--dark;
+}
+
+input[type="radio"]:checked + .form-control,
+input[type="checkbox"]:checked + .form-control {
+  svg {
+    display: block;
+  }
+}

@@ -1,0 +1,12 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/buttons/add-article
+ * -----------------------------------------------------------------------------
+ */
+
+.btn-add-article {
+    @extend %btn-ib;
+    @extend %btn-icon;
+    @extend %btn-light;
+    background-image: url($url-icons + 'file-text.svg');
+}

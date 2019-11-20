@@ -1,0 +1,54 @@
+/**
+ * -----------------------------------------------------------------------------
+ * File: form/forms
+ * -----------------------------------------------------------------------------
+ */
+
+form {
+	a {
+		color: $color--dark;
+		display: inline-block;
+		text-decoration: underline;
+
+		&:hover {
+			text-decoration: none;
+		}
+	}
+}
+
+.quick-form {
+	animation: slideIn .3s;
+	animation-timing-function: ease-in-out;
+	background-color: rgba(220,220,220, .6);
+	height: 100%;
+	padding: 0;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 300;
+
+	> div {
+		@extend %page-block;
+		background-color: $color--white;
+		box-shadow: $box-shadow-sm;
+		border-radius: 4px;
+		max-width: 640px;
+		padding: 20px;
+		transform: translateY(-50%);
+		top: 50%;
+	}
+}
+
+@keyframes slideIn {
+	0% {
+		opacity: 0;
+		//transform: translateY(100%);
+	}
+	// 50% {
+	// 	opacity: 0;
+	// }
+	100% {
+		opacity: 1;
+		//transform: translateY(50%);
+	}
+}
