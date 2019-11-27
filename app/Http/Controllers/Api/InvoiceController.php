@@ -9,6 +9,10 @@ use Illuminate\Http\Request;
 
 class InvoiceController extends Controller
 {
+    /**
+     * Models
+     */
+    
     protected $invoice;
     protected $invoicePosition;
     
@@ -32,7 +36,7 @@ class InvoiceController extends Controller
 
     public function get()
     {
-        return new InvoiceCollection($this->invoice->with('client')->get());
+        return new InvoiceCollection($this->invoice->with('client')->orderBy('status')->orderBy('number')->get());
     }
 
     /**
@@ -73,11 +77,16 @@ class InvoiceController extends Controller
     {
         $invoice->update($request->all());
         $positions = [];
+        $total = 0;
         foreach ($request->positions as $position)
         {
             $position['invoice_id'] = $invoice->id;
+            $total += $position['amount'];
             $this->invoicePosition->updateOrCreate(['id' => $position['id']], $position);
         }
+
+        $invoice->total = $total;
+        $invoice->save();
         
         return response()->json('successfully updated');
     }

@@ -2,7 +2,9 @@
 <div>
   <notifications classes="notification"/>
   <quick-create-client v-bind:is="componentName"></quick-create-client>
-  <quick-create-position v-bind:is="componentName"></quick-create-position>
+  <div v-if="showPositionForm">
+    <position-form :record="position"></position-form>
+  </div>
   <div :class="[hasForm ? 'is-hidden' : '', 'container']">
     <main class="content" role="main">
       <div>
@@ -20,7 +22,7 @@
             <div class="form-row">
               <label>
                 Client
-                <a href="" class="icon-add" @click.prevent="toggleForm('QuickCreateClient')">Add</a>
+                <a href="" class="icon-add" @click.prevent="toggleForm('QuickCreateClient')"></a>
               </label>
               <div class="select-wrapper is-wide">
                 <select v-model="invoice.client_id" name="client_id">
@@ -55,22 +57,46 @@
               </div>
             </div>
             <div class="form-row">
-              <label>Positions <a href="" class="icon-add" @click.prevent="toggleForm('QuickCreatePosition')">Add</a></label>
-              <div class="grid-table-positions is-header">
+              <label>Positions <a href="" class="icon-add" @click.prevent="addPosition()"></a></label>
+              <div class="grid-invoice-position is-header">
                 <div>
-                  <div><strong>Periode</strong></div>
-                  <div><strong>Description</strong></div>
-                  <div><strong>Cost type</strong></div>
-                  <div class="align-right"><strong>Amount</strong></div>
+                  <div>Periode</div>
+                  <div>Description</div>
+                  <div>Hours</div>
+                  <div>Rate</div>
+                  <div class="align-right">Amount</div>
                 </div>
               </div>
-              <div class="grid-table-positions is-body" v-for="position in invoice.positions" :key="position.index">
-                <div>
+              <div class="grid-invoice-position is-body" v-for="(position, index) in invoice.positions" :key="index">
+                <div v-if="position.is_flat">
                   <div>{{position.periode}}</div>
                   <div>{{position.description}}</div>
-                  <div>{{position.rate}}</div>
-                  <div class="align-right">{{position.amount}}</div>
+                  <div>–</div>
+                  <div>Flat</div>
+                  <div class="align-right">{{position.amount | formatCurrency}}</div>
                 </div>
+                <div v-else>
+                  <div>{{position.periode}}</div>
+                  <div>{{position.description}}</div>
+                  <div>{{ position.hours | formatDecimal }}</div>
+                  <div>{{position.rate | formatCurrency }}</div>
+                  <div class="align-right">{{position.amount | formatCurrency}}</div>
+                </div>
+                <span class="position-action">
+                  <a href="javascript:;"
+                    class="icon-edit icon-mini"
+                    @click.prevent="editPosition(position)"
+                  ></a>
+                  <a
+                    href="javascript:;"
+                    class="icon-trash icon-mini"
+                    @click.prevent="deletePosition(position,$event)"
+                  ></a>
+                </span>
+              </div>
+              <div class="grid-invoice-total">
+                <div>Total</div>
+                <div class="align-right">{{ total | formatCurrency }}</div>
               </div>
             </div>
           </div>
@@ -88,19 +114,20 @@ import FormButtons from "@/components/ui/buttons/FormButtons.vue";
 
 // Views
 import QuickCreateClient from "@/components/client/QuickCreate.vue";
-import QuickCreatePosition from "@/components/invoice/QuickPosition.vue";
+import PositionForm from "@/components/invoice/position/Form.vue";
 
 // Helpers
-import Helpers from "@/mixins/helpers";
+import Utils from "@/mixins/utils";
 import Quick from "@/mixins/quick";
 import Date from "@/mixins/date";
+import Progress from "@/mixins/progress";
 import { TheMask } from "vue-the-mask";
 
 export default {
   components: {
     FormButtons: FormButtons,
     QuickCreateClient: QuickCreateClient,
-    QuickCreatePosition: QuickCreatePosition,
+    PositionForm: PositionForm,
     TheMask: TheMask
   },
 
@@ -108,7 +135,7 @@ export default {
     type: String
   },
 
-  mixins: [Helpers, Quick, Date],
+  mixins: [Utils, Quick, Date, Progress],
 
   data() {
     return {
@@ -121,11 +148,16 @@ export default {
         date: '',
         date_due: '',
         positions: [],
+        total: null,
       },
+
 
       clients: null,
       componentName: '',
       hasForm: false,
+      position: null,
+      showPositionForm: false,
+
     };
   },
 
@@ -204,14 +236,49 @@ export default {
 
     setDueDate() {
       this.invoice.date_due = moment(this.invoice.date, 'DD.MM.YYYY').add(3, 'w').format('DD.MM.YYYY');
-    }
+    },
+
+    addPosition() {
+      this.position = null;
+      this.togglePositionForm();
+    },
+
+    editPosition(position) {
+      this.position = position;
+      this.togglePositionForm();
+    },
+
+    deletePosition(position,event) {
+      if (confirm("Bitte löschen bestätigen!")) {
+        const index = this.invoice.positions.findIndex(x => x.id === position.id);
+        this.invoice.positions.splice(index,1);
+
+        if (position.id != null) {
+          let uri = `/api/invoice/position/destroy/${position.id}`;
+          let el = this.progress(event.target);
+          this.axios.delete(uri).then(response => {
+            this.$notify({ type: "success", text: "Record deleted" });
+            this.progress(el);
+          });
+        }
+      }
+    },
+
+    togglePositionForm() {
+      this.showPositionForm = this.showPositionForm ? false : true;
+      this.hasForm = this.hasForm ? false : true;
+    },
   },
 
   computed: {
-    title: function() {
+    title() {
       return this.$props.type == "edit"
         ? "Edit invoice"
         : "Add invoice";
+    },
+
+    total() {
+      return _.sumBy(this.invoice.positions, function(o) { return parseFloat(o.amount); });
     }
   }
 };

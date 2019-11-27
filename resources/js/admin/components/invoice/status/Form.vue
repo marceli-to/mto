@@ -7,9 +7,9 @@
           <h1>Add a new position</h1>
           <form @submit.prevent="submit">
             <div class="">
-              <div class="form-row is-sm">
+              <div class="form-row is-sm" :class="errors.description ? 'has-error': ''">
                 <label>Description</label>
-                <textarea v-model="position.description"></textarea>
+                <textarea v-model="position.description" @focus="removeError('title')"></textarea>
               </div>
               <div class="form-row is-sm">
                 <label>Periode</label>
@@ -27,11 +27,11 @@
               <div class="grid-2x1fr" v-if="type == 'bythehour'">
                 <div class="form-row">
                   <label>Rate</label>
-                  <input type="text" v-model="position.rate" placeholder="i.e. 125">
+                  <input type="text" v-model="position.rate" placeholder="i.e. 125.00">
                 </div>
                 <div class="form-row">
                   <label>Hours</label>
-                  <input type="text" v-model="position.hour" placeholder="i.e. 3.25">
+                  <input type="text" v-model="position.hours" placeholder="i.e. 3.25">
                 </div>
               </div>
               <div class="form-row" v-if="type == 'flat'">
@@ -49,7 +49,7 @@
   </div>
 </template>
 <script>
-import Helpers from "@/mixins/helpers";
+import Utils from "@/mixins/utils";
 import Quick from "@/mixins/quick";
 import Date from "@/mixins/date";
 import { TheMask } from "vue-the-mask";
@@ -60,34 +60,31 @@ export default {
     TheMask: TheMask
   },
 
-  mixins: [Helpers, Quick, Date],
+  mixins: [Utils, Quick, Date],
+
+  props: {
+    record: Object,
+  },
 
   data() {
     return {
-      errors: {
-        description: false,
-      },
-      position: {
-        id: null,
-        description: null,
-        periode: null,
-        rate: null,
-        hours: null,
-        is_flat: 0,
-        amount: null,
-      },
-      type: 'flat',
+      date_paid: null,
+      status: null,
     };
+  },
+
+
+  mounted() {
+    // if (this.$props.record) {
+    //   this.date_paid = this.$props.record.date_paid;
+    //   this.status = this.$props.record.status;
+    // }
   },
 
   methods: {
 
     validate() {
-      if (!this.position.description) {
-        this.errors.description = true;
-        return false;
-      }
-      return true;
+
     },
 
     submit() {
@@ -99,13 +96,27 @@ export default {
     },
 
     store() {
-      this.position.is_flat = this.type == 'flat' ? 1 : 0;
-      this.$parent.invoice.positions.push(this.position);
+      
+      if (this.type == 'flat') {
+        this.position.is_flat = 1;
+      }
+      else {
+        this.position.amount = this.position.hours * this.position.rate;
+      }
+
+      if (this.isEdit) {
+        const index = this.$parent.invoice.positions.findIndex(x => x.id === this.position.id);
+        this.$parent.invoice.positions[index] = this.position;
+      }
+      else {
+        this.$parent.invoice.positions.push(this.position);
+      }
+
       this.toggleForm();
     },
 
     toggleForm() {
-      this.$parent.toggleForm();
+      this.$parent.togglePositionForm();
     }
   },
 };

@@ -66,6 +66,10 @@ p {
     margin: 0;
 }
 
+table td {
+    vertical-align: top;
+}
+
 .cf::after {
   content: "";
   clear: both;
@@ -172,7 +176,7 @@ main.invoice-body {
 table.invoice-positions {
     font-size: 11pt;
     line-height: 1;
-    margin-top: 10mm;
+    margin-top: 5mm;
     width: 100%;
 }
 
@@ -183,24 +187,28 @@ table.invoice-positions th {
 }
 
 table.invoice-positions thead {
-    border-bottom: 1px solid #000000;
-    border-top: 1px solid #000000;
+    border-bottom: .1mm solid #000000;
     line-height: 1;
 }
 
 table.invoice-positions thead th,
 table.invoice-positions tr.position td,
 table.invoice-positions tr.position-footer td {
-    padding: 1.5mm 0;
+    padding: 1.5mm 0 1.75mm 0;
+}
+
+table.invoice-positions thead th {
+    font-family: 'AkrobatBold', sans-serif !important;
 }
 
 table.invoice-positions tr.position td {
-    border-bottom: 1px solid #000000;
+    border-bottom: .1mm solid #000000;
+    vertical-align: top;
 }
 
 table.invoice-positions tr.position-footer td {
     font-family: 'AkrobatBold', sans-serif !important;
-    border-bottom: 2px solid #000000;
+    border-bottom: .6mm solid #000000;
 }
 
 .position-periode {
@@ -208,7 +216,7 @@ table.invoice-positions tr.position-footer td {
 }
 
 .position-cost {
-    width: 15%;
+    width: 17%;
 }
 
 .position-description {
@@ -216,7 +224,7 @@ table.invoice-positions tr.position-footer td {
 }
 
 .position-amount {
-    width: 17%;
+    width: 15%;
 }
 
 .align-right {
@@ -225,6 +233,44 @@ table.invoice-positions tr.position-footer td {
 
 .invoice-journal {
     margin-top: 50mm;
+}
+
+.invoice-vat-info {
+    font-size: 9pt;
+    line-height: 1;
+    text-align: right;
+    margin-top: 1mm;
+}
+
+.payment-info-box {
+    border: .3mm solid #000;
+    bottom: -20mm;
+    font-size: 10pt;
+    line-height: 0.9;
+    left: 20mm;
+    padding: 1mm;
+    position: absolute;
+    width: 70mm;
+}
+
+.payment-status {
+    background-color: #5cb85c;
+    color: #fff;
+    font-family: 'AkrobatBold', sans-serif !important;
+    font-size: 12pt;
+    line-height: 1.2;
+    padding: 2mm;
+    position: absolute;
+    right: 20mm;
+    top: 60mm;
+}
+
+.payment-info-box table {
+    width: 100%;
+}
+
+.payment-info-box td {
+    padding: 1mm;
 }
 
 </style>
@@ -243,6 +289,27 @@ if (isset($pdf)) {
     <img src="{{ asset('assets/img/mto-logo.svg') }}" height="100" width="100">
 </span>
 <span class="mto-address"><strong>marceli.to</strong><br>Schulstrasse 12<br>8400 Winterthur<br><br>m@marceli.to<br>078 749 74 09<br></span>
+
+{{-- <div class="payment-status">
+    Bezahlt am 17.06.2019
+</div> --}}
+
+<div class="payment-info-box">
+    <table>
+        <tr>
+            <td>Bank</td>
+            <td>Credit Suisse AG<br>8400 Winterthur</td>
+        </tr>
+        <tr>
+            <td>IBAN</td>
+            <td>CH72 0483 5060 5364 1000 2</td>
+        </tr>
+        <tr>
+            <td>Zugunsten</td>
+            <td>Marcel Stadelmann<br>Schulstrasse 12<br>8400 Winterthur</td>
+        </tr>
+    </table>
+</div>
 <footer class="page-footer">
-    <span class="mto-code-end">&lt;marceli.to/&gt;</span>
+    <span class="mto-code-end">&lt;/marceli.to&gt;</span>
 </footer>

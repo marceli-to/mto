@@ -24,7 +24,7 @@
               <div class="form-row">
                 <label>
                   Client
-                  <a href="" class="icon-add" @click.prevent="toggleForm('QuickCreateClient')">Add</a>
+                  <a href="" class="icon-add" @click.prevent="toggleForm('QuickCreateClient')"></a>
                 </label>
                 <div class="select-wrapper is-wide">
                   <select v-model="project.client_id" name="client_id">
@@ -95,7 +95,7 @@ import FormButtons from "@/components/ui/buttons/FormButtons.vue";
 import QuickCreateClient from "@/components/client/QuickCreate.vue";
 
 // Helpers
-import Helpers from "@/mixins/helpers";
+import Utils from "@/mixins/utils";
 import Quick from "@/mixins/quick";
 
 export default {
@@ -108,7 +108,7 @@ export default {
     type: String
   },
 
-  mixins: [Helpers, Quick],
+  mixins: [Utils, Quick],
 
   data() {
     return {

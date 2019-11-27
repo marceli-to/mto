@@ -16,13 +16,13 @@
                   ref="name"
                   v-model="time.task"
                 >
-                <!-- <div class="autocomplete">
+                <div class="autocomplete">
                     <ul>
                       <li><a href=""><span>Redesign Hypno</span> &bull; Studio am Meer</a></li>
                       <li><a href=""><span>Sammelauftrag</span> «www.swissport.com» &bull; Swissport</a></li>
                       <li><a href=""><span>Redesign «wbg.ch»</span> &bull; WBG AG</a></li>
                     </ul>
-                </div>-->
+                </div>
               </div>
               <div class="form-row is-sm">
                 <label>For whom?</label>
@@ -104,7 +104,7 @@
   </div>
 </template>
 <script>
-import Helpers from "@/mixins/helpers";
+import Utils from "@/mixins/utils";
 import Date from "@/mixins/date";
 import Quick from "@/mixins/quick";
 import { TheMask } from "vue-the-mask";
@@ -118,12 +118,12 @@ export default {
     type: String
   },
 
-  mixins: [Helpers, Quick, Date],
+  mixins: [Utils, Quick, Date],
 
   data() {
     return {
       errors: {
-        name: false
+        task: false
       },
 
       time: {
@@ -150,13 +150,14 @@ export default {
     // get projects
     this.axios.get(`/api/projects/get`).then(response => {
       this.projects = response.data.data;
+      console.log(this.projects);
     });
   },
 
   methods: {
     validate() {
       if (!this.time.task) {
-        this.errors.name = true;
+        this.errors.task = true;
         return false;
       }
       return true;

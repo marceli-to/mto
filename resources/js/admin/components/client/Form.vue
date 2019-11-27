@@ -15,6 +15,13 @@
                 v-model="client.name">
             </div>
             <div class="form-row">
+              <label>Acronym (3 chars)</label>
+              <input
+                type="text"
+                name="acronym"
+                v-model="client.acronym">
+            </div>
+            <div class="form-row">
               <label>Byline</label>
               <input
                 type="text"
@@ -54,7 +61,7 @@
 <script>
 import PageHeader from "@/layout/PageHeader.vue";
 import FormButtons from "@/components/ui/buttons/FormButtons.vue";
-import Helpers from "@/mixins/helpers";
+import Utils from "@/mixins/utils";
 
 export default {
   components: {
@@ -65,7 +72,7 @@ export default {
     type: String
   },
 
-  mixins: [Helpers],
+  mixins: [Utils],
 
   data() {
     return {
@@ -75,6 +82,7 @@ export default {
 
       client: {
         name: null,
+        acronym: null,
         location: null,
         street: null,
         city: null,

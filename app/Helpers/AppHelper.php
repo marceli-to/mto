@@ -71,13 +71,6 @@ class AppHelper
 
         if (is_array($project))
         {
-            // $slug = $project['id'] .'/'.
-            //     str_slug(
-            //         AppHelper::transliterate($project['name']['de']) . '-' .
-            //         AppHelper::transliterate($project['location']['de']) . '-' .
-            //         $project['year']
-            //         , '-'
-            //     );
         }
         else
         {
@@ -90,9 +83,6 @@ class AppHelper
     public static function nl2p($string = NULL)
     {
         $string = nl2br($string, false);
-
-        //return $string;
-
         return '<p>' . preg_replace('#(<br>[\r\n\s]+){2}#', '</p><p>', $string) . '</p>';
     }
 }

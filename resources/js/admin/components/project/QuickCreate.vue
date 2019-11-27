@@ -36,7 +36,7 @@
   </div>
 </template>
 <script>
-import Helpers from "@/mixins/helpers";
+import Utils from "@/mixins/utils";
 import Quick from "@/mixins/quick";
 
 export default {
@@ -46,7 +46,7 @@ export default {
     type: String
   },
 
-  mixins: [Helpers,Quick],
+  mixins: [Utils,Quick],
 
   data() {
     return {

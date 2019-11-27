@@ -774,6 +774,11 @@ nav.tabs ul:after,
   text-align: right;
 }
 
+.fraction {
+  font-size: 10px;
+  line-height: 1;
+}
+
 /**
  * -----------------------------------------------------------------------------
  * File: components/typo/webfonts
@@ -782,20 +787,6 @@ nav.tabs ul:after,
  * Typography - Webfonts
  *
  */
-@font-face {
-  font-family: "basis-grotesque-medium-pro";
-  src: url("fonts/basis-grotesque-medium-pro.eot");
-  src: url("fonts/basis-grotesque-medium-pro.eot?#iefix") format("embedded-opentype"), url("fonts/basis-grotesque-medium-pro.woff2") format("woff2"), url("fonts/basis-grotesque-medium-pro.woff") format("woff"), url("fonts/basis-grotesque-medium-pro.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-@font-face {
-  font-family: "basis-grotesque-regular-pro";
-  src: url("fonts/basis-grotesque-regular-pro.eot");
-  src: url("fonts/basis-grotesque-regular-pro.eot?#iefix") format("embedded-opentype"), url("fonts/basis-grotesque-regular-pro.woff2") format("woff2"), url("fonts/basis-grotesque-regular-pro.woff") format("woff"), url("fonts/basis-grotesque-regular-pro.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
 /**
  * -----------------------------------------------------------------------------
  * File: components/typo/mixins
@@ -959,11 +950,11 @@ nav.tabs ul:after,
  * -----------------------------------------------------------------------------
  */
 strong, b {
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
 }
 
 p {
@@ -1083,6 +1074,7 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
  * File: components/badges/global
  * -----------------------------------------------------------------------------
  */
+.badge-status,
 .badge {
   background-color: transparent;
   border-radius: 2px;
@@ -1102,23 +1094,27 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
   width: auto;
 }
 @media screen and (min-width: 768px) {
-  .badge {
+  .badge-status,
+.badge {
     font-size: 10px;
     line-height: 1.15;
   }
 }
 @media screen and (min-width: 1024px) {
-  .badge {
+  .badge-status,
+.badge {
     font-size: 12px;
     line-height: 1.15;
   }
 }
 @media screen and (min-width: 1280px) {
-  .badge {
+  .badge-status,
+.badge {
     font-size: 12px;
     line-height: 1.15;
   }
 }
+.badge-status strong,
 .badge strong {
   font-family: Monaco, "Courier New", Courier, monospace;
   font-display: auto;
@@ -1126,6 +1122,23 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
   font-stretch: normal;
   font-weight: normal;
   font-weight: 700;
+}
+
+.badge-status {
+  margin-right: 5px;
+  padding: 4px;
+}
+.badge-status.is-open {
+  background-color: #5bc0de;
+}
+.badge-status.is-pending {
+  background-color: #f0ad4e;
+}
+.badge-status.is-paid {
+  background-color: #5cb85c;
+}
+.badge-status.is-due {
+  background-color: #d9534f;
 }
 
 /**
@@ -1327,11 +1340,11 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
   color: #ffffff;
   font-size: 15px;
   line-height: 1.25;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   line-height: 1 !important;
   padding: 12px 24px 12px 36px;
   width: auto;
@@ -1372,11 +1385,11 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
   background-color: #5bc0de;
   font-size: 15px;
   line-height: 1.25;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   padding: 12px 24px;
   width: auto;
   transition: background-color 0.16s ease-out 0.2s ease-in-out;
@@ -1415,11 +1428,11 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
   color: #ffffff;
   font-size: 15px;
   line-height: 1.25;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   padding: 12px 24px;
   width: auto;
   transition: background-color 0.16s ease-out 0.2s ease-in-out;
@@ -1458,11 +1471,11 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
   color: #ffffff !important;
   font-size: 15px;
   line-height: 1.25;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   padding: 12px 24px;
   text-decoration: none !important;
   width: auto;
@@ -1691,11 +1704,11 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
   grid-gap: 0 !important;
 }
 .grid-timer div.is-separator {
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   color: #e0e0e0;
 }
 .grid-timer div.is-separator svg {
@@ -1704,36 +1717,67 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
   width: 24px;
 }
 
-.grid-table-positions > div {
-  border-bottom: 2px solid #e0e0e0;
+.grid-invoice-position {
+  display: block;
+  grid-gap: 0;
+}
+.grid-invoice-position > div {
+  border-top: 2px solid #e0e0e0;
   display: grid;
-  grid-template-columns: 1fr 3fr 1fr 1fr;
+  grid-template-columns: 1fr 3fr 100px 80px 1fr;
   grid-gap: 10px;
 }
-.grid-table-positions > div div {
-  padding: 10px 4px;
+.grid-invoice-position > div div {
+  padding: 8px 2px;
 }
-.grid-table-positions.is-header {
-  border-top: 2px solid #e0e0e0;
-  margin-top: 10px;
+.grid-invoice-position .position-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
 }
 @media screen and (min-width: 768px) {
-  .grid-table-positions.is-header {
-    margin-top: 15px;
+  .grid-invoice-position .position-action {
+    margin-bottom: 10px;
   }
 }
 @media screen and (min-width: 1024px) {
-  .grid-table-positions.is-header {
-    margin-top: 20px;
+  .grid-invoice-position .position-action {
+    margin-bottom: 10px;
   }
 }
 @media screen and (min-width: 1280px) {
-  .grid-table-positions.is-header {
-    margin-top: 25px;
+  .grid-invoice-position .position-action {
+    margin-bottom: 10px;
   }
 }
-.grid-table-positions.is-body:nth-child(2n+1) {
+.grid-invoice-position .position-action a {
+  margin-left: 5px;
+}
+.grid-invoice-position.is-header {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
+  font-display: auto;
+  font-style: normal;
+  font-stretch: normal;
+  font-weight: 600;
+}
+
+.grid-invoice-total,
+.grid-invoices-total {
   background-color: #f9f9f9;
+  border-bottom: 4px solid #e0e0e0;
+  border-top: 2px solid #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
+  font-display: auto;
+  font-style: normal;
+  font-stretch: normal;
+  font-weight: 600;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 10px;
+  padding: 8px 0;
+}
+
+.grid-invoice-total {
+  padding: 8px 2px;
 }
 
 /**
@@ -1747,11 +1791,11 @@ header.site-header > div, main.content > div, footer.form-footer > div, nav.site
  * -----------------------------------------------------------------------------
  */
 h1 {
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   font-size: 15px;
   line-height: 1.25;
   margin-bottom: 10px;
@@ -1796,11 +1840,11 @@ h1 {
  * -----------------------------------------------------------------------------
  */
 h2 {
-  font-family: "basis-grotesque-regular-pro", Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 400;
   font-size: 18px;
   line-height: 1.25;
   margin-bottom: 3px;
@@ -1845,11 +1889,11 @@ h2 {
  * -----------------------------------------------------------------------------
  */
 h3 {
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   margin-bottom: 3px;
 }
 
@@ -1896,7 +1940,7 @@ h3 {
 
 .icon-layout, .icon-add, .icon-users, .icon-trash, .icon-star,
 .icon-star-off, .icon-plus, .icon-logout, .icon-grid, .icon-external-link, .icon-eye,
-.icon-eye-off, .icon-edit, .icon-copy, .icon-close-quick, .icon-close-overlay, .icon-close, .icon-menu,
+.icon-eye-off, .icon-edit, .icon-document, .icon-copy, .icon-close-quick, .icon-close-overlay, .icon-close, .icon-menu,
 .icon-dashboard,
 .icon-ib {
   display: inline-block;
@@ -1904,7 +1948,7 @@ h3 {
 
 .icon-layout, .icon-users, .icon-trash, .icon-star,
 .icon-star-off, .icon-plus, .icon-logout, .icon-grid, .icon-external-link, .icon-eye,
-.icon-eye-off, .icon-edit, .icon-copy, .icon-close-quick, .icon-close-overlay, .icon-close, .icon-menu,
+.icon-eye-off, .icon-edit, .icon-document, .icon-copy, .icon-close-quick, .icon-close-overlay, .icon-close, .icon-menu,
 .icon-dashboard,
 .icon-bg {
   background-repeat: no-repeat;
@@ -1946,7 +1990,7 @@ h3 {
 
 .icon-users, .icon-trash, .icon-star,
 .icon-star-off, .icon-plus, .icon-logout, .icon-grid, .icon-external-link, .icon-eye,
-.icon-eye-off, .icon-edit, .icon-copy, .icon-close-quick, .icon-close-overlay, .icon-close, .icon-menu,
+.icon-eye-off, .icon-edit, .icon-document, .icon-copy, .icon-close-quick, .icon-close-overlay, .icon-close, .icon-menu,
 .icon-dashboard {
   background-size: contain;
   height: 24px;
@@ -1961,6 +2005,10 @@ h3 {
 .icon-mini.is-loading {
   -webkit-animation: loadingIcon 1s infinite;
           animation: loadingIcon 1s infinite;
+}
+.icon-mini.is-disabled {
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 /**
@@ -1979,13 +2027,12 @@ h3 {
   line-height: 1.25;
   height: 16px;
   color: #222222;
-  padding-left: 20px;
   position: absolute;
   right: 0;
   text-decoration: none;
   transition: color 0.12s ease-in;
   top: 0;
-  width: auto;
+  width: 16px;
 }
 @media screen and (min-width: 768px) {
   .icon-add {
@@ -2071,6 +2118,16 @@ h3 {
  */
 .icon-copy {
   background-image: url("../img/icons/copy.svg");
+  display: block;
+}
+
+/**
+ * -----------------------------------------------------------------------------
+ * File: components/icons/document
+ * -----------------------------------------------------------------------------
+ */
+.icon-document {
+  background-image: url("../img/icons/file-text.svg");
   display: block;
 }
 
@@ -2342,6 +2399,9 @@ h3 {
 .list-item[data-icons="3"] {
   grid-template-columns: auto 74px;
 }
+.list-item[data-icons="4"] {
+  grid-template-columns: auto 102px;
+}
 .list-item[data-icons="5"] {
   grid-template-columns: auto 130px;
 }
@@ -2454,6 +2514,9 @@ h3 {
 }
 .list-item-action[data-icons="3"] {
   grid-template-columns: repeat(3, 18px);
+}
+.list-item-action[data-icons="4"] {
+  grid-template-columns: repeat(4, 18px);
 }
 .list-item-action[data-icons="5"] {
   grid-template-columns: repeat(5, 18px);
@@ -2650,11 +2713,11 @@ table thead {
 }
 table th {
   color: #666666;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   font-size: 15px;
   line-height: 1.25;
   text-align: left;
@@ -2722,11 +2785,11 @@ table th {
   display: block;
   font-size: 14px;
   line-height: 1.25;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   line-height: 1 !important;
   text-align: center;
   height: 32px;
@@ -2779,11 +2842,11 @@ button {
   border: 2px solid #e0e0e0;
   color: #222222;
   display: block;
-  font-family: "basis-grotesque-regular-pro", Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 400;
   padding: 10px;
   position: relative;
   outline: none !important;
@@ -2836,11 +2899,11 @@ button {
   display: inline-block;
   font-size: 15px;
   line-height: 1.25;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   padding: 15px 35px;
   width: auto;
   transition: background-color 0.1s ease-out border-color 0.1s ease-out ease-in-out;
@@ -2905,11 +2968,11 @@ button:hover {
   color: #5bc0de;
 }
 .autocomplete a span {
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
 }
 
 /**
@@ -3028,11 +3091,11 @@ form a:hover {
 label {
   color: #222222;
   display: block;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   font-size: 15px;
   line-height: 1.25;
   margin-bottom: 5px;
@@ -3267,11 +3330,11 @@ input[type=text].search::-webkit-input-placeholder {
 
 input[type=text].is-datetime::-webkit-input-placeholder {
   color: #e0e0e0;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   font-size: 14px;
   line-height: 1.25;
 }
@@ -3296,11 +3359,11 @@ input[type=text].is-datetime::-webkit-input-placeholder {
 
 input[type=text].is-datepicker::-webkit-input-placeholder {
   color: #222222;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   font-size: 14px;
   line-height: 1.25;
 }
@@ -3492,11 +3555,11 @@ nav.site-nav li a,
 nav.site-nav li span {
   color: #666666;
   display: block;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   font-size: 24px;
   line-height: 1.25;
   padding-bottom: 10px;
@@ -3679,11 +3742,11 @@ nav.tabs li {
 nav.tabs a {
   color: #666666;
   display: block;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   padding-bottom: 10px;
   padding-top: 10px;
   text-transform: uppercase;
@@ -3746,11 +3809,11 @@ body {
   color: #222222;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: "basis-grotesque-regular-pro", Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 400;
   font-size: 15px;
   line-height: 1.25;
   min-width: 840px;
@@ -4200,11 +4263,11 @@ aside.sidebar-form > div {
 .time-summary .time-total {
   font-size: 18px;
   line-height: 1.25;
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   text-align: right;
 }
 @media screen and (min-width: 768px) {
@@ -4284,11 +4347,11 @@ aside.sidebar-form > div {
 }
 
 h2.time-day {
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
   font-size: 15px;
   line-height: 1.25;
 }
@@ -4888,11 +4951,11 @@ h2.time-day {
   border-left-color: #42A85F;
 }
 .notification .notification-title {
-  font-family: "basis-grotesque-medium-pro", monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: normal;
+  font-weight: 600;
 }
 
 /**

@@ -85,6 +85,7 @@ class ClientController extends Controller
     {
         $clone = $client->replicate();
         $clone->name    = $client->name . ' (copy)';
+        $clone->acronym = '';
         $clone->publish = 0;
         $clone->save();
         return response()->json($clone);

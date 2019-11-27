@@ -123,4 +123,9 @@
     &.is-loading {
         animation: loadingIcon 1s infinite;
     }
+
+    &.is-disabled {
+        pointer-events: none;
+        opacity: .5;
+    }
 }

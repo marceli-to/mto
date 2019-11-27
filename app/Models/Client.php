@@ -8,6 +8,7 @@ class Client extends Model
 
     protected $fillable = [
         'name',
+        'acronym',
         'byline',
         'street',
         'zip',
@@ -20,5 +21,14 @@ class Client extends Model
     public function contacts()
     {
         return $this->hasMany('App\Models\Contact');
+    }
+
+    /**
+     * Mutator 'acronym'
+     */
+
+    public function setAcronymAttribute($value)
+    {
+        $this->attributes['acronym'] = strtoupper($value);
     }
 }

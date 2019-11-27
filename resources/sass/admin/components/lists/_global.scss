@@ -28,6 +28,10 @@
         grid-template-columns: auto 74px;
     }
 
+    &[data-icons="4"] {
+        grid-template-columns: auto 102px;
+    }
+
     &[data-icons="5"] {
         grid-template-columns: auto 130px;
     }
@@ -94,6 +98,10 @@
 
     &[data-icons="3"] {
         grid-template-columns: repeat(3, 18px);
+    }
+
+    &[data-icons="4"] {
+        grid-template-columns: repeat(4, 18px);
     }
 
     &[data-icons="5"] {

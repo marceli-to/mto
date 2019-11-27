@@ -94,6 +94,7 @@ Route::middleware('auth:api')->group(function() {
     Route::post('invoice/update/{invoice}', 'Api\InvoiceController@update');
     Route::get('invoice/clone/{invoice}', 'Api\InvoiceController@clone');
     Route::delete('invoice/destroy/{invoice}', 'Api\InvoiceController@destroy');
+    Route::delete('invoice/position/destroy/{invoicePosition}', 'Api\InvoicePositionController@destroy');
 
 });
 

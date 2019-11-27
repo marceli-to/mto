@@ -14,13 +14,13 @@
   @include font-size($fs-xs);
   height: 16px;
   color: $color--dark;
-  padding-left: 20px;
+  //padding-left: 20px;
   position: absolute;
   right: 0;
   text-decoration: none;
   transition: color .12s ease-in;
   top: 0;
-  width: auto; 
+  width: 16px; 
 
   &:hover {
     color: $color--grey;

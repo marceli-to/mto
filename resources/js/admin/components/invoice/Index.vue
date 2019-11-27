@@ -2,7 +2,10 @@
   <div>
     <page-header/>
     <notifications classes="notification"/>
-    <div class="container">
+    <div v-if="showStatusForm">
+      <status-form :record="invoice"></status-form>
+    </div>
+    <div :class="[hasForm ? 'is-hidden' : '', 'container']">
       <main class="content" role="main">
         <div>
           <h1>Invoices</h1>
@@ -14,27 +17,49 @@
               class="list-item"
               v-for="invoice in invoiceList"
               :key="invoice.id"
-              data-icons="3"
+              data-icons="4"
             >
               <div class="list-item-body">
-                <div>{{ invoice.number }} &bull; <span v-if="invoice.client"> <strong>{{ invoice.client.name}}</strong></span>  &bull; {{ invoice.title }}</div>
+                <div>
+                  <span :class="['badge-status is-' + invoice.status]">{{ invoice.status }}</span>
+                  {{ invoice.number }} &bull; <span v-if="invoice.client"> <strong>{{ invoice.client.acronym }}</strong></span> &bull; {{ invoice.title }}
+                </div>
               </div>
-              <div class="list-item-action" data-icons="3">
+              <div class="list-item-action" data-icons="4">
                 <router-link
-                  :to="{name: 'invoice-edit', params: { id: invoice.id }}"
-                  class="icon-edit icon-mini"
+                  :to="{name: 'invoice-download', params: { id: invoice.id }}"
+                  class="icon-document icon-mini"
+                  target="_blank"
                 ></router-link>
+                <div v-if="invoice.status == 'open'">
+                  <router-link
+                    :to="{name: 'invoice-edit', params: { id: invoice.id }}"
+                    class="icon-edit icon-mini"
+                  ></router-link>
+                </div>
+                <div v-else>
+                  <span class="icon-edit icon-mini is-disabled"></span>
+                </div>
                 <a
                   href="javascript:;"
                   class="icon-copy icon-mini"
                   @click.prevent="clone(invoice.id,$event)"
                 ></a>
-                <a
-                  href="javascript:;"
-                  class="icon-trash icon-mini"
-                  @click.prevent="destroy(invoice.id,$event)"
-                ></a>
+                <div v-if="invoice.status == 'open'">
+                  <a
+                    href="javascript:;"
+                    class="icon-trash icon-mini"
+                    @click.prevent="destroy(invoice.id,$event)"
+                  ></a>
+                </div>
+                <div v-else>
+                  <span class="icon-trash icon-mini is-disabled"></span>
+                </div>
               </div>
+            </div>
+            <div class="grid-invoices-total">
+              <div>Total</div>
+              <div class="align-right">{{ total | formatCurrency }}</div>
             </div>
           </div>
           <div v-else>
@@ -61,6 +86,7 @@
 
 // Views
 import PageHeader from "@/layout/PageHeader.vue";
+import StatusForm from "@/components/invoice/status/form.vue";
 
 // Helpers
 import Progress from "@/mixins/progress";
@@ -76,6 +102,10 @@ export default {
     return {
       invoices: [],
       search: '',
+      invoice: null,
+      showStatusForm: false,
+      hasForm: false,
+
     };
   },
 
@@ -121,9 +151,15 @@ export default {
     clearSearch() {
       this.search = '';
     },
+
+    toggleStatusForm() {
+      this.showStatusForm = this.showStatusForm ? false : true;
+      this.hasForm = this.hasForm ? false : true;
+    }
   },
 
   computed: {
+    
     invoiceList() {
       return this.invoices.filter(invoice => {
         let title = invoice.title;
@@ -133,7 +169,13 @@ export default {
           return invoice;
         }
       })
-    }
+    },
+
+    total() {
+     return _.sumBy(this.invoices, function(o) { return parseFloat(o.total); });
+    },
+
+
   }
 };
 </script>

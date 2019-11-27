@@ -11,7 +11,7 @@
             <span>Add</span>
           </router-link>
           <div class="list-items" v-if="times">
-            <div class="time-items" v-for="(day, index) in times" :key="day.key">
+            <div class="time-items" v-for="day in times" :key="day.key">
 
               <div class="time-summary">
                 <h2 class="time-day">{{day.date | moment('D. MMMM YYYY')}}</h2>

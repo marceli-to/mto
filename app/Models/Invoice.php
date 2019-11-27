@@ -12,6 +12,8 @@ class Invoice extends Model
         'title',
         'date',
         'date_due',
+        'date_paid',
+        'status',
         'client_id',
     ];
 
@@ -47,5 +49,23 @@ class Invoice extends Model
     public function setDateDueAttribute($value)
     {
         $this->attributes['date_due'] = \Carbon\Carbon::parse($value)->format('Y.m.d');
+    }
+
+    /**
+     * Mutator 'status'
+     */
+
+    public function setStatusAttribute($value)
+    {
+        $this->attributes['status'] = array_search($value, config('invoices.status'));
+    }
+
+    /**
+     * Accessor 'status'
+     */
+
+    public function getStatusAttribute($value)
+    {
+        return config('invoices.status.' . $value);
     }
 }

@@ -46,7 +46,7 @@
 <script>
 import PageHeader from "@/layout/PageHeader.vue";
 import FormButtons from "@/components/ui/buttons/FormButtons.vue";
-import Helpers from "@/mixins/helpers";
+import Utils from "@/mixins/utils";
 
 export default {
   components: {
@@ -57,7 +57,7 @@ export default {
     type: String
   },
 
-  mixins: [Helpers],
+  mixins: [Utils],
 
   data() {
     return {

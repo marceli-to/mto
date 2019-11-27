@@ -158,6 +158,11 @@ const routes = [
         component: InvoiceEdit,
         meta: { requiresAuth: true },
     },
+    {
+        name: 'invoice-download',
+        path: '/admin/invoice/pdf/:id',
+        meta: { requiresAuth: true },
+    },
 ];
 
 export default routes

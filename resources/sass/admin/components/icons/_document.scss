@@ -1,10 +1,11 @@
 /**
  * -----------------------------------------------------------------------------
- * File: components/typo/webfonts
+ * File: components/icons/document
  * -----------------------------------------------------------------------------
- *
- * Typography - Webfonts
- *
  */
 
-//@import url('https://fonts.googleapis.com/css?family=Quicksand:400,700&display=swap');
+.icon-document {
+  @extend %icon-dashboard;
+  background-image: url($url-icons + 'file-text.svg');
+  display: block;
+}
