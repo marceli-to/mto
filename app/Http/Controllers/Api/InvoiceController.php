@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api;
 use App\Models\Invoice;
 use App\Models\InvoicePosition;
+use App\Models\InvoiceState;
 use App\Http\Resources\InvoiceCollection;
 use App\Http\Requests\InvoiceStoreRequest;
 use App\Http\Controllers\Controller;
@@ -15,6 +16,7 @@ class InvoiceController extends Controller
     
     protected $invoice;
     protected $invoicePosition;
+    protected $invoiceState;
     
     /**
      * Constructor
@@ -22,10 +24,11 @@ class InvoiceController extends Controller
      * @param Invoice $invoice
      */
 
-    public function __construct(Invoice $invoice, InvoicePosition $invoicePosition)
+    public function __construct(Invoice $invoice, InvoicePosition $invoicePosition, InvoiceState $invoiceState)
     {
         $this->invoice = $invoice;
         $this->invoicePosition = $invoicePosition;
+        $this->invoiceState = $invoiceState;
     }
 
     /**
@@ -36,7 +39,26 @@ class InvoiceController extends Controller
 
     public function get()
     {
-        return new InvoiceCollection($this->invoice->with('client')->orderBy('status')->orderBy('number')->get());
+        $invoices = $this->invoice->with('client')
+                                  ->with('state')
+                                  ->orderBy('state_id')
+                                  ->orderBy('number', 'DESC')
+                                  ->get();
+
+        // Calculate state totals
+        $states = $this->invoiceState->get();
+        $totals = [];
+
+        foreach($states as $state)
+        {
+            $totals[$state->description] = $invoices->filter(function ($value, $key) use ($state) {
+                return $value->state_id == $state->id;
+            })->sum('total');
+        }
+
+        // Calculate grand total
+        $totals['total'] = $invoices->sum('total');
+        return response()->json(['data' => $invoices, 'totals' => $totals]);
     }
 
     /**
@@ -63,7 +85,7 @@ class InvoiceController extends Controller
      */
     public function edit(Invoice $invoice)
     {
-        return response()->json($this->invoice->with('positions')->find($invoice->id));
+        return response()->json($this->invoice->with('positions')->with('state')->find($invoice->id));
     }
 
     /**
@@ -84,10 +106,8 @@ class InvoiceController extends Controller
             $total += $position['amount'];
             $this->invoicePosition->updateOrCreate(['id' => $position['id']], $position);
         }
-
         $invoice->total = $total;
         $invoice->save();
-        
         return response()->json('successfully updated');
     }
 

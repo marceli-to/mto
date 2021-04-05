@@ -115,4 +115,20 @@ class ClientController extends Controller
         $client->delete();
         return response()->json('successfully deleted');
     }
+
+    /**
+     * Check a newly set or updated acronym if its unique
+     * @param str $acronym
+     */
+
+    public function uniqueAcronym($acronym)
+    {
+        $client = $this->client->where('acronym', '=', strtoupper($acronym))->get()->first();
+        if ($client != NULL)
+        {
+            return response()->json(['exists' => TRUE]);
+        }
+        return response()->json(['exists' => FALSE]);
+
+    }
 }

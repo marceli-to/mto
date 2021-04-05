@@ -12,7 +12,7 @@ return [
   'status' => [
     0 => 'open',
     1 => 'pending',
-    2 => 'due',
+    2 => 'overdue',
     3 => 'paid'
   ],
 

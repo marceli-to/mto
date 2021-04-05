@@ -148,7 +148,6 @@ export default {
     },
   
     dayTotal(day) {
-      console.log(day)
     }
   },
 

@@ -31,12 +31,37 @@ class PdfController extends Controller
   public function invoice(Invoice $invoice)
   {
     $data = $this->invoice->with('positions')->with('client')->findOrFail($invoice->id);
-    $pdf = PDF::loadView('pdf.invoice', compact('data'));
+
+    // Check if a journal is required
+    if (count($data->positions) > 4)
+    {
+      $data['journal'] = $this->_getJournal($data);
+    }
+
+    $pdf = PDF::loadView('pdf.invoice', array('data' => $data));
     return $pdf->stream($this->_getFileName($invoice));
   }
 
   private function _getFileName(Invoice $invoice)
   {
     return $this->filenamePrefix . $invoice->number . '-' . $invoice->client->acronym . '-' . Str::slug(str_replace('www.', '', $invoice->title)) .'.pdf';
+  }
+
+  private function _getJournal($invoice)
+  {
+    $data = [
+      'hasJournal' => TRUE,
+      'periode' => 'Diverse',
+      'description' => 'Gemäss Journal'
+    ];
+
+    $totalHours = 0;
+    foreach($invoice->positions as $pos)
+    {
+      $totalHours += $pos->hours;
+    }
+
+    $data['totalHours'] = $totalHours;
+    return $data;
   }
 }

@@ -19,6 +19,7 @@ button {
 	color: $color--dark;
 	display: block;
 	@include font-regular();
+	min-height: 44px;
 	padding: 10px;
 	position: relative;
 	outline: none !important;

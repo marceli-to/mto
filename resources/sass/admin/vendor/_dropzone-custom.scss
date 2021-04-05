@@ -170,7 +170,7 @@
 
         .dz-file-preview__caption {
             bottom: 10px;
-            @include font-mono();
+            //@include font-mono();
             @include font-size($fs-xxs);
             left: 10px;
             padding: 4px;

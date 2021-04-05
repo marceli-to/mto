@@ -30,6 +30,7 @@
 	select {
         background-color: transparent !important;
         display: block;
+        @include font-regular();
         padding: 12px 50px 10px 6px;
         width: 100%;
 

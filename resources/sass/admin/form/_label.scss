@@ -7,7 +7,7 @@
 label {
     color: $color--dark;
     display: block;
-    @include font-bold();
+    @include font-regular();
     @include font-size($fs-sm);
     margin-bottom: 5px;
 

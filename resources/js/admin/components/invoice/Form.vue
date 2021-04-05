@@ -97,6 +97,10 @@
               <div class="grid-invoice-total">
                 <div>Total</div>
                 <div class="align-right">{{ total | formatCurrency }}</div>
+                <div>VAT</div>
+                <div class="align-right">{{ vat | formatCurrency }}</div>
+                <div>Grandtotal</div>
+                <div class="align-right">{{ grandtotal | formatCurrency }}</div>
               </div>
             </div>
           </div>
@@ -149,8 +153,9 @@ export default {
         date_due: '',
         positions: [],
         total: null,
+        vat: null,
+        grandtotal: null,
       },
-
 
       clients: null,
       componentName: '',
@@ -228,6 +233,7 @@ export default {
     },
 
     update() {
+
       let uri = `/api/invoice/update/${this.$route.params.id}`;
       this.axios.post(uri, this.invoice).then(response => {
         this.$router.push({ name: "invoices" });
@@ -278,7 +284,18 @@ export default {
     },
 
     total() {
-      return _.sumBy(this.invoice.positions, function(o) { return parseFloat(o.amount); });
+      this.invoice.total = _.sumBy(this.invoice.positions, function(o) { return parseFloat(o.amount); })
+      return this.invoice.total;
+    },
+
+    vat() {
+      this.invoice.vat = Math.ceil((this.invoice.total / 100 * 7.7) * 20) / 20;
+      return this.invoice.vat;
+    },
+
+    grandtotal() {
+      this.invoice.grandtotal = this.invoice.total + this.invoice.vat;
+      return this.invoice.grandtotal;
     }
   }
 };

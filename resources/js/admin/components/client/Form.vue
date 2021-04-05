@@ -14,12 +14,14 @@
                 name="name"
                 v-model="client.name">
             </div>
-            <div class="form-row">
+            <div class="form-row" :class="errors.acronym ? 'has-error': ''">
               <label>Acronym (3 chars)</label>
               <input
                 type="text"
                 name="acronym"
-                v-model="client.acronym">
+                v-model="client.acronym"
+                @focus="removeError('acronym')"
+                @blur="checkAcronym($event)">
             </div>
             <div class="form-row">
               <label>Byline</label>
@@ -78,6 +80,11 @@ export default {
     return {
       errors: {
         name: false,
+        acronym: false
+      },
+
+      current: {
+        acronym: null
       },
 
       client: {
@@ -96,6 +103,7 @@ export default {
       let uri = `/api/client/edit/${this.$route.params.id}`;
       this.axios.get(uri).then(response => {
         this.client = response.data;
+        this.current.acronym = this.client.acronym;
       });
     }
   },
@@ -142,6 +150,19 @@ export default {
         this.$router.push({ name: "clients" });
       });
     },
+
+    checkAcronym(event) {
+      let acronym = event.target.value;
+      if (acronym != this.current.acronym) {
+        let uri = `/api/client/unique/acronym/${acronym}`;
+        this.axios.get(uri).then(response => {
+          if (response.data.exists) {
+            this.errors.acronym = true;
+            this.$notify({ type: "error", text: "Acronym already exists" });
+          }
+        });
+      }
+    }
   },
 
   computed: {

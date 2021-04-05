@@ -8,7 +8,7 @@
         <div>
           <h1>Projects</h1>
           <router-link :to="{ name: 'project-create' }" class="btn-add">
-            <span>Add</span>
+            <span>+Add</span>
           </router-link>
           <div class="list-items" v-if="projects.length">
             <div

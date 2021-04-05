@@ -37,6 +37,12 @@ form {
 		transform: translateY(-50%);
 		top: 50%;
 	}
+
+	&.is-time-entry {
+		> div {
+			min-height: 175px;
+		}
+	}
 }
 
 @keyframes slideIn {

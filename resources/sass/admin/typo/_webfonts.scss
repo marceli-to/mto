@@ -8,3 +8,37 @@
  */
 
 //@import url('https://fonts.googleapis.com/css?family=Quicksand:400,700&display=swap');
+
+@font-face {
+  font-family: 'JetBrainsMono-Regular';
+  src: url('fonts/JetBrainsMono-Regular.eot'); /* IE9 Compat Modes */
+  src: url('fonts/JetBrainsMono-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('fonts/JetBrainsMono-Regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('fonts/JetBrainsMono-Regular.woff') format('woff'), /* Pretty Modern Browsers */
+       url('fonts/JetBrainsMono-Regular.ttf')  format('truetype'), /* Safari, Android, iOS */
+}
+
+@font-face {
+  font-family: 'JetBrainsMono-Medium';
+  src: url('fonts/JetBrainsMono-Medium.eot'); /* IE9 Compat Modes */
+  src: url('fonts/JetBrainsMono-Medium.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('fonts/JetBrainsMono-Medium.woff2') format('woff2'), /* Super Modern Browsers */
+       url('fonts/JetBrainsMono-Medium.woff') format('woff'), /* Pretty Modern Browsers */
+       url('fonts/JetBrainsMono-Medium.ttf')  format('truetype'), /* Safari, Android, iOS */
+}
+
+// @font-face {
+//   font-family: 'FaktRegular';
+//   src: url('fonts/FaktPro-Normal.eot'); /* IE9 Compat Modes */
+//   src: url('fonts/FaktPro-Normal.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+//        url('fonts/FaktPro-Normal.woff') format('woff'), /* Pretty Modern Browsers */
+//        url('fonts/FaktPro-Normal.ttf')  format('truetype'), /* Safari, Android, iOS */
+// }
+
+// @font-face {
+//   font-family: 'FaktMedium';
+//   src: url('fonts/FaktPro-SemiBold.eot'); /* IE9 Compat Modes */
+//   src: url('fonts/FaktPro-SemiBold.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+//        url('fonts/FaktPro-SemiBold.woff') format('woff'), /* Pretty Modern Browsers */
+//        url('fonts/FaktPro-SemiBold.ttf')  format('truetype'), /* Safari, Android, iOS */
+// }

@@ -9,7 +9,8 @@
 .list-items {}
 
 .list-item {
-    border-top: 2px solid $color--light-grey;
+    align-items: center;
+    border-top: 1px solid $color--light-grey;
     display: grid;
     grid-template-columns: auto 102px;
     @include responsive-prop('padding-top', $space-xs);
@@ -73,11 +74,15 @@
         border-radius: 2px;
         color: $color--dark;
         display: inline-block;
-        @include font-mono();
+        //@include font-mono();
         @include font-size($fs-xxs);
         line-height: 1 !important;
         padding: 5px;
         width: auto;
+    }
+
+    &.is-cancelled {
+        color: $color--grey !important;
     }
 }
 

@@ -1,33 +1,52 @@
 <template>
   <div>
-    <div class="quick-form">
+    <div class="quick-form is-time-entry">
       <div>
         <div>
           <a href @click.prevent="toggleForm()" class="icon-close-quick"></a>
-          <h1>Add time entry</h1>
+          <h1>
+            <span v-if="step == 1">What?</span>
+            <span v-if="step == 2">For whom?</span>
+            <span v-if="step == 3">When?</span>
+          </h1>
           <form @submit.prevent="submit">
             <div>
-              <label>What?</label>
-              <div class="form-row is-sm" :class="errors.task ? 'has-error': ''">
+              <div
+                class="form-row is-sm"
+                :class="errors.task ? 'has-error': ''"
+                :style="step == 1 ? 'display:block' : 'display:none'"
+              >
                 <input
                   type="text"
                   @focus="removeError('task')"
+                  @blur="next($event)"
                   name="name"
                   ref="name"
                   v-model="time.task"
                 >
-                <div class="autocomplete">
-                    <ul>
-                      <li><a href=""><span>Redesign Hypno</span> &bull; Studio am Meer</a></li>
-                      <li><a href=""><span>Sammelauftrag</span> «www.swissport.com» &bull; Swissport</a></li>
-                      <li><a href=""><span>Redesign «wbg.ch»</span> &bull; WBG AG</a></li>
-                    </ul>
+                <div class="autocomplete" style="display:none">
+                  <ul>
+                    <li>
+                      <a href>
+                        <span>Redesign Hypno</span> &bull; Studio am Meer
+                      </a>
+                    </li>
+                    <li>
+                      <a href>
+                        <span>Sammelauftrag</span> «www.swissport.com» &bull; Swissport
+                      </a>
+                    </li>
+                    <li>
+                      <a href>
+                        <span>Redesign «wbg.ch»</span> &bull; WBG AG
+                      </a>
+                    </li>
+                  </ul>
                 </div>
               </div>
-              <div class="form-row is-sm">
-                <label>For whom?</label>
+              <div class="form-row is-sm" :style="step == 2 ? 'display:block' : 'display:none'">
                 <div class="select-wrapper is-wide">
-                  <select v-model="time.project_id" name="client_id">
+                  <select v-model="time.project_id" name="client_id" @change="next($event)">
                     <option :value="null">Select project...</option>
                     <option
                       v-for="record in projects"
@@ -37,8 +56,7 @@
                   </select>
                 </div>
               </div>
-              <div class="form-row is-sm">
-                <label>When?</label>
+              <div class="form-row is-sm" :style="step == 3 ? 'display:block' : 'display:none'">
                 <div class="grid-timer">
                   <div>
                     <the-mask
@@ -94,8 +112,11 @@
                 </div>
               </div>
             </div>
-            <div>
-              <button type="submit" class="btn-secondary">Save</button>
+            <div class="time-browse">
+              <a href="" @click.prevent="prevStep()" v-if="step > 1">Back</a>
+              <span v-else></span>
+              <button type="submit" class="btn-secondary" v-if="step == 3">Save</button>
+              <a href="" @click.prevent="nextStep()" v-if="step < 3">Next</a>
             </div>
           </form>
         </div>
@@ -136,6 +157,14 @@ export default {
         minutes: null
       },
 
+      step: 1,
+      
+      entry: {
+        1: '',
+        2: '',
+        3: ''
+      },
+
       projects: null
     };
   },
@@ -150,7 +179,6 @@ export default {
     // get projects
     this.axios.get(`/api/projects/get`).then(response => {
       this.projects = response.data.data;
-      console.log(this.projects);
     });
   },
 
@@ -180,6 +208,40 @@ export default {
 
     toggleForm() {
       this.$parent.toggleForm();
+    },
+
+    next(event) {
+      let input = event.target;
+      if (input.value.length > 0) {
+        this.entry[this.step] = input.options != undefined ? input.options[input.options.selectedIndex].text : input.value;
+      }
+      else {
+        this.entry[this.step] = null;
+      }
+    },
+
+    prevStep() {
+      if (this.step > 1) {
+        this.step--;
+      }
+    },
+
+    nextStep() {
+      if (this.entry[this.step] != null) {
+        this.step++;
+      }
+    }
+  },
+
+  computed: {
+   timeEntry() {
+     let str = '';
+     for(var i = 1; i <= this.step; i++) {
+       if (this.entry[i].length > 0) {
+        str = str + this.entry[i] + ' • ';
+       }
+     }
+     return str;
     }
   }
 };

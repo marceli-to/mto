@@ -26,7 +26,7 @@
  */
 
 @mixin font-regular() {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, sans-serif;
+  font-family: 'JetBrainsMono-Regular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
@@ -34,17 +34,17 @@
 }
 
 /**
- * Font: medium
+ * Font: bold
  * -----------------------------------------------------------------------------
  * 
  */
  
 @mixin font-bold() {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, sans-serif;
+  font-family: 'JetBrainsMono-Medium', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif, sans-serif;
   font-display: auto;
   font-style: normal;
   font-stretch: normal;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 /**

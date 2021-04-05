@@ -34,6 +34,7 @@ Route::middleware('auth:api')->group(function() {
     Route::get('client/clone/{client}', 'Api\ClientController@clone');
     Route::get('client/status/{client}', 'Api\ClientController@status');
     Route::delete('client/destroy/{client}', 'Api\ClientController@destroy');
+    Route::get('client/unique/acronym/{string}', 'Api\ClientController@uniqueAcronym');
 
     /**
      * Contact routes
@@ -71,6 +72,7 @@ Route::middleware('auth:api')->group(function() {
     /**
      * Rates
      */
+
     Route::get('rates/get', 'Api\RateController@get');
 
     /**
@@ -89,12 +91,15 @@ Route::middleware('auth:api')->group(function() {
      */
 
     Route::get('invoices/get', 'Api\InvoiceController@get');
+    Route::get('invoices/get/states/{invoice}', 'Api\InvoiceController@getStates');
     Route::post('invoice/create', 'Api\InvoiceController@store');
     Route::get('invoice/edit/{invoice}', 'Api\InvoiceController@edit');
     Route::post('invoice/update/{invoice}', 'Api\InvoiceController@update');
+    Route::post('invoice/update/state/{invoice}', 'Api\InvoiceStateController@update');
     Route::get('invoice/clone/{invoice}', 'Api\InvoiceController@clone');
     Route::delete('invoice/destroy/{invoice}', 'Api\InvoiceController@destroy');
     Route::delete('invoice/position/destroy/{invoicePosition}', 'Api\InvoicePositionController@destroy');
+    Route::get('invoice/states', 'Api\InvoiceStateController@index');
 
 });
 
@@ -109,6 +114,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
     Route::post('me', 'AuthController@me');
 });
 
+
 /**
  * Fallback if no route is defined
  */
@@ -119,4 +125,5 @@ Route::fallback(function(){
         404
     );
 });
+
 

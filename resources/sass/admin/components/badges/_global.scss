@@ -11,7 +11,7 @@
   border: none;
   color: $color--white;
   display: inline-block !important;
-  @include font-mono();
+  //@include font-mono();
   @include font-size($fs-xxs);
   line-height: 1 !important;
   padding: 6px 8px 6px 8px;
@@ -19,7 +19,7 @@
   width: auto;
 
   strong {
-    @include font-mono();
+    //@include font-mono();
     font-weight: 700;
   }
 }
@@ -41,7 +41,15 @@
     background-color: $color--success;
   }
 
-  &.is-due {
+  &.is-overdue {
     background-color: $color--danger;
+  }
+
+  &.is-closed {
+    background-color: $color--black;
+  }
+
+  &.is-cancelled {
+    background-color: $color--grey;
   }
 }

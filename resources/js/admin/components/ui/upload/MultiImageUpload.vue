@@ -186,7 +186,6 @@ export default {
           return asset;
       });
 
-      console.log(assets);
       return;
 
       // if (this.debounce) return;

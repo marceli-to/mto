@@ -150,7 +150,7 @@ header.invoice-header {
 header.invoice-header h1 {
     float: left;
     margin: -1mm 0 0 0;
-    width: 75%;
+    width: 65%;
 }
 
 header.invoice-header table {
@@ -159,7 +159,7 @@ header.invoice-header table {
     line-height: 1;
     margin: 0;
     padding: 0;
-    width: 25%;
+    width: 35%;
 }
 
 header.invoice-header table td:nth-child(2n+2) {
@@ -173,11 +173,17 @@ main.invoice-body {
     text-align: left;
 }
 
-table.invoice-positions {
+table.invoice-positions,
+table.invoice-positions.is-journal {
     font-size: 11pt;
     line-height: 1;
     margin-top: 5mm;
     width: 100%;
+}
+
+
+table.invoice-positions.is-journal {
+    margin-top: 10mm;
 }
 
 table.invoice-positions td,
@@ -207,12 +213,16 @@ table.invoice-positions tr.position td {
 }
 
 table.invoice-positions tr.position-footer td {
+    border-bottom: .1mm solid #000000;
+}
+
+table.invoice-positions tr.position-footer--grandtotal td {
     font-family: 'AkrobatBold', sans-serif !important;
     border-bottom: .6mm solid #000000;
 }
 
 .position-periode {
-    width: 18%;
+    width: 12%;
 }
 
 .position-cost {
@@ -220,7 +230,7 @@ table.invoice-positions tr.position-footer td {
 }
 
 .position-description {
-    width: 50%;
+    width: 56%;
 }
 
 .position-amount {
@@ -232,7 +242,8 @@ table.invoice-positions tr.position-footer td {
 }
 
 .invoice-journal {
-    margin-top: 50mm;
+    margin-top: 30mm;
+    margin-bottom: 0mm;
 }
 
 .invoice-vat-info {
@@ -271,6 +282,17 @@ table.invoice-positions tr.position-footer td {
 
 .payment-info-box td {
     padding: 1mm;
+}
+
+ul {
+    margin-left: 16px
+}
+
+li {
+    display: list-item;
+    list-style-type: circle;
+    line-height: 10pt;
+    margin-bottom: 1mm;
 }
 
 </style>

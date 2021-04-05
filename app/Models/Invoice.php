@@ -10,11 +10,16 @@ class Invoice extends Model
     protected $fillable = [
         'number',
         'title',
+        'total',
+        'vat',
+        'grandtotal',
         'date',
         'date_due',
         'date_paid',
-        'status',
+        'state_id',
         'client_id',
+        'processed',
+        'remarks'
     ];
 
     /**
@@ -31,6 +36,14 @@ class Invoice extends Model
     public function client()
     {
         return $this->hasOne('App\Models\Client', 'id', 'client_id');
+    }
+
+    /**
+     * Relation 'state'
+     */
+    public function state()
+    {
+        return $this->hasOne('App\Models\InvoiceState', 'id', 'state_id');
     }
 
     /**
@@ -52,20 +65,12 @@ class Invoice extends Model
     }
 
     /**
-     * Mutator 'status'
+     * Mutator 'date_paid'
      */
 
-    public function setStatusAttribute($value)
+    public function setDatePaidAttribute($value)
     {
-        $this->attributes['status'] = array_search($value, config('invoices.status'));
+        $this->attributes['date_paid'] = $value ? \Carbon\Carbon::parse($value)->format('Y.m.d') : NULL;
     }
 
-    /**
-     * Accessor 'status'
-     */
-
-    public function getStatusAttribute($value)
-    {
-        return config('invoices.status.' . $value);
-    }
 }

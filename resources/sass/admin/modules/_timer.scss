@@ -9,7 +9,6 @@
   @include responsive-prop('margin-bottom', $space-lg);
 }
 
-
 .time-item {
   background-color: transparent;
   margin-bottom: 0 !important;
@@ -18,6 +17,13 @@
   &:hover {
     background-color: $color--light;
   }
+}
+
+.time-browse {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  min-height: 44px;
 }
 
 .time-summary {
