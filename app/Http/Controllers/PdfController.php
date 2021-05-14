@@ -42,6 +42,17 @@ class PdfController extends Controller
     return $pdf->stream($this->_getFileName($invoice));
   }
 
+  public function invoices()
+  {
+    $invoices = $this->invoice->with('positions')->with('client')->where('state_id', '>', 1)->where('date', '>', '2019-12-31')->get();
+    foreach($invoices as $invoice)
+    {
+      $filename = 'mto-' . $invoice->number . '-' . $invoice->client->acronym . '-' . \Str::slug(str_replace('www.', '', $invoice->title)) .'.pdf';
+      $pdf = PDF::loadView('pdf.invoice', array('data' => $invoice));
+      $pdf->save(public_path() . '/storage/media/invoices/' . $filename);
+    }
+  }
+
   private function _getFileName(Invoice $invoice)
   {
     return $this->filenamePrefix . $invoice->number . '-' . $invoice->client->acronym . '-' . Str::slug(str_replace('www.', '', $invoice->title)) .'.pdf';
