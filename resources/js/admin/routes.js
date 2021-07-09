@@ -31,6 +31,11 @@ import InvoiceIndex from '@/components/invoice/Index.vue';
 import InvoiceCreate from '@/components/invoice/Create.vue';
 import InvoiceEdit from '@/components/invoice/Edit.vue';
 
+// Expenses
+import ExpenseIndex from '@/components/expense/Index.vue';
+import ExpenseCreate from '@/components/expense/Create.vue';
+import ExpenseEdit from '@/components/expense/Edit.vue';
+
 const routes = [
     {
         path: '/',
@@ -161,6 +166,31 @@ const routes = [
     {
         name: 'invoice-download',
         path: '/admin/invoice/pdf/:id',
+        meta: { requiresAuth: true },
+    },
+
+    // Expense
+    {
+        name: 'expenses',
+        path: '/admin/expenses',
+        component: ExpenseIndex,
+        meta: { requiresAuth: true },
+    },
+    {
+        name: 'expense-create',
+        path: '/admin/expense/create',
+        component: ExpenseCreate,
+        meta: { requiresAuth: true },
+    },
+    {
+        name: 'expense-edit',
+        path: '/admin/expense/edit/:id',
+        component: ExpenseEdit,
+        meta: { requiresAuth: true },
+    },
+    {
+        name: 'expense-download',
+        path: '/admin/expense/pdf/:id',
         meta: { requiresAuth: true },
     },
 ];

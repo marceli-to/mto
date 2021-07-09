@@ -31,6 +31,10 @@
                 </select>
               </div>
             </div>
+            <div class="form-row">
+              <label>Text</label>
+              <textarea v-model="invoice.text"></textarea>
+            </div>
             <div class="grid-2x1fr">
               <div class="form-row">
                 <label>Date *</label>
@@ -149,6 +153,7 @@ export default {
 
       invoice: {
         title: null,
+        text: null,
         date: '',
         date_due: '',
         positions: [],

@@ -101,6 +101,17 @@ Route::middleware('auth:api')->group(function() {
     Route::delete('invoice/position/destroy/{invoicePosition}', 'Api\InvoicePositionController@destroy');
     Route::get('invoice/states', 'Api\InvoiceStateController@index');
 
+
+    /**
+     * Expense routes
+     */
+
+    Route::get('expenses/get', 'Api\ExpenseController@get');
+    Route::post('expense/create', 'Api\ExpenseController@store');
+    Route::get('expense/edit/{expense}', 'Api\ExpenseController@edit');
+    Route::post('expense/update/{expense}', 'Api\ExpenseController@update');
+    Route::delete('expense/destroy/{expense}', 'Api\ExpenseController@destroy');
+
 });
 
 /**

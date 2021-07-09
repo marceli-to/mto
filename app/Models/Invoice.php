@@ -19,7 +19,8 @@ class Invoice extends Model
         'state_id',
         'client_id',
         'processed',
-        'remarks'
+        'remarks',
+        'text'
     ];
 
     /**

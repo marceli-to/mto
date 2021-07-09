@@ -221,6 +221,11 @@ table.invoice-positions tr.position-footer--grandtotal td {
     border-bottom: .6mm solid #000000;
 }
 
+.invoice-remarks {
+    line-height: 1; 
+    margin-top: 20px;
+}
+
 .position-periode {
     width: 12%;
 }

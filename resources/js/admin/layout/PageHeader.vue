@@ -25,6 +25,9 @@
                 <li>
                     <router-link :to="{ name: 'invoices' }">Invoices</router-link>
                 </li>
+                <li>
+                    <router-link :to="{ name: 'expenses' }">Expenses</router-link>
+                </li>
             </ul>
             <router-link :to="{ name: 'logout' }" class="icon-logout">Logout</router-link>
         </nav>

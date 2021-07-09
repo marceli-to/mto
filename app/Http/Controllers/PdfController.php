@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\InvoicePosition;
+use App\Models\Expense;
 use PDF;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Request;
@@ -16,10 +17,11 @@ class PdfController extends Controller
 
   protected $filenamePrefix = 'mto-';
 
-  public function __construct(Invoice $invoice, InvoicePosition $invoicePosition)
+  public function __construct(Invoice $invoice, InvoicePosition $invoicePosition, Expense $expense)
   {
     $this->invoice = $invoice;
     $this->invoicePosition = $invoicePosition;
+    $this->expense = $expense;
   }
 
   /**
@@ -53,9 +55,28 @@ class PdfController extends Controller
     }
   }
 
+  /**
+   * Generate an expense
+   *
+   * @param Expense $expense
+   * @return \Illuminate\Http\Response
+   */
+  public function expense(Expense $expense)
+  {
+    $data = $this->expense->findOrFail($expense->id);
+
+    $pdf = PDF::loadView('pdf.expense', array('data' => $data));
+    return $pdf->stream($this->_getExpenseFileName($expense));
+  }
+
   private function _getFileName(Invoice $invoice)
   {
     return $this->filenamePrefix . $invoice->number . '-' . $invoice->client->acronym . '-' . Str::slug(str_replace('www.', '', $invoice->title)) .'.pdf';
+  }
+
+  private function _getExpenseFileName(Expense $expense)
+  {
+    return 'm_to-' . Str::slug($expense->title) . '-'. date('d.m.Y', strtotime($expense->date)) . '-' . $expense->number .'.pdf';
   }
 
   private function _getJournal($invoice)

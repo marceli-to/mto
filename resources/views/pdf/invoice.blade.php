@@ -91,6 +91,11 @@
       </tbody>
     </table>
   @endif
+
+  @if ($data->text)
+    <div class="invoice-remarks"><strong>Bemerkungen:</strong><br>{!! nl2br($data->text) !!}</div>
+  @endif
+
 </main>
 @if (isset($data['journal']))
   <style>
