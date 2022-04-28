@@ -132,7 +132,7 @@ class PdfController extends Controller
 
     $qrBill->setCreditorInformation(
       QrBill\DataGroup\Element\CreditorInformation::create(
-        str_replace(' ', '', config('invoice.classic_iban')) // This is a classic iban. QR-IBANs will not be valid in this minmal setup.
+        str_replace(' ', '', config('invoice.classic_iban'))
       )
     );
 
@@ -156,17 +156,5 @@ class PdfController extends Controller
     // Return Data URI
     return $qrBill->getQrCode()->writeDataUri();
 
-    // Time to output something!
-    //
-    // Get the QR code image  …
-    try {
-        $qrBill->getQrCode()->writeFile(__DIR__ . '/qr.png');
-        $qrBill->getQrCode()->writeFile(__DIR__ . '/qr.svg');
-    } catch (Exception $e) {
-      foreach($qrBill->getViolations() as $violation) {
-        print $violation->getMessage()."\n";
-      }
-      exit;
-    }
   }
 }
