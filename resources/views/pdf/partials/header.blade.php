@@ -315,13 +315,9 @@ if (isset($pdf)) {
 <span class="mto-logo">
     <img src="{{ asset('assets/img/mto-logo.svg') }}" height="100" width="100">
 </span>
-<span class="mto-address"><strong>marceli.to</strong><br>Schulstrasse 12<br>8400 Winterthur<br><br>m@marceli.to<br>078 749 74 09<br></span>
+<span class="mto-address"><strong>marceli.to</strong><br>Marcel Stadelmann<br>Letzigraben 149<br>8047 Zürich<br><br>m@marceli.to<br>078 749 74 09<br></span>
 
-{{-- <div class="payment-status">
-    Bezahlt am 17.06.2019
-</div> --}}
-
-<div class="payment-info-box">
+{{-- <div class="payment-info-box">
     <table>
         <tr>
             <td>Bank</td>
@@ -333,10 +329,11 @@ if (isset($pdf)) {
         </tr>
         <tr>
             <td>Zugunsten</td>
-            <td>Marcel Stadelmann<br>Schulstrasse 12<br>8400 Winterthur</td>
+            <td>Marcel Stadelmann<br>Letzigraben 149<br>8047 Zürich</td>
         </tr>
     </table>
-</div>
+</div> --}}
+
 <footer class="page-footer">
     <span class="mto-code-end">&lt;/marceli.to&gt;</span>
 </footer>

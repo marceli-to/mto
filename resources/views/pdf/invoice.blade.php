@@ -1,4 +1,6 @@
 @include('pdf.partials.header')
+
+
 <div class="invoice-address">
   <strong>{{$data->client->name}}</strong><br>
   @if ($data->client->byline)
@@ -97,6 +99,8 @@
   @endif
 
 </main>
+
+
 @if (isset($data['journal']))
   <style>
     .page-break {
@@ -163,4 +167,7 @@
     </table>
   </div>
 @endif
+
+@include('pdf.partials.qr')
+
 @include('pdf.partials.footer')

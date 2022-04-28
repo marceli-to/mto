@@ -9,6 +9,12 @@
           <router-link :to="{ name: 'expense-create' }" class="btn-add">
             <span>Add</span>
           </router-link>
+          <!-- <div class="select-wrapper">
+            <select @change="filter($event.target.value)">
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+            </select>
+          </div> -->
           <div class="list-items" v-if="expenses.length">
             <div class="list-item" v-for="expense in expenses" :key="expense.id" data-icons="3">
               <div class="list-item-body">
@@ -92,6 +98,10 @@ export default {
         });
       }
     },
+
+    filter(year) {
+      console.log(year);
+    }
   },
 
 };
