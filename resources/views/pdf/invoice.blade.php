@@ -1,6 +1,4 @@
 @include('pdf.partials.header')
-
-
 <div class="invoice-address">
   <strong>{{$data->client->name}}</strong><br>
   @if ($data->client->byline)
@@ -168,6 +166,6 @@
   </div>
 @endif
 
-@include('pdf.partials.qr')
+{{-- @include('pdf.partials.qr') --}}
 
 @include('pdf.partials.footer')

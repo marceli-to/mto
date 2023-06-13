@@ -168,10 +168,10 @@
           {{config('invoice.beneficiary_city')}}<br>
         </p>
       </div>
-      <div>
+      {{-- <div>
         <h2>Referenz</h2>
         <p>00 00000 00000 00000 00000 00011</p>
-      </div>
+      </div> --}}
       <div>
         <h2>Zahlbar durch</h2>
         <p>
@@ -224,10 +224,10 @@
             {{config('invoice.beneficiary_city')}}<br>
           </p>
         </div>
-        <div>
+        {{-- <div>
           <h2>Referenz<h2>
           <p>00 00000 00000 00000 00000 0001</p>
-        </div>
+        </div> --}}
         <div>
           <h2>Zahlbar durch</h2>
           <p>

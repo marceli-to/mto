@@ -41,7 +41,7 @@ class PdfController extends Controller
     $qr = $this->getQrImage($data);
 
     // Check if a journal is required
-    if (count($data->positions) > 4)
+    if (count($data->positions) > 6)
     {
       $data['journal'] = $this->_getJournal($data);
     }
@@ -77,7 +77,7 @@ class PdfController extends Controller
 
   public function expenses()
   {
-    $expenses = $this->expense->get();
+    $expenses = $this->expense->whereYear('date', '=', 2022)->get();
     foreach($expenses as $expense)
     {
       $filename = $this->_getExpenseFileName($expense);

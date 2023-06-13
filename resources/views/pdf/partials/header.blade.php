@@ -317,22 +317,22 @@ if (isset($pdf)) {
 </span>
 <span class="mto-address"><strong>marceli.to</strong><br>Marcel Stadelmann<br>Letzigraben 149<br>8047 Zürich<br><br>m@marceli.to<br>078 749 74 09<br></span>
 
-{{-- <div class="payment-info-box">
+<div class="payment-info-box">
     <table>
         <tr>
             <td>Bank</td>
-            <td>Credit Suisse AG<br>8400 Winterthur</td>
+            <td>Raiffeisenbank Weinland</td>
         </tr>
         <tr>
             <td>IBAN</td>
-            <td>CH72 0483 5060 5364 1000 2</td>
+            <td>CH22 8080 8003 1865 2284 6</td>
         </tr>
         <tr>
             <td>Zugunsten</td>
             <td>Marcel Stadelmann<br>Letzigraben 149<br>8047 Zürich</td>
         </tr>
     </table>
-</div> --}}
+</div>
 
 <footer class="page-footer">
     <span class="mto-code-end">&lt;/marceli.to&gt;</span>
