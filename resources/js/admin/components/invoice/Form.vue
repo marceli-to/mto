@@ -61,6 +61,16 @@
               </div>
             </div>
             <div class="form-row">
+              <label>
+                VAT
+              </label>
+              <div class="select-wrapper is-wide">
+                <select v-model="invoice.vat_rate" name="vat_rate">
+                  <option v-for="(vat, index) in vats" :key="index" :value="vat.value">{{ vat.name }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
               <label>Positions <a href="" class="icon-add" @click.prevent="addPosition()"></a></label>
               <div class="grid-invoice-position is-header">
                 <div>
@@ -159,8 +169,15 @@ export default {
         positions: [],
         total: null,
         vat: null,
+        vat_rate: 8.1,
         grandtotal: null,
       },
+
+      vats: [
+        { name: 'Ohne', value: 0 },
+        { name: '7.7%', value: 7.7 },
+        { name: '8.1%', value: 8.1 },
+      ],
 
       clients: null,
       componentName: '',
@@ -179,7 +196,6 @@ export default {
     // get invoice data if in edit mode
     if (this.$props.type == "edit") {
       this.fetchInvoice(this.$route.params.id);
-
     }
 
     if (this.$props.type == "create") {
@@ -238,7 +254,6 @@ export default {
     },
 
     update() {
-
       let uri = `/api/invoice/update/${this.$route.params.id}`;
       this.axios.post(uri, this.invoice).then(response => {
         this.$router.push({ name: "invoices" });
@@ -294,7 +309,7 @@ export default {
     },
 
     vat() {
-      this.invoice.vat = Math.ceil((this.invoice.total / 100 * 7.7) * 20) / 20;
+      this.invoice.vat = Math.ceil((this.invoice.total / 100 * parseFloat(this.invoice.vat_rate)) * 20) / 20;
       return this.invoice.vat;
     },
 

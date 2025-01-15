@@ -100,7 +100,7 @@ export default {
     },
 
     filter(year) {
-      console.log(year);
+      // console.log(year);
     }
   },
 

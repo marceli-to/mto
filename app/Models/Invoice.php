@@ -12,6 +12,7 @@ class Invoice extends Model
         'title',
         'total',
         'vat',
+        'vat_rate',
         'grandtotal',
         'date',
         'date_due',

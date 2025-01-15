@@ -43,7 +43,7 @@ class CreatePositions extends Command
 
     while (($line = fgets($handle)) !== false)
     {
-      $data = explode(';', $line);
+      $data = explode(',', $line);
       $hours = str_replace("\r\n", '', $data[2]);
       $position = new InvoicePosition();
       $position->description = $data[0];
@@ -51,7 +51,7 @@ class CreatePositions extends Command
       $position->rate = 125;
       $position->hours = $hours;
       $position->amount = $hours * 125;
-      $position->invoice_id = 319;
+      $position->invoice_id = 325;
       $position->save();
     }
 

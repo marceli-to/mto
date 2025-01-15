@@ -52,7 +52,7 @@ class PdfController extends Controller
 
   public function invoices()
   {
-    $invoices = $this->invoice->with('positions')->with('client')->where('state_id', '>', 1)->where('date', '>', '2020-12-31')->get();
+    $invoices = $this->invoice->with('positions')->with('client')->where('state_id', '>', 1)->where('date', '>', '2019-12-31')->get();
     foreach($invoices as $invoice)
     {
       $filename = 'mto-' . $invoice->number . '-' . $invoice->client->acronym . '-' . \Str::slug(str_replace('www.', '', $invoice->title)) .'.pdf';
@@ -70,14 +70,13 @@ class PdfController extends Controller
   public function expense(Expense $expense)
   {
     $data = $this->expense->findOrFail($expense->id);
-
     $pdf = PDF::loadView('pdf.expense', array('data' => $data));
     return $pdf->stream($this->_getExpenseFileName($expense));
   }
 
   public function expenses()
   {
-    $expenses = $this->expense->whereYear('date', '=', 2022)->get();
+    $expenses = $this->expense->whereYear('date', '=', 2023)->get();
     foreach($expenses as $expense)
     {
       $filename = $this->_getExpenseFileName($expense);

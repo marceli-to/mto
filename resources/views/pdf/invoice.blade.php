@@ -2,7 +2,7 @@
 <div class="invoice-address">
   <strong>{{$data->client->name}}</strong><br>
   @if ($data->client->byline)
-    {{$data->client->byline}}<br>
+    {!! $data->client->byline!!}<br>
   @endif
   {{$data->client->street}}<br>
   {{$data->client->zip}} {{$data->client->city}}<br>
@@ -77,7 +77,7 @@
           <td class="position-total align-right">{{ number_format($data->total, 2, '.', '\'') }}</td>
         </tr>
         <tr class="position-footer">
-          <td>MWST 7.7%</td>
+          <td>MWST {{ $data->vat_rate }}%</td>
           <td></td>
           <td></td>
           <td class="position-total align-right">{{ number_format($data->vat, 2, '.', '\'') }}</td>
