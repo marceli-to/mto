@@ -192,6 +192,10 @@ table.invoice-positions th {
     vertical-align: middle;
 }
 
+table.invoice-positions th {
+  text-align: left;
+}
+
 table.invoice-positions thead {
     border-bottom: .1mm solid #000000;
     line-height: 1;
@@ -243,7 +247,7 @@ table.invoice-positions tr.position-footer--grandtotal td {
 }
 
 .align-right {
-    text-align: right;
+    text-align: right !important;
 }
 
 .invoice-journal {
@@ -260,7 +264,7 @@ table.invoice-positions tr.position-footer--grandtotal td {
 
 .payment-info-box {
     border: .3mm solid #000;
-    bottom: -20mm;
+    bottom: 20mm;
     font-size: 10pt;
     line-height: 0.9;
     left: 20mm;
