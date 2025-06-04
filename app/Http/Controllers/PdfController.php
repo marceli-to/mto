@@ -76,7 +76,7 @@ class PdfController extends Controller
 
   public function expenses()
   {
-    $expenses = $this->expense->whereYear('date', '=', 2023)->get();
+    $expenses = $this->expense->whereYear('date', '=', 2024)->get();
     foreach($expenses as $expense)
     {
       $filename = $this->_getExpenseFileName($expense);
