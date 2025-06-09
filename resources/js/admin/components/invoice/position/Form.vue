@@ -19,9 +19,9 @@
                 <label>Type</label>
                 <div class="select-wrapper">
                   <select v-model="type" name="type">
-                    <option value="flat">Flat</option>
+                    <option value="is_flat">Flat</option>
                     <option value="bythehour">By the hour</option>
-                    <option value="reminder">Reminder fee</option>
+                    <option value="is_fee">Reminder fee</option>
                   </select>
                 </div>
               </div>
