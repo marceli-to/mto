@@ -145,15 +145,19 @@
       <tbody>
           
         @foreach($data->positions as $position)
-          <tr class="position">
-            <td>{{ $position->periode }}</td>
-            <td>{{ $position->description }}</td>
-            @if ($position->is_flat)
-              <td>Pauschal</td>
-            @else
-              <td class="align-right">{{ $position->hours }}</td>
-            @endif
-          </tr>
+          @if (!$position->is_fee)
+            <tr class="position">
+              <td>{{ $position->periode }}</td>
+              <td>{{ $position->description }}</td>
+              @if ($position->is_flat)
+                <td class="align-right">Pauschal</td>
+              @elseif ($position->is_fee)
+                <td class="align-right">{{ $position->amount }}</td>
+              @else
+                <td class="align-right">{{ $position->hours }}</td>
+              @endif
+            </tr>
+          @endif
         @endforeach
 
         <tr class="position-footer position-footer--grandtotal">
