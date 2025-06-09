@@ -130,8 +130,11 @@ export default {
 
     store() {
       
-      if (this.type == 'flat') {
+      if (this.type == 'is_flat') {
         this.position.is_flat = 1;
+      }
+      else if (this.type == 'is_fee') {
+        this.position.is_fee = 1;
       }
       else {
         this.position.amount = this.position.hours * this.position.rate;
