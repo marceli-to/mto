@@ -128,7 +128,67 @@
         </tr>
       </table>
     </header>
-    <table class="invoice-positions is-journal" cellspacing="0" cellpadding="0">
+
+
+    @php
+    $feePositions = $data->positions->filter(fn($p) => $p->is_fee);
+    $normalPositions = $data->positions->reject(fn($p) => $p->is_fee);
+  @endphp
+  
+  {{-- Main Journal Table --}}
+  <table class="invoice-positions is-journal" cellspacing="0" cellpadding="0">
+    <thead>
+      <tr>
+        <th class="position-periode">Periode</th>
+        <th class="position-description">Beschreibung</th>
+        <th class="position-amount align-right">Aufwand (Std.)</th>
+      </tr>
+    </thead>
+    <tbody>
+      @foreach($normalPositions as $position)
+        <tr class="position">
+          <td>{{ $position->periode }}</td>
+          <td>{{ $position->description }}</td>
+          @if ($position->is_flat)
+            <td>Pauschal</td>
+          @else
+            <td class="align-right">{{ $position->hours }}</td>
+          @endif
+        </tr>
+      @endforeach
+  
+      <tr class="position-footer position-footer--grandtotal">
+        <td>Total</td>
+        <td></td>
+        <td class="position-total align-right">{{ $data['journal']['totalHours'] }}</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  {{-- Fee Table (only shown if there are fee positions) --}}
+  @if ($feePositions->isNotEmpty())
+    <table class="invoice-positions is-fee" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+      <thead>
+        <tr>
+          <th class="position-periode">Periode</th>
+          <th class="position-description">Beschreibung</th>
+          <th class="position-amount align-right">Betrag</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($feePositions as $position)
+          <tr class="position">
+            <td>{{ $position->periode }}</td>
+            <td>{{ $position->description }}</td>
+            <td class="align-right">{{ $position->amount ?? '—' }}</td>
+          </tr>
+        @endforeach
+      </tbody>
+    </table>
+  @endif
+  
+
+    {{-- <table class="invoice-positions is-journal" cellspacing="0" cellpadding="0">
       <thead>
         <tr>
           <th class="position-periode">
@@ -150,8 +210,6 @@
             <td>{{ $position->description }}</td>
             @if ($position->is_flat)
               <td>Pauschal</td>
-            @elseif ($position->is_fee)
-              <td class="align-right">{{ $position->amount }}</td>
             @else
               <td class="align-right">{{ $position->hours }}</td>
             @endif
@@ -164,7 +222,8 @@
           <td class="position-total align-right">{{$data['journal']['totalHours']}}</td>
         </tr>
       </tbody>
-    </table>
+    </table> --}}
+
   </div>
 @endif
 
