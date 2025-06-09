@@ -21,6 +21,7 @@
                   <select v-model="type" name="type">
                     <option value="flat">Flat</option>
                     <option value="bythehour">By the hour</option>
+                    <option value="reminder">Reminder fee</option>
                   </select>
                 </div>
               </div>
@@ -34,7 +35,11 @@
                   <input type="text" v-model="position.hours" placeholder="i.e. 3.25">
                 </div>
               </div>
-              <div class="form-row" v-if="type == 'flat'">
+              <div class="form-row" v-if="type == 'is_flat'">
+                <label>Amount</label>
+                <input type="text" name="position.amount" v-model="position.amount">
+              </div>
+              <div class="form-row" v-if="type == 'is_fee'">
                 <label>Amount</label>
                 <input type="text" name="position.amount" v-model="position.amount">
               </div>
@@ -80,9 +85,10 @@ export default {
         rate: null,
         hours: null,
         is_flat: 0,
+        is_fee: 0,
         amount: null,
       },
-      type: 'flat',
+      type: 'bythehour',
     };
   },
 
@@ -91,7 +97,16 @@ export default {
     if (this.$props.record) {
       this.position = this.$props.record;
       this.isEdit = true;
-      this.type = this.position.is_flat ? 'flat' : 'bythehour';
+
+      if (this.position.is_fee) {
+        this.type = 'is_fee';
+      }
+      else if (this.position.is_flat) {
+        this.type = 'is_flat';
+      }
+      else {
+        this.type = 'bythehour';
+      }
     }
   },
 

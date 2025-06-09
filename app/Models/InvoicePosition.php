@@ -14,6 +14,7 @@ class InvoicePosition extends Model
         'hours',
         'amount',
         'is_flat',
+        'is_fee',
         'invoice_id',
     ];
 
