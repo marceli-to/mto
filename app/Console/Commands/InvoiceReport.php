@@ -89,9 +89,8 @@ class InvoiceReport extends Command
                 if (isset($reportData[$stateName])) {
                     $reportData[$stateName]['count']++;
                     $reportData[$stateName]['total'] += $amount;
+                    $grandTotal += $amount;
                 }
-                
-                $grandTotal += $amount;
             }
             
             $this->table(
