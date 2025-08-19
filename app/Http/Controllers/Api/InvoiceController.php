@@ -53,11 +53,14 @@ class InvoiceController extends Controller
     {
       $totals[$state->description] = $invoices->filter(function ($value, $key) use ($state) {
         return $value->state_id == $state->id;
-      })->sum('total');
+      })->sum('grandtotal');
     }
 
-    // Calculate grand total
-    $totals['total'] = $invoices->sum('total');
+    // Calculate grand total (excluding cancelled invoices with state_id 6)
+    $totals['total'] = $invoices->filter(function ($invoice) {
+        return $invoice->state_id != 6;
+    })->sum('grandtotal');
+    
     return response()->json(['data' => $invoices, 'totals' => $totals]);
   }
 

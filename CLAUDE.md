@@ -44,10 +44,10 @@ php artisan test
 php artisan serve
 
 # Run custom artisan commands
-php artisan invoice:report   # Generate invoice reports by date range and state
-php artisan expense:report   # Generate expense reports by date range with CSV export
-php artisan images:clear     # Clear unused images
-php artisan positions:create # Create invoice positions
+php artisan invoice:report   # Interactive invoice reports by date range and state
+php artisan expense:report   # Interactive expense reports with CSV export
+php artisan images:clear     # Remove unused uploaded images
+php artisan positions:create # Create invoice line items
 ```
 
 ### Frontend Commands
@@ -123,7 +123,13 @@ Templates are in `resources/views/pdf/`.
 
 ### Vue.js Frontend Architecture
 - Single-page application with Vue Router
-- Vuex for centralized state management
-- Component structure mirrors backend entities
-- Authentication state managed globally
+- Vuex for centralized state management (auth state in `resources/js/admin/store.js`)
+- Component structure mirrors backend entities (client, contact, project, timer, invoice, expense)
+- Authentication state managed globally with JWT token persistence
 - API communication via axios with Vue-axios
+- Laravel Mix builds assets to `public/assets/admin/` with alias `@` pointing to `resources/js/admin/`
+
+### Testing
+- PHPUnit configuration in `phpunit.xml` with Unit and Feature test suites
+- Run single test: `./vendor/bin/phpunit --filter=TestName`
+- Test environment uses array drivers for cache, mail, queue, and sessions
