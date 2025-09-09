@@ -4,7 +4,9 @@
   @if ($data->client->byline)
     {!! $data->client->byline!!}<br>
   @endif
-  {{$data->client->street}}<br>
+  @if ($data->client->street)
+    {{$data->client->street}}<br>
+  @endif
   {{$data->client->zip}} {{$data->client->city}}<br>
 </div>
 <header class="invoice-header cf">
