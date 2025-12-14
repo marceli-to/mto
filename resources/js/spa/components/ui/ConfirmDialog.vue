@@ -35,15 +35,15 @@ const emit = defineEmits(['confirm', 'cancel'])
         />
         <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
           <div class="flex items-start gap-4">
-            <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+            <div class="shrink-0 w-12 h-12 rounded-md bg-red-100 flex items-center justify-center">
               <PhWarning class="w-6 h-6 text-red-600" weight="fill" />
             </div>
             <div class="flex-1">
-              <h3 class="text-lg font-semibold text-gray-900">{{ title }}</h3>
-              <p class="mt-2 text-gray-600">{{ message }}</p>
+              <h3 class="text-lg text-gray-900">{{ title }}</h3>
+              <p class="text-gray-500">{{ message }}</p>
             </div>
           </div>
-          <div class="flex justify-end gap-3 mt-6">
+          <div class="flex justify-end gap-3 mt-8">
             <BaseButton variant="secondary" @click="emit('cancel')">
               Cancel
             </BaseButton>

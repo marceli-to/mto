@@ -1,14 +1,26 @@
 <script setup>
-import AppHeader from '@/components/ui/AppHeader.vue'
+import AppSidebar from '@/components/ui/AppSidebar.vue'
+import AppMobileHeader from '@/components/ui/AppMobileHeader.vue'
 import AppToast from '@/components/ui/AppToast.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <AppHeader />
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <router-view />
+  <div class="min-h-screen bg-white">
+    <!-- Desktop Sidebar -->
+    <AppSidebar class="hidden lg:flex" />
+    
+    <!-- Mobile Header -->
+    <AppMobileHeader />
+    
+    <!-- Main Content -->
+    <main class="lg:ml-64 min-h-screen">
+      <div class="pt-16 lg:pt-0">
+        <div class="p-4 lg:p-6">
+          <router-view />
+        </div>
+      </div>
     </main>
+    
     <AppToast />
   </div>
 </template>

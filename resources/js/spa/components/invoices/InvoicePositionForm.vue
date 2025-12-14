@@ -61,7 +61,7 @@ function submit() {
       <div class="absolute inset-0 bg-black/50" @click="emit('close')" />
       <div class="relative bg-white rounded-lg shadow-xl max-w-lg w-full p-6">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold">{{ position ? 'Edit Position' : 'Add Position' }}</h3>
+          <h3>{{ position ? 'Edit Position' : 'Add Position' }}</h3>
           <button @click="emit('close')" class="p-1 hover:bg-gray-100 rounded">
             <PhX class="w-5 h-5" />
           </button>

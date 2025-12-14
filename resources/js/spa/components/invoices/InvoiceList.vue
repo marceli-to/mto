@@ -16,19 +16,42 @@ const invoices = ref([])
 const totals = ref({ paid: 0, pending: 0, open: 0, overdue: 0, closed: 0, total: 0 })
 const search = ref('')
 const loading = ref(true)
+const activeFilters = ref(['open', 'pending'])
 const showSubtotals = ref(false)
 const deleteDialog = ref({ show: false, id: null, loading: false })
 const stateDialog = ref({ show: false, invoice: null })
 
 const filteredInvoices = computed(() => {
-  if (!search.value) return invoices.value
-  const q = search.value.toLowerCase()
-  return invoices.value.filter(inv =>
-    inv.title?.toLowerCase().includes(q) ||
-    inv.client?.name?.toLowerCase().includes(q) ||
-    inv.number?.toLowerCase().includes(q)
-  )
+  let result = invoices.value
+  
+  // Filter by state
+  if (activeFilters.value.length > 0) {
+    result = result.filter(inv => activeFilters.value.includes(inv.state?.description))
+  }
+  
+  // Filter by search
+  if (search.value) {
+    const q = search.value.toLowerCase()
+    result = result.filter(inv =>
+      inv.title?.toLowerCase().includes(q) ||
+      inv.client?.name?.toLowerCase().includes(q) ||
+      inv.number?.toLowerCase().includes(q)
+    )
+  }
+  
+  return result
 })
+
+const stateFilters = ['open', 'pending', 'paid', 'cancelled']
+
+function toggleFilter(state) {
+  const index = activeFilters.value.indexOf(state)
+  if (index === -1) {
+    activeFilters.value.push(state)
+  } else {
+    activeFilters.value.splice(index, 1)
+  }
+}
 
 const stateColors = {
   open: 'bg-blue-100 text-blue-800',
@@ -98,57 +121,81 @@ onMounted(fetchInvoices)
 
 <template>
   <div>
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Invoices</h1>
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-12">
+      
+      <h1 class="text-2xl  text-gray-900">
+        Invoices
+      </h1>
+
+      <!-- Search -->
+      <div>
+        <SearchInput v-model="search" />
+      </div>
+
       <router-link
         :to="{ name: 'invoice-create' }"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-      >
+        class="fixed right-4 bottom-4 inline-flex items-center gap-2 pr-4 pl-3 py-2 bg-black text-white text-md rounded-xs hover:bg-gray-800 transition-colors">
         <PhPlus class="w-5 h-5" />
         Add Invoice
       </router-link>
     </div>
 
-    <div class="mb-6">
-      <SearchInput v-model="search" placeholder="Search by title, client or number..." />
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-16 text-gray-400">
+      <div class="animate-pulse">Loading...</div>
     </div>
 
-    <div v-if="loading" class="text-center py-12 text-gray-500">
-      Loading...
-    </div>
-
-    <div v-else-if="filteredInvoices.length === 0" class="text-center py-12 text-gray-500">
-      No invoices found
+    <!-- Empty State -->
+    <div v-else-if="filteredInvoices.length === 0" class="text-center py-16">
+      <div class="text-gray-400 mb-2">No invoices found</div>
+      <p class="text-sm text-gray-400">Create your first invoice to get started</p>
     </div>
 
     <div v-else>
-      <div class="bg-white rounded-lg shadow overflow-hidden">
-        <ul class="divide-y divide-gray-200">
+      <!-- State Filters -->
+      <div class="flex items-center gap-2 mb-6">
+        <button
+          v-for="state in stateFilters"
+          :key="state"
+          @click="toggleFilter(state)"
+          :class="[
+            activeFilters.includes(state) ? stateColors[state] : 'bg-gray-100 text-gray-400',
+            'px-2 py-1 rounded-xs text-xs font-medium capitalize cursor-pointer transition-colors'
+          ]"
+        >
+          {{ state }}
+        </button>
+      </div>
+
+      <!-- Invoices List -->
+      <div class="overflow-hidden border-t border-gray-100">
+        <ul class="divide-y divide-gray-100">
           <li
             v-for="invoice in filteredInvoices"
             :key="invoice.id"
-            class="flex items-center justify-between px-6 py-4 hover:bg-gray-50"
+            class="flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors"
           >
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-x-6">
               <button
                 @click="openStateDialog(invoice)"
-                :class="[stateColors[invoice.state?.description] || 'bg-gray-100', 'px-2 py-1 rounded text-xs font-medium capitalize']"
+                :class="[stateColors[invoice.state?.description] || 'bg-gray-100', 'px-2 py-1 rounded-xs text-xs font-medium capitalize']"
               >
                 {{ invoice.state?.description }}
               </button>
               <div>
-                <p class="font-medium text-gray-900">
+                <div class="flex items-center gap-x-8">
                   {{ invoice.number }}
                   <span v-if="invoice.client" class="font-bold">{{ invoice.client.acronym }}</span>
-                  - {{ invoice.title }}
-                </p>
-                <p v-if="invoice.remarks" class="text-sm text-gray-500">[{{ invoice.remarks }}]</p>
+                  {{ invoice.title }}
+                  <span v-if="invoice.remarks" class="text-sm text-gray-500">({{ invoice.remarks }})</span>
+                </div>
               </div>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1">
               <button
                 @click="downloadPdf(invoice.id)"
-                class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
                 title="Download PDF"
               >
                 <PhFilePdf class="w-5 h-5" />
@@ -156,17 +203,17 @@ onMounted(fetchInvoices)
               <router-link
                 v-if="invoice.state?.description === 'open'"
                 :to="{ name: 'invoice-edit', params: { id: invoice.id } }"
-                class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
                 title="Edit"
               >
                 <PhPencil class="w-5 h-5" />
               </router-link>
-              <span v-else class="p-2 text-gray-300">
+              <span v-else class="p-2.5 text-gray-200">
                 <PhPencil class="w-5 h-5" />
               </span>
               <button
                 @click="cloneInvoice(invoice.id)"
-                class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
                 title="Clone"
               >
                 <PhCopy class="w-5 h-5" />
@@ -174,12 +221,12 @@ onMounted(fetchInvoices)
               <button
                 v-if="invoice.state?.description === 'open'"
                 @click="confirmDelete(invoice.id)"
-                class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                class="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer rounded-sm transition-colors"
                 title="Delete"
               >
                 <PhTrash class="w-5 h-5" />
               </button>
-              <span v-else class="p-2 text-gray-300">
+              <span v-else class="p-2.5 text-gray-200">
                 <PhTrash class="w-5 h-5" />
               </span>
             </div>
@@ -187,35 +234,26 @@ onMounted(fetchInvoices)
         </ul>
       </div>
 
-      <!-- Totals -->
-      <div class="mt-4 bg-white rounded-lg shadow p-4">
-        <button
-          @click="showSubtotals = !showSubtotals"
-          class="flex items-center gap-2 font-medium text-gray-900 w-full justify-between"
-        >
-          <span>Total: {{ formatCurrency(totals.total) }} CHF</span>
-          <PhCaretDown v-if="!showSubtotals" class="w-5 h-5" />
-          <PhCaretUp v-else class="w-5 h-5" />
-        </button>
-        <div v-if="showSubtotals" class="mt-4 space-y-2 text-sm">
-          <div class="flex justify-between">
-            <span class="text-gray-600">Paid</span>
-            <span>{{ formatCurrency(totals.paid + totals.closed) }} CHF</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Pending</span>
-            <span>{{ formatCurrency(totals.pending) }} CHF</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Open</span>
-            <span>{{ formatCurrency(totals.open) }} CHF</span>
-          </div>
-          <div class="flex justify-between">
-            <span class="text-gray-600">Overdue</span>
-            <span class="text-red-600">{{ formatCurrency(totals.overdue) }} CHF</span>
-          </div>
+      <!-- Totals Summary -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
+          <p class="text-sm text-gray-500 mb-1">Total</p>
+          <p class="text-xl  text-gray-900">{{ formatCurrency(totals.total) }}</p>
+        </div>
+        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
+          <p class="text-sm text-gray-500 mb-1">Paid</p>
+          <p class="text-xl  text-green-600">{{ formatCurrency(totals.paid + totals.closed) }}</p>
+        </div>
+        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
+          <p class="text-sm text-gray-500 mb-1">Pending</p>
+          <p class="text-xl  text-yellow-600">{{ formatCurrency(totals.pending) }}</p>
+        </div>
+        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
+          <p class="text-sm text-gray-500 mb-1">Overdue</p>
+          <p class="text-xl  text-red-600">{{ formatCurrency(totals.overdue) }}</p>
         </div>
       </div>
+
     </div>
 
     <ConfirmDialog

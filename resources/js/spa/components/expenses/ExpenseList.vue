@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhFilePdf } from '@phosphor-icons/vue'
+import { PhPlus, PhPencil, PhTrash, PhFilePdf, PhCurrencyDollar } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
@@ -73,64 +73,71 @@ onMounted(fetchExpenses)
 
 <template>
   <div>
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Expenses</h1>
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-12">
+      
+      <h1 class="text-2xl  text-gray-900">
+        Expenses
+      </h1>
+
+      <!-- Search -->
+      <div>
+        <SearchInput v-model="search" />
+      </div>
+
       <router-link
         :to="{ name: 'expense-create' }"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-      >
+        class="fixed right-4 bottom-4 inline-flex items-center gap-2 pr-4 pl-3 py-2 bg-black text-white text-md rounded-xs hover:bg-gray-800 transition-colors">
         <PhPlus class="w-5 h-5" />
         Add Expense
       </router-link>
     </div>
 
-    <div class="mb-6">
-      <SearchInput v-model="search" placeholder="Search by title or description..." />
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-16 text-gray-400">
+      <div class="animate-pulse">Loading...</div>
     </div>
 
-    <div v-if="loading" class="text-center py-12 text-gray-500">
-      Loading...
-    </div>
-
-    <div v-else-if="filteredExpenses.length === 0" class="text-center py-12 text-gray-500">
-      No expenses found
+    <!-- Empty State -->
+    <div v-else-if="filteredExpenses.length === 0" class="text-center py-16">
+      <div class="text-gray-400 mb-2">No expenses found</div>
+      <p class="text-sm text-gray-400">Add your first expense to get started</p>
     </div>
 
     <div v-else>
-      <div class="bg-white rounded-lg shadow overflow-hidden">
-        <ul class="divide-y divide-gray-200">
+      <!-- Expenses List -->
+      <div class="overflow-hidden border-t border-gray-100">
+        <ul class="divide-y divide-gray-100">
           <li
             v-for="expense in filteredExpenses"
             :key="expense.id"
-            class="flex items-center justify-between px-6 py-4 hover:bg-gray-50"
+            class="flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors"
           >
-            <div>
-              <p class="font-medium text-gray-900">{{ expense.title }}</p>
-              <p class="text-sm text-gray-500">
-                {{ formatDate(expense.date) }}
-                <span v-if="expense.number"> - {{ expense.number }}</span>
-              </p>
+            <div class="flex items-center gap-x-6">
+              <span>{{ formatDate(expense.date) }}</span>
+              {{ expense.title }}
+              <span v-if="expense.number" class="font-bold">{{ expense.number }}</span>
             </div>
             <div class="flex items-center gap-4">
-              <span class="font-medium">{{ formatCurrency(expense.amount) }} {{ expense.currency || 'CHF' }}</span>
-              <div class="flex items-center gap-2">
+              <span class="text-gray-900">{{ formatCurrency(expense.amount) }}</span>
+              <div class="flex items-center gap-1">
                 <button
                   @click="downloadPdf(expense.id)"
-                  class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                  class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
                   title="Download PDF"
                 >
                   <PhFilePdf class="w-5 h-5" />
                 </button>
                 <router-link
                   :to="{ name: 'expense-edit', params: { id: expense.id } }"
-                  class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+                  class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
                   title="Edit"
                 >
                   <PhPencil class="w-5 h-5" />
                 </router-link>
                 <button
                   @click="confirmDelete(expense.id)"
-                  class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                  class="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer rounded-sm transition-colors"
                   title="Delete"
                 >
                   <PhTrash class="w-5 h-5" />
@@ -141,11 +148,11 @@ onMounted(fetchExpenses)
         </ul>
       </div>
 
-      <!-- Total -->
-      <div class="mt-4 bg-white rounded-lg shadow p-4">
-        <div class="flex justify-between font-medium">
-          <span>Total</span>
-          <span>{{ formatCurrency(totalAmount) }} CHF</span>
+      <!-- Total Summary -->
+      <div class="grid grid-cols-4 gap-4 mt-6">
+        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
+          <p class="text-sm text-gray-500 mb-1">Total</p>
+          <p class="text-xl  text-gray-900">{{ formatCurrency(totalAmount) }}</p>
         </div>
       </div>
     </div>

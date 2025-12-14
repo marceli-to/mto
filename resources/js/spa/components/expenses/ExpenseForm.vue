@@ -116,11 +116,11 @@ onMounted(fetchExpense)
         />
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+          <label class="block text-sm text-gray-500 mb-1">Description</label>
           <textarea
             v-model="expense.description"
             rows="3"
-            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-3 border border-gray-200 rounded-xs text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
           />
         </div>
 

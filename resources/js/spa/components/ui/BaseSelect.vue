@@ -25,18 +25,18 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const selectClasses = computed(() => [
-  'w-full px-3 py-2 border rounded-md transition-colors appearance-none bg-white',
-  'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+  'w-full px-4 py-3 border rounded-xs transition-all appearance-none bg-white text-sm',
+  'focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300',
   props.error
     ? 'border-red-300 bg-red-50'
-    : 'border-gray-300',
-  props.disabled && 'bg-gray-100 cursor-not-allowed'
+    : 'border-gray-200',
+  props.disabled && 'bg-gray-50 cursor-not-allowed'
 ])
 </script>
 
 <template>
   <div class="space-y-1">
-    <label v-if="label" class="block text-sm font-medium text-gray-700">
+    <label v-if="label" class="block text-sm text-gray-500">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>

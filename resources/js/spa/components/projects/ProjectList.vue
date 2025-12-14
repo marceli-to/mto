@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhCopy } from '@phosphor-icons/vue'
+import { PhPlus, PhPencil, PhTrash, PhCopy, PhFolder } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import SearchInput from '@/components/ui/SearchInput.vue'
@@ -68,58 +68,67 @@ onMounted(fetchProjects)
 
 <template>
   <div>
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">Projects</h1>
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-12">
+      
+      <h1 class="text-2xl  text-gray-900">
+        Projects
+      </h1>
+
+      <!-- Search -->
+      <div>
+        <SearchInput v-model="search" />
+      </div>
+
       <router-link
         :to="{ name: 'project-create' }"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-      >
+        class="fixed right-4 bottom-4 inline-flex items-center gap-2 pr-4 pl-3 py-2 bg-black text-white text-md rounded-xs hover:bg-gray-800 transition-colors">
         <PhPlus class="w-5 h-5" />
         Add Project
       </router-link>
     </div>
 
-    <div class="mb-6">
-      <SearchInput v-model="search" placeholder="Search by name or client..." />
+    <!-- Loading State -->
+    <div v-if="loading" class="text-center py-16 text-gray-400">
+      <div class="animate-pulse">Loading...</div>
     </div>
 
-    <div v-if="loading" class="text-center py-12 text-gray-500">
-      Loading...
+    <!-- Empty State -->
+    <div v-else-if="filteredProjects.length === 0" class="text-center py-16">
+      <div class="text-gray-400 mb-2">No projects found</div>
+      <p class="text-sm text-gray-400">Create your first project to get started</p>
     </div>
 
-    <div v-else-if="filteredProjects.length === 0" class="text-center py-12 text-gray-500">
-      No projects found
-    </div>
-
-    <div v-else class="bg-white rounded-lg shadow overflow-hidden">
-      <ul class="divide-y divide-gray-200">
+    <!-- Projects List -->
+    <div v-else class="overflow-hidden border-t border-gray-100">
+      <ul class="divide-y divide-gray-100">
         <li
           v-for="project in filteredProjects"
           :key="project.id"
-          class="flex items-center justify-between px-6 py-4 hover:bg-gray-50"
+          class="flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors"
         >
-          <div>
-            <p class="font-medium text-gray-900">{{ project.name }}</p>
-            <p v-if="project.client" class="text-sm text-gray-500">{{ project.client.name }}</p>
+          <div class="flex items-center gap-x-8">
+            {{ project.name }}
+            <span v-if="project.client" class="font-bold">{{ project.client.acronym }}</span>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
             <router-link
               :to="{ name: 'project-edit', params: { id: project.id } }"
-              class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded"
+              class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
               title="Edit"
             >
               <PhPencil class="w-5 h-5" />
             </router-link>
             <button
               @click="cloneProject(project.id)"
-              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+              class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
               title="Clone"
             >
               <PhCopy class="w-5 h-5" />
             </button>
             <button
               @click="confirmDelete(project.id)"
-              class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+              class="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer rounded-sm transition-colors"
               title="Delete"
             >
               <PhTrash class="w-5 h-5" />

@@ -205,11 +205,11 @@ onMounted(fetchData)
           />
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Text</label>
+            <label class="block text-sm text-gray-500 mb-1">Text</label>
             <textarea
               v-model="invoice.text"
               rows="3"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-4 py-3 border border-gray-200 rounded-xs text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
             />
           </div>
 
@@ -238,7 +238,7 @@ onMounted(fetchData)
       <!-- Positions -->
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold">Positions</h2>
+          <h2>Positions</h2>
           <button
             type="button"
             @click="addPosition"
@@ -304,7 +304,7 @@ onMounted(fetchData)
               <span class="text-gray-600">VAT ({{ invoice.vat_rate }}%)</span>
               <span>{{ formatCurrency(vat) }} CHF</span>
             </div>
-            <div class="flex justify-between font-semibold text-lg pt-2 border-t border-gray-200">
+            <div class="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
               <span>Total</span>
               <span>{{ formatCurrency(grandtotal) }} CHF</span>
             </div>
