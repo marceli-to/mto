@@ -37,7 +37,7 @@ async function fetchProjects() {
 
 async function cloneProject(id) {
   try {
-    const data = await get(`/api/project/clone/${id}`)
+    const data = await get(`/api/project/duplicate/${id}`)
     projects.value.unshift(data)
     success('Project cloned')
   } catch (e) {

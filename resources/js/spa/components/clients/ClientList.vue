@@ -47,7 +47,7 @@ async function toggleStatus(client) {
 
 async function cloneClient(id) {
   try {
-    const data = await get(`/api/client/clone/${id}`)
+    const data = await get(`/api/client/duplicate/${id}`)
     clients.value.unshift(data)
     success('Client cloned')
   } catch (e) {

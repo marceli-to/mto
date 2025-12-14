@@ -54,7 +54,7 @@ async function fetchInvoices() {
 
 async function cloneInvoice(id) {
   try {
-    await get(`/api/invoice/clone/${id}`)
+    await get(`/api/invoice/duplicate/${id}`)
     await fetchInvoices()
     success('Invoice cloned')
   } catch (e) {
