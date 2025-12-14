@@ -138,9 +138,15 @@
 <div class="page-break"></div>
 
 <!-- Receipt Image -->
+@php
+  $receiptPath = storage_path('app/public/media/expenses/' . $expense->number . '.jpg');
+  $receiptBase64 = file_exists($receiptPath) ? base64_encode(file_get_contents($receiptPath)) : null;
+@endphp
+@if($receiptBase64)
 <div class="receipt-container">
-  <img src="{{ public_path('storage/media/expenses/' . $expense->number . '.jpg') }}" alt="Receipt">
+  <img src="data:image/jpeg;base64,{{ $receiptBase64 }}" alt="Receipt">
 </div>
+@endif
 
 </body>
 </html>
