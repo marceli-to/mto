@@ -19,18 +19,15 @@ const { success, error } = useToast()
 const states = ref([])
 const saving = ref(false)
 const form = ref({
-  invoice_state_id: '',
-  date_paid: '',
-  remarks: ''
+  state_id: props.invoice?.state_id || '',
+  date_paid: props.invoice?.date_paid || '',
+  remarks: props.invoice?.remarks || ''
 })
 
 async function fetchStates() {
   try {
     const data = await get('/api/invoice/states')
     states.value = data.data || []
-    form.value.invoice_state_id = props.invoice?.invoice_state_id || ''
-    form.value.date_paid = props.invoice?.date_paid || ''
-    form.value.remarks = props.invoice?.remarks || ''
   } catch (e) {
     error('Failed to load states')
   }
@@ -60,7 +57,7 @@ onMounted(async () => {
 
 const showRemarks = ref(false)
 function onStateChange() {
-  const selectedState = states.value.find(s => s.id == form.value.invoice_state_id)
+  const selectedState = states.value.find(s => s.id == form.value.state_id)
   showRemarks.value = selectedState?.description === 'cancelled'
 }
 </script>
@@ -79,7 +76,7 @@ function onStateChange() {
 
         <form @submit.prevent="submit" class="space-y-4">
           <BaseSelect
-            v-model="form.invoice_state_id"
+            v-model="form.state_id"
             label="Status"
             :options="stateOptions"
             @change="onStateChange"

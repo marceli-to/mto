@@ -94,7 +94,7 @@ function submit() {
             />
             <BaseInput
               v-model="form.rate"
-              label="Rate (CHF/h)"
+              label="Rate per hour"
               type="number"
               step="0.01"
             />
