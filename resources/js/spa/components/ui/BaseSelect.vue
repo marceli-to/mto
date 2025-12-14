@@ -25,7 +25,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const selectClasses = computed(() => [
-  'w-full px-4 py-3 border rounded-xs transition-all appearance-none bg-white text-sm',
+  'w-full px-3 py-3 border rounded-xs transition-all appearance-none bg-white text-sm',
   'focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300',
   props.error
     ? 'border-red-300 bg-red-50'
@@ -36,7 +36,7 @@ const selectClasses = computed(() => [
 
 <template>
   <div class="space-y-1">
-    <label v-if="label" class="block text-sm text-gray-500">
+    <label v-if="label" class="block text-sm text-gray-500 mb-2">
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>

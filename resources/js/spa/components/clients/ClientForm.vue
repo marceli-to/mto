@@ -1,17 +1,23 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import FormActions from '@/components/ui/FormActions.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
-const route = useRoute()
-const router = useRouter()
+const props = defineProps({
+  clientId: {
+    type: [Number, String],
+    default: null
+  }
+})
+
+const emit = defineEmits(['saved', 'cancel'])
+
 const { get, post } = useApi()
 const { success, error } = useToast()
 
-const isEdit = computed(() => !!route.params.id)
+const isEdit = computed(() => !!props.clientId)
 const title = computed(() => isEdit.value ? 'Edit Client' : 'New Client')
 
 const loading = ref(false)
@@ -32,16 +38,37 @@ async function fetchClient() {
   if (!isEdit.value) return
   loading.value = true
   try {
-    const data = await get(`/api/client/edit/${route.params.id}`)
+    const data = await get(`/api/client/edit/${props.clientId}`)
     client.value = data
     originalAcronym.value = data.acronym
   } catch (e) {
     error('Failed to load client')
-    router.push({ name: 'clients' })
+    emit('cancel')
   } finally {
     loading.value = false
   }
 }
+
+function resetForm() {
+  client.value = {
+    name: '',
+    acronym: '',
+    byline: '',
+    street: '',
+    zip: '',
+    city: ''
+  }
+  errors.value = {}
+  originalAcronym.value = null
+}
+
+watch(() => props.clientId, (newId) => {
+  if (newId) {
+    fetchClient()
+  } else {
+    resetForm()
+  }
+})
 
 async function checkAcronym() {
   const acronym = client.value.acronym
@@ -80,14 +107,15 @@ async function submit() {
 
   saving.value = true
   try {
+    let savedClient
     if (isEdit.value) {
-      await post(`/api/client/update/${route.params.id}`, client.value)
+      savedClient = await post(`/api/client/update/${props.clientId}`, client.value)
       success('Client updated')
     } else {
-      await post('/api/client/create', client.value)
+      savedClient = await post('/api/client/create', client.value)
       success('Client created')
     }
-    router.push({ name: 'clients' })
+    emit('saved', savedClient)
   } catch (e) {
     error('Failed to save client')
   } finally {
@@ -100,13 +128,11 @@ onMounted(fetchClient)
 
 <template>
   <div>
-    <h1 class="text-xl font-bold text-gray-900 mb-6">{{ title }}</h1>
-
     <div v-if="loading" class="text-center py-12 text-gray-500">
       Loading...
     </div>
 
-    <form v-else @submit.prevent="submit" class="bg-white rounded-lg shadow p-6 max-w-2xl">
+    <form v-else @submit.prevent="submit">
       <div class="space-y-4">
         <BaseInput
           v-model="client.name"
@@ -134,24 +160,24 @@ onMounted(fetchClient)
           label="Street, No."
         />
 
-        <div class="grid grid-cols-3 gap-4">
-          <BaseInput
-            v-model="client.zip"
-            label="ZIP"
-          />
-          <div class="col-span-2">
-            <BaseInput
-              v-model="client.city"
-              label="City"
-            />
-          </div>
-        </div>
+        <BaseInput
+          v-model="client.zip"
+          label="ZIP"
+        />
+        <BaseInput
+          v-model="client.city"
+          label="City"
+        />
       </div>
 
-      <FormActions
-        :loading="saving"
-        :back-route="{ name: 'clients' }"
-      />
+      <div class="flex items-center justify-end gap-3 mt-8">
+        <BaseButton type="button" variant="secondary" @click="emit('cancel')">
+          Cancel
+        </BaseButton>
+        <BaseButton type="submit" :loading="saving">
+          {{ isEdit ? 'Update' : 'Create' }}
+        </BaseButton>
+      </div>
     </form>
   </div>
 </template>

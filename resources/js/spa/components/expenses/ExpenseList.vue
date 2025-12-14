@@ -6,6 +6,8 @@ import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import Flyout from '@/components/ui/Flyout.vue'
+import ExpenseForm from './ExpenseForm.vue'
 
 const { get, del } = useApi()
 const { success, error } = useToast()
@@ -15,6 +17,33 @@ const expenses = ref([])
 const search = ref('')
 const loading = ref(true)
 const deleteDialog = ref({ show: false, id: null, loading: false })
+const flyout = ref({ show: false, expenseId: null })
+
+const flyoutTitle = computed(() => flyout.value.expenseId ? 'Edit Expense' : 'New Expense')
+
+function openCreate() {
+  flyout.value = { show: true, expenseId: null }
+}
+
+function openEdit(id) {
+  flyout.value = { show: true, expenseId: id }
+}
+
+function closeFlyout() {
+  flyout.value = { show: false, expenseId: null }
+}
+
+function onExpenseSaved(savedExpense) {
+  if (flyout.value.expenseId) {
+    const index = expenses.value.findIndex(e => e.id === flyout.value.expenseId)
+    if (index !== -1) {
+      expenses.value[index] = { ...expenses.value[index], ...savedExpense }
+    }
+  } else {
+    expenses.value.unshift(savedExpense)
+  }
+  closeFlyout()
+}
 
 const filteredExpenses = computed(() => {
   if (!search.value) return expenses.value
@@ -85,12 +114,13 @@ onMounted(fetchExpenses)
         <SearchInput v-model="search" />
       </div>
 
-      <router-link
-        :to="{ name: 'expense-create' }"
-        class="fixed right-4 bottom-4 inline-flex items-center gap-2 pr-4 pl-3 py-2 bg-black text-white text-md rounded-xs hover:bg-gray-800 transition-colors">
+      <button
+        v-if="!flyout.show"
+        @click="openCreate"
+        class="fixed right-4 bottom-4 z-20 inline-flex items-center gap-2 pr-4 pl-3 py-2 bg-black text-white text-md rounded-xs hover:bg-gray-800 transition-colors cursor-pointer">
         <PhPlus class="w-5 h-5" />
         Add Expense
-      </router-link>
+      </button>
     </div>
 
     <!-- Loading State -->
@@ -128,13 +158,13 @@ onMounted(fetchExpenses)
                 >
                   <PhFilePdf class="w-5 h-5" />
                 </button>
-                <router-link
-                  :to="{ name: 'expense-edit', params: { id: expense.id } }"
+                <button
+                  @click="openEdit(expense.id)"
                   class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
                   title="Edit"
                 >
                   <PhPencil class="w-5 h-5" />
-                </router-link>
+                </button>
                 <button
                   @click="confirmDelete(expense.id)"
                   class="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer rounded-sm transition-colors"
@@ -165,5 +195,18 @@ onMounted(fetchExpenses)
       @confirm="deleteExpense"
       @cancel="deleteDialog.show = false"
     />
+
+    <Flyout
+      :show="flyout.show"
+      :title="flyoutTitle"
+      size="md"
+      @close="closeFlyout"
+    >
+      <ExpenseForm
+        :expense-id="flyout.expenseId"
+        @saved="onExpenseSaved"
+        @cancel="closeFlyout"
+      />
+    </Flyout>
   </div>
 </template>

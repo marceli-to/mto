@@ -1,22 +1,28 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
 import { PhPlus, PhPencil, PhTrash } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
-import FormActions from '@/components/ui/FormActions.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import InvoicePositionForm from './InvoicePositionForm.vue'
 
-const route = useRoute()
-const router = useRouter()
+const props = defineProps({
+  invoiceId: {
+    type: [Number, String],
+    default: null
+  }
+})
+
+const emit = defineEmits(['saved', 'cancel'])
+
 const { get, post, del } = useApi()
 const { success, error } = useToast()
 const { formatCurrency, formatDecimal } = useCurrency()
 
-const isEdit = computed(() => !!route.params.id)
+const isEdit = computed(() => !!props.invoiceId)
 const title = computed(() => isEdit.value ? 'Edit Invoice' : 'New Invoice')
 
 const loading = ref(false)
@@ -61,7 +67,7 @@ async function fetchData() {
     clients.value = clientsData.data || []
 
     if (isEdit.value) {
-      const data = await get(`/api/invoice/edit/${route.params.id}`)
+      const data = await get(`/api/invoice/edit/${props.invoiceId}`)
       invoice.value = {
         ...data,
         client_id: data.client_id || '',
@@ -78,11 +84,36 @@ async function fetchData() {
     }
   } catch (e) {
     error('Failed to load data')
-    if (isEdit.value) router.push({ name: 'invoices' })
+    if (isEdit.value) emit('cancel')
   } finally {
     loading.value = false
   }
 }
+
+function resetForm() {
+  const today = new Date()
+  const dueDate = new Date(today)
+  dueDate.setDate(dueDate.getDate() + 21)
+  invoice.value = {
+    title: '',
+    text: '',
+    date: formatDateForInput(today),
+    date_due: formatDateForInput(dueDate),
+    client_id: '',
+    vat_rate: 8.1,
+    positions: []
+  }
+  errors.value = {}
+}
+
+watch(() => props.invoiceId, (newId) => {
+  if (newId) {
+    fetchData()
+  } else {
+    resetForm()
+    fetchData() // Still need to load clients
+  }
+})
 
 function formatDateForInput(date) {
   if (!date) return ''
@@ -120,14 +151,15 @@ async function submit() {
 
   saving.value = true
   try {
+    let savedInvoice
     if (isEdit.value) {
-      await post(`/api/invoice/update/${route.params.id}`, invoice.value)
+      savedInvoice = await post(`/api/invoice/update/${props.invoiceId}`, invoice.value)
       success('Invoice updated')
     } else {
-      await post('/api/invoice/create', invoice.value)
+      savedInvoice = await post('/api/invoice/create', invoice.value)
       success('Invoice created')
     }
-    router.push({ name: 'invoices' })
+    emit('saved', savedInvoice)
   } catch (e) {
     error('Failed to save invoice')
   } finally {
@@ -180,14 +212,12 @@ onMounted(fetchData)
 
 <template>
   <div>
-    <h1 class="text-xl font-bold text-gray-900 mb-6">{{ title }}</h1>
-
     <div v-if="loading" class="text-center py-12 text-gray-500">
       Loading...
     </div>
 
     <form v-else @submit.prevent="submit" class="space-y-6">
-      <div class="bg-white rounded-lg shadow p-6">
+      <div>
         <div class="space-y-4">
           <BaseInput
             v-model="invoice.title"
@@ -205,11 +235,11 @@ onMounted(fetchData)
           />
 
           <div>
-            <label class="block text-sm text-gray-500 mb-1">Text</label>
+            <label class="block text-sm text-gray-500 mb-2">Text</label>
             <textarea
               v-model="invoice.text"
               rows="3"
-              class="w-full px-4 py-3 border border-gray-200 rounded-xs text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
+              class="w-full px-3 py-3 border border-gray-200 rounded-xs text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
             />
           </div>
 
@@ -236,16 +266,16 @@ onMounted(fetchData)
       </div>
 
       <!-- Positions -->
-      <div class="bg-white rounded-lg shadow p-6">
+      <div class="">
         <div class="flex items-center justify-between mb-4">
-          <h2>Positions</h2>
+          <h2 class="font-bold">Positions</h2>
           <button
             type="button"
             @click="addPosition"
-            class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"
+            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+            title="Add Position"
           >
             <PhPlus class="w-5 h-5" />
-            Add Position
           </button>
         </div>
 
@@ -254,14 +284,14 @@ onMounted(fetchData)
         </div>
 
         <div v-else class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <table class="w-full text-sm border-b border-gray-100">
             <thead>
-              <tr class="border-b border-gray-200 text-left text-gray-500">
-                <th class="pb-2">Period</th>
-                <th class="pb-2">Description</th>
-                <th class="pb-2 text-right">Hours</th>
-                <th class="pb-2 text-right">Rate</th>
-                <th class="pb-2 text-right">Amount</th>
+              <tr class="border-b border-gray-100 text-left text-gray-500">
+                <th class="pb-2 font-normal">Period</th>
+                <th class="pb-2 font-normal">Description</th>
+                <th class="pb-2 text-right font-normal">Hours</th>
+                <th class="pb-2 text-right font-normal">Rate</th>
+                <th class="pb-2 text-right font-normal">Amount</th>
                 <th class="pb-2 w-20"></th>
               </tr>
             </thead>
@@ -277,14 +307,14 @@ onMounted(fetchData)
                     <button
                       type="button"
                       @click="editPosition(position, index)"
-                      class="p-1 text-gray-400 hover:text-blue-600"
+                      class="p-1.5 cursor-pointer text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-sm"
                     >
                       <PhPencil class="w-4 h-4" />
                     </button>
                     <button
                       type="button"
                       @click="deletePosition(position, index)"
-                      class="p-1 text-gray-400 hover:text-red-600"
+                      class="p-1.5 cursor-pointer text-gray-400 hover:text-red-600 hover:bg-red-100 rounded-sm"
                     >
                       <PhTrash class="w-4 h-4" />
                     </button>
@@ -295,27 +325,31 @@ onMounted(fetchData)
           </table>
 
           <!-- Totals -->
-          <div class="mt-4 pt-4 border-t border-gray-200 space-y-2">
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Subtotal</span>
-              <span>{{ formatCurrency(total) }} CHF</span>
+          <div class="mt-8 divide-y divide-gray-200 bg-gray-50 rounded-sm px-2 py-1">
+            <div class="flex justify-between text-sm py-3">
+              <span>Subtotal</span>
+              <span>{{ formatCurrency(total) }}</span>
             </div>
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600">VAT ({{ invoice.vat_rate }}%)</span>
-              <span>{{ formatCurrency(vat) }} CHF</span>
+            <div class="flex justify-between text-sm py-3">
+              <span>VAT ({{ invoice.vat_rate }}%)</span>
+              <span>{{ formatCurrency(vat) }}</span>
             </div>
-            <div class="flex justify-between font-bold text-lg pt-2 border-t border-gray-200">
+            <div class="flex justify-between font-bold py-3">
               <span>Total</span>
-              <span>{{ formatCurrency(grandtotal) }} CHF</span>
+              <span>{{ formatCurrency(grandtotal) }}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <FormActions
-        :loading="saving"
-        :back-route="{ name: 'invoices' }"
-      />
+      <div class="flex items-center justify-end gap-3 mt-8">
+        <BaseButton type="button" variant="secondary" @click="emit('cancel')">
+          Cancel
+        </BaseButton>
+        <BaseButton type="submit" :loading="saving">
+          {{ isEdit ? 'Update' : 'Create' }}
+        </BaseButton>
+      </div>
     </form>
 
     <InvoicePositionForm

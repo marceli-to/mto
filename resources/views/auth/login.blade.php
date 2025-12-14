@@ -28,7 +28,7 @@
             @csrf
 
             <div class="space-y-1">
-                <label for="email" class="block text-sm text-gray-500">Email</label>
+                <label for="email" class="block text-sm text-gray-500 mb-2">Email</label>
                 <input
                     type="email"
                     name="email"
@@ -41,7 +41,7 @@
             </div>
 
             <div class="space-y-1">
-                <label for="password" class="block text-sm text-gray-500">Password</label>
+                <label for="password" class="block text-sm text-gray-500 mb-2">Password</label>
                 <input
                     type="password"
                     name="password"

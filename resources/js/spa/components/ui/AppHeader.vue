@@ -14,10 +14,10 @@ function closeMenu() {
 }
 
 const navigation = [
-  { name: 'Projects', route: 'projects', icon: PhFolder },
-  { name: 'Clients', route: 'clients', icon: PhUsers },
   { name: 'Invoices', route: 'invoices', icon: PhReceipt },
   { name: 'Expenses', route: 'expenses', icon: PhCurrencyDollar },
+  { name: 'Projects', route: 'projects', icon: PhFolder },
+  { name: 'Clients', route: 'clients', icon: PhUsers },
 ]
 </script>
 

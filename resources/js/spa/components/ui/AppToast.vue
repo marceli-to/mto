@@ -12,7 +12,7 @@ const icons = {
 }
 
 const colors = {
-  success: 'bg-green-50 text-green-800 border-green-200',
+  success: 'bg-green-50 text-green-800',
   error: 'bg-red-50 text-red-800 border-red-200',
   info: 'bg-blue-50 text-blue-800 border-blue-200',
   warning: 'bg-yellow-50 text-yellow-800 border-yellow-200'
@@ -25,7 +25,7 @@ const colors = {
       <div
         v-for="toast in toasts"
         :key="toast.id"
-        :class="[colors[toast.type], 'flex items-center gap-3 px-4 py-3 rounded-lg border shadow-lg min-w-[300px]']"
+        :class="[colors[toast.type], 'flex items-center gap-3 px-4 py-3 rounded-sm shadow-lg min-w-[300px]']"
       >
         <component :is="icons[toast.type]" class="w-5 h-5 flex-shrink-0" weight="fill" />
         <span class="flex-1">{{ toast.message }}</span>

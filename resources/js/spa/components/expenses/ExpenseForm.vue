@@ -1,18 +1,24 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
-import FormActions from '@/components/ui/FormActions.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
-const route = useRoute()
-const router = useRouter()
+const props = defineProps({
+  expenseId: {
+    type: [Number, String],
+    default: null
+  }
+})
+
+const emit = defineEmits(['saved', 'cancel'])
+
 const { get, post } = useApi()
 const { success, error } = useToast()
 
-const isEdit = computed(() => !!route.params.id)
+const isEdit = computed(() => !!props.expenseId)
 const title = computed(() => isEdit.value ? 'Edit Expense' : 'New Expense')
 
 const loading = ref(false)
@@ -41,18 +47,37 @@ async function fetchExpense() {
   }
   loading.value = true
   try {
-    const data = await get(`/api/expense/edit/${route.params.id}`)
+    const data = await get(`/api/expense/edit/${props.expenseId}`)
     expense.value = {
       ...data,
       date: data.date ? new Date(data.date).toISOString().split('T')[0] : ''
     }
   } catch (e) {
     error('Failed to load expense')
-    router.push({ name: 'expenses' })
+    emit('cancel')
   } finally {
     loading.value = false
   }
 }
+
+function resetForm() {
+  expense.value = {
+    title: '',
+    description: '',
+    date: new Date().toISOString().split('T')[0],
+    amount: '',
+    currency: 'CHF'
+  }
+  errors.value = {}
+}
+
+watch(() => props.expenseId, (newId) => {
+  if (newId) {
+    fetchExpense()
+  } else {
+    resetForm()
+  }
+})
 
 function validate() {
   errors.value = {}
@@ -73,14 +98,15 @@ async function submit() {
 
   saving.value = true
   try {
+    let savedExpense
     if (isEdit.value) {
-      await post(`/api/expense/update/${route.params.id}`, expense.value)
+      savedExpense = await post(`/api/expense/update/${props.expenseId}`, expense.value)
       success('Expense updated')
     } else {
-      await post('/api/expense/create', expense.value)
+      savedExpense = await post('/api/expense/create', expense.value)
       success('Expense created')
     }
-    router.push({ name: 'expenses' })
+    emit('saved', savedExpense)
   } catch (e) {
     error('Failed to save expense')
   } finally {
@@ -93,13 +119,11 @@ onMounted(fetchExpense)
 
 <template>
   <div>
-    <h1 class="text-xl font-bold text-gray-900 mb-6">{{ title }}</h1>
-
     <div v-if="loading" class="text-center py-12 text-gray-500">
       Loading...
     </div>
 
-    <form v-else @submit.prevent="submit" class="bg-white rounded-lg shadow p-6 max-w-2xl">
+    <form v-else @submit.prevent="submit">
       <div class="space-y-4">
         <BaseInput
           v-model="expense.title"
@@ -116,36 +140,38 @@ onMounted(fetchExpense)
         />
 
         <div>
-          <label class="block text-sm text-gray-500 mb-1">Description</label>
+          <label class="block text-sm text-gray-500 mb-2">Description</label>
           <textarea
             v-model="expense.description"
             rows="3"
-            class="w-full px-4 py-3 border border-gray-200 rounded-xs text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
+            class="w-full px-3 py-3 border border-gray-200 rounded-xs text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
           />
         </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <BaseInput
-            v-model="expense.amount"
-            label="Amount"
-            type="number"
-            step="0.01"
-            required
-            :error="errors.amount"
-            @focus="errors.amount = null"
-          />
-          <BaseSelect
-            v-model="expense.currency"
-            label="Currency"
-            :options="currencyOptions"
-          />
-        </div>
+        
+        <BaseInput
+          v-model="expense.amount"
+          label="Amount"
+          type="number"
+          step="0.01"
+          required
+          :error="errors.amount"
+          @focus="errors.amount = null"
+        />
+        <BaseSelect
+          v-model="expense.currency"
+          label="Currency"
+          :options="currencyOptions"
+        />
       </div>
 
-      <FormActions
-        :loading="saving"
-        :back-route="{ name: 'expenses' }"
-      />
+      <div class="flex items-center justify-end gap-3 mt-8">
+        <BaseButton type="button" variant="secondary" @click="emit('cancel')">
+          Cancel
+        </BaseButton>
+        <BaseButton type="submit" :loading="saving">
+          {{ isEdit ? 'Update' : 'Create' }}
+        </BaseButton>
+      </div>
     </form>
   </div>
 </template>

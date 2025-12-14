@@ -30,16 +30,14 @@ const emit = defineEmits(['confirm', 'cancel'])
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
       >
         <div
-          class="absolute inset-0 bg-black/50"
+          class="absolute inset-0 bg-black/10"
           @click="emit('cancel')"
         />
         <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
           <div class="flex items-start gap-4">
-            <div class="shrink-0 w-12 h-12 rounded-md bg-red-100 flex items-center justify-center">
-              <PhWarning class="w-6 h-6 text-red-600" weight="fill" />
-            </div>
+
             <div class="flex-1">
-              <h3 class="text-lg text-gray-900">{{ title }}</h3>
+              <h3 class="text-lg text-gray-900 mb-4">{{ title }}</h3>
               <p class="text-gray-500">{{ message }}</p>
             </div>
           </div>

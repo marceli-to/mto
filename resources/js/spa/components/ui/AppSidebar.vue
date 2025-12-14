@@ -7,10 +7,10 @@ const route = useRoute()
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content
 
 const navigation = [
-  { name: 'Projects', route: 'projects', icon: PhFolder },
-  { name: 'Clients', route: 'clients', icon: PhUsers },
   { name: 'Invoices', route: 'invoices', icon: PhReceipt },
   { name: 'Expenses', route: 'expenses', icon: PhCurrencyCircleDollar },
+  { name: 'Clients', route: 'clients', icon: PhUsers },
+  { name: 'Projects', route: 'projects', icon: PhFolder },
 ]
 
 const isActive = (routeName) => {

@@ -1,18 +1,24 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
-import FormActions from '@/components/ui/FormActions.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 
-const route = useRoute()
-const router = useRouter()
+const props = defineProps({
+  projectId: {
+    type: [Number, String],
+    default: null
+  }
+})
+
+const emit = defineEmits(['saved', 'cancel'])
+
 const { get, post } = useApi()
 const { success, error } = useToast()
 
-const isEdit = computed(() => !!route.params.id)
+const isEdit = computed(() => !!props.projectId)
 const title = computed(() => isEdit.value ? 'Edit Project' : 'New Project')
 
 const loading = ref(false)
@@ -42,7 +48,7 @@ async function fetchData() {
     rates.value = ratesData.data || []
 
     if (isEdit.value) {
-      const data = await get(`/api/project/edit/${route.params.id}`)
+      const data = await get(`/api/project/edit/${props.projectId}`)
       project.value = {
         ...data,
         client_id: data.client_id || '',
@@ -51,11 +57,33 @@ async function fetchData() {
     }
   } catch (e) {
     error('Failed to load data')
-    if (isEdit.value) router.push({ name: 'projects' })
+    if (isEdit.value) emit('cancel')
   } finally {
     loading.value = false
   }
 }
+
+function resetForm() {
+  project.value = {
+    name: '',
+    description: '',
+    client_id: '',
+    rate_id: '',
+    budget: '',
+    is_collection: false,
+    is_archive: false
+  }
+  errors.value = {}
+}
+
+watch(() => props.projectId, (newId) => {
+  if (newId) {
+    fetchData()
+  } else {
+    resetForm()
+    fetchData() // Still need to load clients and rates
+  }
+})
 
 function validate() {
   errors.value = {}
@@ -76,14 +104,15 @@ async function submit() {
 
   saving.value = true
   try {
+    let savedProject
     if (isEdit.value) {
-      await post(`/api/project/update/${route.params.id}`, project.value)
+      savedProject = await post(`/api/project/update/${props.projectId}`, project.value)
       success('Project updated')
     } else {
-      await post('/api/project/create', project.value)
+      savedProject = await post('/api/project/create', project.value)
       success('Project created')
     }
-    router.push({ name: 'projects' })
+    emit('saved', savedProject)
   } catch (e) {
     error('Failed to save project')
   } finally {
@@ -104,13 +133,11 @@ onMounted(fetchData)
 
 <template>
   <div>
-    <h1 class="text-xl font-bold text-gray-900 mb-6">{{ title }}</h1>
-
     <div v-if="loading" class="text-center py-12 text-gray-500">
       Loading...
     </div>
 
-    <form v-else @submit.prevent="submit" class="bg-white rounded-lg shadow p-6 max-w-2xl">
+    <form v-else @submit.prevent="submit">
       <div class="space-y-4">
         <BaseInput
           v-model="project.name"
@@ -134,20 +161,19 @@ onMounted(fetchData)
           label="Description"
         />
 
-        <div class="grid grid-cols-2 gap-4">
-          <BaseSelect
-            v-model="project.rate_id"
-            label="Hourly Rate"
-            :options="rateOptions"
-            placeholder="Select rate..."
-          />
-          <BaseInput
-            v-model="project.budget"
-            label="Budget (CHF)"
-            type="number"
-            step="0.01"
-          />
-        </div>
+        <BaseSelect
+          v-model="project.rate_id"
+          label="Hourly Rate"
+          :options="rateOptions"
+          placeholder="Select rate..."
+        />
+        
+        <BaseInput
+          v-model="project.budget"
+          label="Budget (CHF)"
+          type="number"
+          step="0.01"
+        />
 
         <div class="flex gap-6 pt-2">
           <label class="flex items-center gap-2 cursor-pointer">
@@ -169,10 +195,14 @@ onMounted(fetchData)
         </div>
       </div>
 
-      <FormActions
-        :loading="saving"
-        :back-route="{ name: 'projects' }"
-      />
+      <div class="flex items-center justify-end gap-3 mt-8">
+        <BaseButton type="button" variant="secondary" @click="emit('cancel')">
+          Cancel
+        </BaseButton>
+        <BaseButton type="submit" :loading="saving">
+          {{ isEdit ? 'Update' : 'Create' }}
+        </BaseButton>
+      </div>
     </form>
   </div>
 </template>

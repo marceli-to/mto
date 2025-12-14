@@ -6,6 +6,8 @@ import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import Flyout from '@/components/ui/Flyout.vue'
+import InvoiceForm from './InvoiceForm.vue'
 import InvoiceStateForm from './InvoiceStateForm.vue'
 
 const { get, del } = useApi()
@@ -20,6 +22,26 @@ const activeFilters = ref(['open', 'pending'])
 const showSubtotals = ref(false)
 const deleteDialog = ref({ show: false, id: null, loading: false })
 const stateDialog = ref({ show: false, invoice: null })
+const flyout = ref({ show: false, invoiceId: null })
+
+const flyoutTitle = computed(() => flyout.value.invoiceId ? 'Edit Invoice' : 'New Invoice')
+
+function openCreate() {
+  flyout.value = { show: true, invoiceId: null }
+}
+
+function openEdit(id) {
+  flyout.value = { show: true, invoiceId: id }
+}
+
+function closeFlyout() {
+  flyout.value = { show: false, invoiceId: null }
+}
+
+function onInvoiceSaved() {
+  closeFlyout()
+  fetchInvoices()
+}
 
 const filteredInvoices = computed(() => {
   let result = invoices.value
@@ -133,12 +155,13 @@ onMounted(fetchInvoices)
         <SearchInput v-model="search" />
       </div>
 
-      <router-link
-        :to="{ name: 'invoice-create' }"
-        class="fixed right-4 bottom-4 inline-flex items-center gap-2 pr-4 pl-3 py-2 bg-black text-white text-md rounded-xs hover:bg-gray-800 transition-colors">
+      <button
+        v-if="!flyout.show"
+        @click="openCreate"
+        class="fixed right-4 bottom-4 z-20 inline-flex items-center gap-2 pr-4 pl-3 py-2 bg-black text-white text-md rounded-xs hover:bg-gray-800 transition-colors cursor-pointer">
         <PhPlus class="w-5 h-5" />
         Add Invoice
-      </router-link>
+      </button>
     </div>
 
     <!-- Loading State -->
@@ -200,14 +223,14 @@ onMounted(fetchInvoices)
               >
                 <PhFilePdf class="w-5 h-5" />
               </button>
-              <router-link
+              <button
                 v-if="invoice.state?.description === 'open'"
-                :to="{ name: 'invoice-edit', params: { id: invoice.id } }"
+                @click="openEdit(invoice.id)"
                 class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
                 title="Edit"
               >
                 <PhPencil class="w-5 h-5" />
-              </router-link>
+              </button>
               <span v-else class="p-2.5 text-gray-200">
                 <PhPencil class="w-5 h-5" />
               </span>
@@ -271,5 +294,18 @@ onMounted(fetchInvoices)
       @close="stateDialog.show = false"
       @updated="onStateUpdated"
     />
+
+    <Flyout
+      :show="flyout.show"
+      :title="flyoutTitle"
+      size="2xl"
+      @close="closeFlyout"
+    >
+      <InvoiceForm
+        :invoice-id="flyout.invoiceId"
+        @saved="onInvoiceSaved"
+        @cancel="closeFlyout"
+      />
+    </Flyout>
   </div>
 </template>
