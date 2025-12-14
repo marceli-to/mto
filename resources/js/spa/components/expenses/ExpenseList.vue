@@ -104,23 +104,24 @@ onMounted(fetchExpenses)
   <div>
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-12">
-      
-      <h1 class="text-xl text-gray-900 font-bold">
-        Expenses
-      </h1>
+
+      <div class="flex items-center gap-2">
+        <button
+          @click="openCreate"
+          class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+          title="Add Expense"
+        >
+          <PhPlus class="w-4 h-4" />
+        </button>
+        <h1 class="text-xl text-gray-900 font-bold">
+          Expenses
+        </h1>
+      </div>
 
       <!-- Search -->
       <div>
         <SearchInput v-model="search" />
       </div>
-
-      <button
-        v-if="!flyout.show"
-        @click="openCreate"
-        class="fixed right-4 bottom-4 z-20 inline-flex items-center gap-2 pr-4 pl-3 py-2 bg-black text-white text-md rounded-xs hover:bg-gray-800 transition-colors cursor-pointer">
-        <PhPlus class="w-5 h-5" />
-        Add Expense
-      </button>
     </div>
 
     <!-- Loading State -->

@@ -145,23 +145,24 @@ onMounted(fetchInvoices)
   <div>
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-12">
-      
-      <h1 class="text-xl text-gray-900 font-bold">
-        Invoices
-      </h1>
+
+      <div class="flex items-center gap-2">
+        <button
+          @click="openCreate"
+          class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+          title="Add Invoice"
+        >
+          <PhPlus class="w-4 h-4" />
+        </button>
+        <h1 class="text-xl text-gray-900 font-bold">
+          Invoices
+        </h1>
+      </div>
 
       <!-- Search -->
       <div>
         <SearchInput v-model="search" />
       </div>
-
-      <button
-        v-if="!flyout.show"
-        @click="openCreate"
-        class="fixed right-4 bottom-4 z-20 inline-flex items-center gap-2 pr-4 pl-3 py-2 bg-black text-white text-md rounded-xs hover:bg-gray-800 transition-colors cursor-pointer">
-        <PhPlus class="w-5 h-5" />
-        Add Invoice
-      </button>
     </div>
 
     <!-- Loading State -->
@@ -197,8 +198,7 @@ onMounted(fetchInvoices)
           <li
             v-for="invoice in filteredInvoices"
             :key="invoice.id"
-            class="flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors"
-          >
+            class="flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors">
             <div class="flex items-center gap-x-6">
               <button
                 @click="openStateDialog(invoice)"
@@ -298,7 +298,7 @@ onMounted(fetchInvoices)
     <Flyout
       :show="flyout.show"
       :title="flyoutTitle"
-      size="2xl"
+      size="xl"
       @close="closeFlyout"
     >
       <InvoiceForm

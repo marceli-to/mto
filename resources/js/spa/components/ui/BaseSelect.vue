@@ -37,7 +37,7 @@ const selectClasses = computed(() => [
 <template>
   <div class="space-y-1">
     <label v-if="label" class="block text-sm text-gray-500 mb-2">
-      {{ label }}
+      {{ error ?? label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
     <div class="relative">
@@ -62,6 +62,5 @@ const selectClasses = computed(() => [
         </svg>
       </div>
     </div>
-    <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
   </div>
 </template>

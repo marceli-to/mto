@@ -29,7 +29,7 @@ const inputClasses = computed(() => [
 <template>
   <div class="space-y-1">
     <label v-if="label" class="block text-sm text-gray-500 mb-2">
-      {{ label }}
+      {{ error ?? label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
     <input
@@ -40,6 +40,5 @@ const inputClasses = computed(() => [
       :class="inputClasses"
       @input="emit('update:modelValue', $event.target.value)"
     />
-    <p v-if="error" class="text-sm text-red-600">{{ error }}</p>
   </div>
 </template>

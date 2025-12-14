@@ -252,7 +252,7 @@ onMounted(fetchData)
             />
             <BaseInput
               v-model="invoice.date_due"
-              label="Due Date"
+              label="Date due"
               type="date"
             />
           </div>

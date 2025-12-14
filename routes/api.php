@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\InvoiceStateController;
 use App\Http\Controllers\Api\InvoicePositionController;
 use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\RateController;
+use App\Http\Controllers\Api\UploadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,6 +96,13 @@ Route::middleware('auth:sanctum')->group(function() {
   Route::get('expense/edit/{expense}', [ExpenseController::class, 'edit']);
   Route::post('expense/update/{expense}', [ExpenseController::class, 'update']);
   Route::delete('expense/destroy/{expense}', [ExpenseController::class, 'destroy']);
+
+  /**
+   * Upload routes
+   */
+
+  Route::post('upload/temp', [UploadController::class, 'upload']);
+  Route::delete('upload/revert', [UploadController::class, 'revert']);
 
 });
 

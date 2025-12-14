@@ -24,7 +24,11 @@ class Expense extends Model
 
   public function setDateAttribute($value)
   {
-    $this->attributes['date'] = \Carbon\Carbon::parse($value)->format('Y.m.d');
+    if (str_contains($value, '.')) {
+      $this->attributes['date'] = \Carbon\Carbon::createFromFormat('Y.m.d', $value)->format('Y-m-d');
+    } else {
+      $this->attributes['date'] = \Carbon\Carbon::parse($value)->format('Y-m-d');
+    }
   }
 
   /**

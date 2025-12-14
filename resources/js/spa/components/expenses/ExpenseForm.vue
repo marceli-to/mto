@@ -5,6 +5,7 @@ import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import FileUpload from '@/components/ui/FileUpload.vue'
 
 const props = defineProps({
   expenseId: {
@@ -36,8 +37,16 @@ const expense = ref({
   description: '',
   date: '',
   amount: '',
-  currency: 'CHF'
+  currency: 'CHF',
+  temp_file: '',
+  delete_file: false
 })
+
+const existingFile = ref('')
+
+function onDeleteExisting() {
+  expense.value.delete_file = true
+}
 
 async function fetchExpense() {
   if (!isEdit.value) {
@@ -50,8 +59,10 @@ async function fetchExpense() {
     const data = await get(`/api/expense/edit/${props.expenseId}`)
     expense.value = {
       ...data,
-      date: data.date ? new Date(data.date).toISOString().split('T')[0] : ''
+      date: data.date ? new Date(data.date).toISOString().split('T')[0] : '',
+      temp_file: ''
     }
+    existingFile.value = data.file_name || ''
   } catch (e) {
     error('Failed to load expense')
     emit('cancel')
@@ -66,8 +77,11 @@ function resetForm() {
     description: '',
     date: new Date().toISOString().split('T')[0],
     amount: '',
-    currency: 'CHF'
+    currency: 'CHF',
+    temp_file: '',
+    delete_file: false
   }
+  existingFile.value = ''
   errors.value = {}
 }
 
@@ -148,19 +162,32 @@ onMounted(fetchExpense)
           />
         </div>
         
-        <BaseInput
-          v-model="expense.amount"
-          label="Amount"
-          type="number"
-          step="0.01"
-          required
-          :error="errors.amount"
-          @focus="errors.amount = null"
-        />
-        <BaseSelect
-          v-model="expense.currency"
-          label="Currency"
-          :options="currencyOptions"
+        <div class="grid grid-cols-12 gap-x-4 w-full">
+          <div class="col-span-8">
+            <BaseInput
+              v-model="expense.amount"
+              label="Amount"
+              type="number"
+              step="0.01"
+              required
+              :error="errors.amount"
+              @focus="errors.amount = null"
+            />
+          </div>
+          <div class="col-span-4">
+            <BaseSelect
+              v-model="expense.currency"
+              label="Currency"
+              :options="currencyOptions"
+            />
+          </div>
+        </div>
+
+        <FileUpload
+          v-model="expense.temp_file"
+          label="Receipt"
+          :existing-file="existingFile"
+          @delete-existing="onDeleteExisting"
         />
       </div>
 
