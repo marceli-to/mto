@@ -261,19 +261,19 @@ onMounted(fetchInvoices)
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
         <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
           <p class="text-sm text-gray-500 mb-1">Total</p>
-          <p class="text-xl  text-gray-900">{{ formatCurrency(totals.total) }}</p>
+          <p class="text-xl text-gray-900">{{ formatCurrency(totals.total) }}</p>
         </div>
         <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
-          <p class="text-sm text-gray-500 mb-1">Paid</p>
-          <p class="text-xl  text-green-600">{{ formatCurrency(totals.paid + totals.closed) }}</p>
+          <p class="text-sm text-gray-500 mb-1">Open</p>
+          <p class="text-xl text-blue-600">{{ formatCurrency(totals.overdue) }}</p>
         </div>
         <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
           <p class="text-sm text-gray-500 mb-1">Pending</p>
-          <p class="text-xl  text-yellow-600">{{ formatCurrency(totals.pending) }}</p>
+          <p class="text-xl text-yellow-600">{{ formatCurrency(totals.pending) }}</p>
         </div>
         <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
-          <p class="text-sm text-gray-500 mb-1">Overdue</p>
-          <p class="text-xl  text-red-600">{{ formatCurrency(totals.overdue) }}</p>
+          <p class="text-sm text-gray-500 mb-1">Paid</p>
+          <p class="text-xl text-green-600">{{ formatCurrency(totals.paid + totals.closed) }}</p>
         </div>
       </div>
 
