@@ -89,7 +89,7 @@
   }
 
   .invoice-description {
-    margin-top: 20mm;
+    margin-top: 10mm;
   }
 
   .invoice-positions {

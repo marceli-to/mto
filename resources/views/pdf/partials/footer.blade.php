@@ -34,7 +34,7 @@
 </head>
 <body>
   <footer>
-    Marcel Stadelmann <span class="dot">●</span> Letzigraben 149 <span class="dot">●</span> 8047 Zürich <span class="dot">●</span> 078 749 74 09 <span class="dot">●</span> m@marceli.to
+    Marcel Stadelmann <span class="dot">&bull;</span> Letzigraben 149 <span class="dot">&bull;</span> 8047 Zürich <span class="dot">&bull;</span> 078 749 74 09 <span class="dot">&bull;</span> m@marceli.to
   </footer>
 </body>
 </html>
