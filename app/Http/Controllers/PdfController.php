@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Invoice;
 use App\Models\Expense;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\PdfBuilder;
 
@@ -16,10 +17,33 @@ class PdfController extends Controller
  	{
  		$invoice->load(['positions', 'client']);
 
- 		return $this->buildPdf('pdf.invoice', ['invoice' => $invoice])
-      ->headerView('pdf.partials.header')
-      ->footerView('pdf.partials.footer')
-      ->name($this->getInvoiceFilename($invoice));
+ 		// Generate cached filename with updated_at timestamp
+ 		$timestamp = $invoice->updated_at->format('d-m-Y-H-i-s');
+ 		$slugifiedTitle = Str::slug(str_replace('www.', '', $invoice->title));
+ 		$cachedFilename = "invoices/{$this->filenamePrefix}{$invoice->number}-{$invoice->client->acronym}-{$timestamp}.pdf";
+ 		$storagePath = "public/media/{$cachedFilename}";
+
+ 		// Check if cached PDF exists
+ 		if (Storage::exists($storagePath)) {
+ 			return response()->file(
+ 				Storage::path($storagePath),
+ 				['Content-Type' => 'application/pdf']
+ 			)->setContentDisposition('inline', $this->getInvoiceFilename($invoice));
+ 		}
+
+ 		// Ensure directory exists
+ 		Storage::makeDirectory('public/media/invoices');
+
+ 		// Generate and save PDF
+ 		$this->buildPdf('pdf.invoice', ['invoice' => $invoice])
+ 			->headerView('pdf.partials.header')
+ 			->footerView('pdf.partials.footer')
+ 			->save(Storage::path($storagePath));
+
+ 		return response()->file(
+ 			Storage::path($storagePath),
+ 			['Content-Type' => 'application/pdf']
+ 		)->setContentDisposition('inline', $this->getInvoiceFilename($invoice));
  	}
 
  	public function expense(Expense $expense)

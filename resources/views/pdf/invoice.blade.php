@@ -99,7 +99,7 @@
   .payment-info {
     border: .3mm solid #000000;
     max-width: 80mm;
-    margin-top: 20mm;
+    margin-top: 10mm;
     padding: 1mm 2mm;
     break-inside: avoid;
     page-break-inside: avoid;
@@ -167,38 +167,41 @@
       <tbody>
         @foreach($invoice->positions as $position)
         <tr>
-          <td style="width: 20%">{{ $position->periode }}</td>
-          <td style="width: 45%">{{ $position->description }}</td>
+          <td style="width: 15%">{{ $position->periode }}</td>
+          <td style="width: 55%">{{ $position->description }}</td>
           <td style="width: 25%">
             @if($position->is_flat)
               Pauschal
             @elseif($position->is_fee)
               Spesen
             @else
-              {{ number_format($position->hours, 2) }} Std. à {{ number_format($position->rate, 2) }}
+              {{ number_format($position->hours, 2, '.', "'") }} Std. à {{ number_format($position->rate, 2, '.', "'") }}
             @endif
           </td>
-          <td style="width: 10%; text-align: right">{{ number_format($position->amount, 2) }}</td>
+          <td style="width: 5%; text-align: right">{{ number_format($position->amount, 2, '.', "'") }}</td>
         </tr>
         @endforeach
         <tr>
           <td colspan="3">Subtotal</td>
-          <td style="text-align: right">{{ number_format($invoice->total, 2) }}</td>
+          <td style="text-align: right">{{ number_format($invoice->total, 2, '.', "'") }}</td>
         </tr>
         <tr>
           <td colspan="3">MwSt {{ $invoice->vat_rate }}%</td>
-          <td style="text-align: right">{{ number_format($invoice->vat, 2) }}</td>
+          <td style="text-align: right">{{ number_format($invoice->vat, 2, '.', "'") }}</td>
         </tr>
         <tr>
           <td colspan="3" style="border-bottom: 0.6mm solid #000000"><strong>Total</strong></td>
-          <td style="text-align: right; border-bottom: 0.6mm solid #000000"><strong>{{ number_format($invoice->grandtotal, 2) }}</strong></td>
+          <td style="text-align: right; border-bottom: 0.6mm solid #000000"><strong>{{ number_format($invoice->grandtotal, 2, '.', "'") }}</strong></td>
         </tr>
       </tbody>
     </table>
 
     <!-- Payment Info -->
     <div class="payment-info">
-      <table class="w-full">
+      <table class="w-full keep-together">
+        <tr>
+          <td colspan="2" class="font-size-xs"><strong>Bankverbindung</strong></td>
+        </tr>
         <tr>
           <td class="font-size-xs" style="width: 30%;">Bank</td>
           <td class="font-size-xs">Raiffeisenbank Weinland</td>
