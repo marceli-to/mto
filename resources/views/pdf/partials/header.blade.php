@@ -1,343 +1,45 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+@php
+  $fontPath = resource_path('sidecar-browsershot/fonts/');
+  $fontLight = base64_encode(file_get_contents($fontPath . 'Poppins-Light.woff2'));
+  $fontMedium = base64_encode(file_get_contents($fontPath . 'Poppins-Medium.woff2'));
+@endphp
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>Invoice</title>
 <style>
-@font-face {
-    font-family: 'AkrobatBold';
-    src: url('{{ url("/") }}/assets/css/fonts/Akrobat-Bold.ttf') format("truetype");
-    font-weight: normal;
-    font-style: normal; 
-}
-
-@font-face {
-    font-family: 'AkrobatRegular';
-    src: url('{{ url("/") }}/assets/css/fonts/Akrobat-Regular.ttf') format("truetype");
-    font-weight: normal;
-    font-style: normal; 
-}
-
-@font-face {
-    font-family: 'RobotoMono';
-    src: url('{{ url("/") }}/assets/css/fonts/RobotoMono-Regular.ttf') format("truetype");
-    font-weight: normal;
-    font-style: normal; 
-}
-
-
-@page {
-  size: A4;
-  margin: 0;
-}
-
-@media print {
-  html, body {
-    width: 210mm;
-    height: 297mm;
-  }
-}
-
-html {
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    background-color: white;
-    padding: 15mm 20mm 20mm 20mm;
-}
-
-* {
-    font-family: 'AkrobatRegular', sans-serif !important;
+  @font-face {
+    font-family: 'Poppins';
+    src: url('data:font/woff2;base64,{{ $fontLight }}') format('woff2');
+    font-weight: 300;
     font-style: normal;
-    font-stretch: normal;
-    font-weight: normal;
-    text-rendering: optimizeLegibility;
-    color: #000000;
+  }
+  @font-face {
+    font-family: 'Poppins';
+    src: url('data:font/woff2;base64,{{ $fontMedium }}') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+  }
+  body {
+    font-family: 'Poppins', sans-serif;
     margin: 0;
-    padding: 0;
-}
-
-b, strong, .bold {
-    font-family: 'AkrobatBold', sans-serif !important;
-}
-
-p {
-    margin: 0;
-}
-
-table td {
-    vertical-align: top;
-}
-
-.cf::after {
-  content: "";
-  clear: both;
-  display: table;
-}
-
-header.page-header {
-    position: fixed;
-    top: 10mm;
-    left: 0;
-    text-align: center;
-    width: 100%;
-}
-
-footer.page-footer {
-    color: #000000;
-    position: fixed;
-    bottom: 10mm;
-    position: fixed;
-    text-align: center;
-    width: 100%;
-}
-
-/* Meta data */
-.mto-logo {
-    display: inline-block;
-    height: 20mm;
-    position: fixed;
-    top: 15mm;
-    right: 20mm;
-    width: 20mm;
-    z-index: 100;
-}
-
-.mto-logo img {
+    padding: 0 20mm;
+  }
+  header {
+    margin-top: 5mm;
+  }
+  .logo {
     display: block;
     height: auto;
-    width: 100%;
-}
-
-.mto-address {
-    font-size: 10pt;
-    line-height: 9pt;
-}
-
-.mto-code-start,
-.mto-code-end {
-    color: #000000;
-    font-family: 'RobotoMono', sans-serif !important;
-    font-size: 6pt;
-    line-height: 1;
-}
-
-/* Generic elements */
-h1 {
-    font-family: 'AkrobatBold', sans-serif !important;
-    font-size: 18pt;
-    line-height: 1;
-}
-
-h2 {
-    font-family: 'AkrobatBold', sans-serif !important;
-    font-size: 16pt;
-    line-height: 1;
-}
-
-/* Invoice data */
-.invoice-address {
-    font-size: 11pt;
-    line-height: 1;
-    margin-top: 20mm;
-}
-
-header.invoice-header {
-    margin-top: 20mm;
-}
-
-header.invoice-header h1 {
-    float: left;
-    margin: -1mm 0 0 0;
-    width: 65%;
-}
-
-header.invoice-header table {
-    float: left;
-    font-size: 10pt;
-    line-height: 1;
-    margin: 0;
-    padding: 0;
-    width: 35%;
-}
-
-header.invoice-header table td:nth-child(2n+2) {
-    text-align: right;
-}
-
-main.invoice-body {
-    font-size: 11pt;
-    line-height: 15pt;
-    margin-top: 5mm;
-    text-align: left;
-}
-
-table.invoice-positions,
-table.invoice-positions.is-journal {
-    font-size: 11pt;
-    line-height: 1;
-    margin-top: 5mm;
-    width: 100%;
-}
-
-
-table.invoice-positions.is-journal {
-    margin-top: 10mm;
-}
-
-table.invoice-positions td,
-table.invoice-positions th {
-    padding: 0;
-    vertical-align: middle;
-}
-
-table.invoice-positions th {
-  text-align: left;
-}
-
-table.invoice-positions thead {
-    border-bottom: .1mm solid #000000;
-    line-height: 1;
-}
-
-table.invoice-positions thead th,
-table.invoice-positions tr.position td,
-table.invoice-positions tr.position-footer td {
-    padding: 1.5mm 0 1.75mm 0;
-}
-
-table.invoice-positions thead th {
-    font-family: 'AkrobatBold', sans-serif !important;
-}
-
-table.invoice-positions tr.position td {
-    border-bottom: .1mm solid #000000;
-    vertical-align: top;
-}
-
-table.invoice-positions tr.position-footer td {
-    border-bottom: .1mm solid #000000;
-}
-
-table.invoice-positions tr.position-footer--grandtotal td {
-    font-family: 'AkrobatBold', sans-serif !important;
-    border-bottom: .6mm solid #000000;
-}
-
-.invoice-remarks {
-    line-height: 1; 
-    margin-top: 20px;
-}
-
-.position-periode {
-    width: 12%;
-}
-
-.position-cost {
-    width: 17%;
-}
-
-.position-description {
-    width: 56%;
-}
-
-.position-amount {
-    width: 15%;
-}
-
-.align-right {
-    text-align: right !important;
-}
-
-.invoice-journal {
-    margin-top: 30mm;
-    margin-bottom: 0mm;
-}
-
-.invoice-vat-info {
-    font-size: 9pt;
-    line-height: 1;
-    text-align: right;
-    margin-top: 1mm;
-}
-
-.payment-info-box {
-    border: .3mm solid #000;
-    bottom: 20mm;
-    font-size: 10pt;
-    line-height: 0.9;
-    left: 20mm;
-    padding: 1mm;
-    position: absolute;
-    width: 70mm;
-}
-
-.payment-status {
-    background-color: #5cb85c;
-    color: #fff;
-    font-family: 'AkrobatBold', sans-serif !important;
-    font-size: 12pt;
-    line-height: 1.2;
-    padding: 2mm;
-    position: absolute;
-    right: 20mm;
-    top: 60mm;
-}
-
-.payment-info-box table {
-    width: 100%;
-}
-
-.payment-info-box td {
-    padding: 1mm;
-}
-
-ul {
-    margin-left: 16px
-}
-
-li {
-    display: list-item;
-    list-style-type: circle;
-    line-height: 10pt;
-    margin-bottom: 1mm;
-}
-
+    width: 50mm;
+  }
 </style>
 </head>
 <body>
-{{-- <script type="text/php">
-if (isset($pdf)) {
-    $font = $fontMetrics->getFont("basis-grotesque-regular-pro", "normal");
-    $pdf->page_text(543, 810, "{PAGE_NUM}/{PAGE_COUNT}", $font, 9.5, array(0, 0, 0));
-}
-</script> --}}
-<header class="page-header">
-    <span class="mto-code-start">&lt;marceli.to&gt;</span>
-</header>
-<span class="mto-logo">
-    <img src="{{ asset('assets/img/mto-logo.svg') }}" height="100" width="100">
-</span>
-<span class="mto-address"><strong>marceli.to</strong><br>Marcel Stadelmann<br>Letzigraben 149<br>8047 Zürich<br><br>m@marceli.to<br>078 749 74 09<br></span>
-
-<div class="payment-info-box">
-    <table>
-        <tr>
-            <td>Bank</td>
-            <td>Raiffeisenbank Weinland</td>
-        </tr>
-        <tr>
-            <td>IBAN</td>
-            <td>CH22 8080 8003 1865 2284 6</td>
-        </tr>
-        <tr>
-            <td>Zugunsten</td>
-            <td>Marcel Stadelmann<br>Letzigraben 149<br>8047 Zürich</td>
-        </tr>
-    </table>
-</div>
-
-<footer class="page-footer">
-    <span class="mto-code-end">&lt;/marceli.to&gt;</span>
-</footer>
+  <header>
+    <svg xmlns="http://www.w3.org/2000/svg" width="433.855" height="49.858" viewBox="0 0 433.855 49.858" class="logo">
+      <path d="M43.438 5.46v33.779c0 2.399-1.979 4.379-4.38 4.379-2.399 0-4.319-1.979-4.319-4.379 0-15.72.06-21.779.42-24.959l-10.5 14.58c-.899 1.26-1.979 1.86-2.999 1.86-1.08 0-2.101-.601-3-1.86L8.28 14.28c.36 3.12.42 9.06.42 24.959 0 2.399-1.92 4.379-4.319 4.379-2.4 0-4.38-1.979-4.38-4.379V5.46C.001 2.58 2.341.18 5.28.18c1.62 0 3.18.72 4.2 2.1l12.239 17.04L33.958 2.28c1.021-1.38 2.58-2.1 4.2-2.1 2.94 0 5.28 2.4 5.28 5.28zM93.958 37.678c.18.54.3 1.08.3 1.62 0 2.58-2.46 4.319-4.74 4.319-1.859 0-3.359-1.08-4.02-3.119-.78-2.4-1.5-4.62-2.22-6.66h-15.84c-.659 2.1-1.439 4.32-2.22 6.779-.72 2.101-2.22 3-3.96 3-2.1 0-4.38-1.5-4.38-4.02 0-.539.061-1.08.301-1.68L69.119 4.68c.899-2.46 2.88-4.439 5.1-4.439h2.34c2.52 0 4.439 1.86 5.399 4.439l12 32.998zm-13.02-10.979c-4.32-13.319-5.4-17.159-5.7-20.159-.24 2.76-1.2 6.9-5.46 20.159h11.16zM137.337 37.018c.78.9 1.08 1.74 1.08 2.58 0 2.16-2.1 3.84-4.319 3.84-1.141 0-2.28-.48-3.181-1.439L116.038 26.04c.24 2.52.36 6.479.36 13.2 0 2.399-1.92 4.379-4.32 4.379-2.399 0-4.38-1.979-4.38-4.379V4.92c0-2.76 1.56-4.32 4.32-4.32h13.139c9.3 0 15.06 4.86 15.06 13.199 0 9.18-7.199 12.78-12.779 13.14 2.099 1.68 5.519 5.159 9.899 10.079zM116.398 8.459v12.3h8.159c4.439 0 6.96-2.46 6.96-6.24 0-3.66-2.521-6.06-6.96-6.06h-8.159zM174.538 43.739c-10.5 0-21.96-6.36-21.96-21.84 0-15.719 11.7-21.719 22.14-21.719 3.6 0 7.08.72 9.84 1.98 1.619.78 2.399 2.16 2.399 3.6 0 1.86-1.319 3.66-3.54 3.66a4.5 4.5 0 0 1-1.439-.24c-2.22-.72-4.62-1.08-6.96-1.08-7.14 0-13.739 3.72-13.739 13.799 0 9.9 6.6 13.859 13.859 13.859 2.28 0 4.56-.359 6.779-1.08.54-.18 1.021-.24 1.5-.24 2.16 0 3.42 1.74 3.42 3.601 0 1.38-.66 2.76-2.279 3.54-2.88 1.379-6.42 2.16-10.02 2.16zM205.438 43.198c-2.939 0-4.56-1.619-4.56-4.559V5.16c0-2.94 1.62-4.56 4.56-4.56h19.38c2.1 0 3.899 1.74 3.899 3.959 0 2.16-1.8 3.9-3.899 3.9h-15.239v9.42h11.999c2.1 0 3.84 1.74 3.84 3.84 0 2.1-1.74 3.84-3.84 3.84h-11.999v9.779h15.239c2.1 0 3.899 1.74 3.899 3.9 0 2.22-1.8 3.959-3.899 3.959h-19.38zM246.298 43.198c-2.76 0-4.319-1.56-4.319-4.319V4.56c0-2.399 1.979-4.379 4.38-4.379 2.399 0 4.319 1.98 4.319 4.379v30.779h14.279c2.16 0 3.96 1.74 3.96 3.9 0 2.22-1.859 3.959-3.96 3.959h-18.659zM281.997 4.56c0-2.88 2.22-4.319 4.38-4.319s4.32 1.439 4.32 4.319v34.679c0 2.879-2.16 4.319-4.32 4.319s-4.38-1.44-4.38-4.319V4.56zM314.938 39.239V8.459h-7.619c-2.16 0-3.96-1.74-3.96-3.9 0-2.22 1.8-3.959 3.96-3.959h23.938c2.101 0 3.9 1.74 3.9 3.959 0 2.16-1.8 3.9-3.9 3.9h-7.619v30.779c0 2.399-1.98 4.379-4.38 4.379-2.401.001-4.32-1.979-4.32-4.378zM343.138 21.899C343.138 9.24 352.378 0 364.917 0c12.6 0 21.779 9.3 21.779 21.899 0 12.6-9.18 21.899-21.779 21.899-12.539 0-21.779-9.239-21.779-21.899zm34.858 0c0-7.56-5.399-13.739-13.079-13.739s-13.079 6.18-13.079 13.739c0 7.561 5.399 13.74 13.079 13.74s13.079-6.18 13.079-13.74z"></path>
+      <path fill="#E94264" d="M399.777 43.198h30.719c1.739 0 3.359 1.5 3.359 3.36 0 1.8-1.56 3.3-3.359 3.3h-30.719c-1.801 0-3.36-1.5-3.36-3.3 0-1.86 1.56-3.36 3.36-3.36z"></path>
+    </svg>
+  </header>
+</body>
+</html>
