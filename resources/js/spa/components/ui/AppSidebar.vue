@@ -45,12 +45,12 @@ const isActive = (routeName) => {
     </nav>
 
     <!-- Bottom Section -->
-    <div class="px-4 py-2 border-t border-gray-100 space-y-1">
+    <div class="px-4 py-1 border-t border-gray-100 space-y-1">
       <form action="/logout" method="POST">
         <input type="hidden" name="_token" :value="csrfToken">
         <button
           type="submit"
-          class="flex items-center gap-3 py-4 text-sm text-gray-500 font-regular cursor-pointer hover:text-black transition-all duration-200">
+          class="flex items-center gap-2 py-4 text-xs text-gray-500 font-regular cursor-pointer hover:text-black transition-all duration-200">
           <PhSignOut class="w-4 h-4" />
           Logout
         </button>

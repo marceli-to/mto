@@ -91,7 +91,7 @@ onMounted(fetchContact)
 
 <template>
   <div>
-    <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ title }}</h1>
+    <h1 class="text-xl font-bold text-gray-900 mb-6">{{ title }}</h1>
 
     <div v-if="loading" class="text-center py-12 text-gray-500">
       Loading...

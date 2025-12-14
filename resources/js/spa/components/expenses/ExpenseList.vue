@@ -76,7 +76,7 @@ onMounted(fetchExpenses)
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-12">
       
-      <h1 class="text-2xl  text-gray-900">
+      <h1 class="text-xl text-gray-900 font-bold">
         Expenses
       </h1>
 
