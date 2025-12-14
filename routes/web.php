@@ -13,17 +13,18 @@ Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
-// PDF routes
-Route::get('/admin/invoice/qr', 'PdfController@qr')->name('pdf.qr');
-Route::get('/admin/invoice/pdf/{invoice}', 'PdfController@invoice')->name('pdf.invoice');
-Route::get('/admin/invoices/pdf', 'PdfController@invoices')->name('pdf.invoices');
-Route::get('/admin/expense/pdf/{expense}', 'PdfController@expense')->name('pdf.expense');
-Route::get('/admin/expenses/pdf', 'PdfController@expenses')->name('pdf.expenses');
-
-// Admin SPA (protected)
+// Protected routes
 Route::middleware('auth')->group(function () {
-    Route::view('admin', 'admin.app');
-    Route::get('admin/{any}', function () {
-        return view('admin.app');
+    // PDF routes
+    Route::get('/invoice/qr', 'PdfController@qr')->name('pdf.qr');
+    Route::get('/invoice/pdf/{invoice}', 'PdfController@invoice')->name('pdf.invoice');
+    Route::get('/invoices/pdf', 'PdfController@invoices')->name('pdf.invoices');
+    Route::get('/expense/pdf/{expense}', 'PdfController@expense')->name('pdf.expense');
+    Route::get('/expenses/pdf', 'PdfController@expenses')->name('pdf.expenses');
+
+    // SPA catch-all
+    Route::view('/', 'spa.app');
+    Route::get('/{any}', function () {
+        return view('spa.app');
     })->where('any', '.*');
 });

@@ -2,10 +2,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
-    protected $table = 'projects';
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -23,6 +24,6 @@ class Project extends Model
      */
     public function client()
     {
-        return $this->hasOne('App\Models\Client', 'id', 'client_id');
+        return $this->belongsTo(Client::class);
     }
 }

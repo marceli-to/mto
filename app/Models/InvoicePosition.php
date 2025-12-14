@@ -5,8 +5,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class InvoicePosition extends Model
 {
-    protected $table = 'invoice_positions';
-
     protected $fillable = [
         'periode',
         'description',
@@ -23,6 +21,6 @@ class InvoicePosition extends Model
      */
     public function invoice()
     {
-        return $this->hasOne('App\Models\Invoice', 'id', 'invoice_id');
+        return $this->belongsTo(Invoice::class);
     }
 }

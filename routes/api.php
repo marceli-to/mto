@@ -1,6 +1,14 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\ClientController;
+use App\Http\Controllers\Api\ContactController;
+use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\InvoiceController;
+use App\Http\Controllers\Api\InvoiceStateController;
+use App\Http\Controllers\Api\InvoicePositionController;
+use App\Http\Controllers\Api\ExpenseController;
+use App\Http\Controllers\Api\RateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,99 +30,73 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
  */
 
 Route::middleware('auth:sanctum')->group(function() {
-    
+
   /**
    * Client routes
    */
 
-  Route::get('clients/get', 'Api\ClientController@get');
-  Route::post('client/create', 'Api\ClientController@store');
-  Route::get('client/edit/{client}', 'Api\ClientController@edit');
-  Route::post('client/update/{client}', 'Api\ClientController@update');
-  Route::get('client/clone/{client}', 'Api\ClientController@clone');
-  Route::get('client/status/{client}', 'Api\ClientController@status');
-  Route::delete('client/destroy/{client}', 'Api\ClientController@destroy');
-  Route::get('client/unique/acronym/{string}', 'Api\ClientController@uniqueAcronym');
+  Route::get('clients/get', [ClientController::class, 'get']);
+  Route::post('client/create', [ClientController::class, 'store']);
+  Route::get('client/edit/{client}', [ClientController::class, 'edit']);
+  Route::post('client/update/{client}', [ClientController::class, 'update']);
+  Route::get('client/duplicate/{client}', [ClientController::class, 'duplicate']);
+  Route::get('client/status/{client}', [ClientController::class, 'status']);
+  Route::delete('client/destroy/{client}', [ClientController::class, 'destroy']);
+  Route::get('client/unique/acronym/{string}', [ClientController::class, 'uniqueAcronym']);
 
   /**
    * Contact routes
    */
 
-  Route::get('contacts/get/{id}', 'Api\ContactController@get');
-  Route::post('contact/create', 'Api\ContactController@store');
-  Route::get('contact/edit/{contact}', 'Api\ContactController@edit');
-  Route::post('contact/update/{contact}', 'Api\ContactController@update');
-  Route::get('contact/clone/{contact}', 'Api\ContactController@clone');
-  Route::get('contact/status/{contact}', 'Api\ContactController@status');
-  Route::delete('contact/destroy/{contact}', 'Api\ContactController@destroy');
+  Route::get('contacts/get/{id}', [ContactController::class, 'get']);
+  Route::post('contact/create', [ContactController::class, 'store']);
+  Route::get('contact/edit/{contact}', [ContactController::class, 'edit']);
+  Route::post('contact/update/{contact}', [ContactController::class, 'update']);
+  Route::delete('contact/destroy/{contact}', [ContactController::class, 'destroy']);
 
   /**
    * Project routes
    */
 
-  Route::get('projects/get', 'Api\ProjectController@get');
-  Route::post('project/create', 'Api\ProjectController@store');
-  Route::get('project/edit/{project}', 'Api\ProjectController@edit');
-  Route::post('project/update/{project}', 'Api\ProjectController@update');
-  Route::get('project/clone/{project}', 'Api\ProjectController@clone');
-  Route::get('project/status/{project}', 'Api\ProjectController@status');
-  Route::delete('project/destroy/{project}', 'Api\ProjectController@destroy');
-
-  /**
-   * Media routes
-   */
-
-  Route::post('media/upload','MediaController@upload');
-  Route::post('media/upload/document','MediaController@uploadDocument');
-  Route::get('media/source/{file}', 'MediaController@source');
-  Route::get('media/{file}/{size?}', 'MediaController@resize');
+  Route::get('projects/get', [ProjectController::class, 'get']);
+  Route::post('project/create', [ProjectController::class, 'store']);
+  Route::get('project/edit/{project}', [ProjectController::class, 'edit']);
+  Route::post('project/update/{project}', [ProjectController::class, 'update']);
+  Route::get('project/duplicate/{project}', [ProjectController::class, 'duplicate']);
+  Route::get('project/status/{project}', [ProjectController::class, 'status']);
+  Route::delete('project/destroy/{project}', [ProjectController::class, 'destroy']);
 
   /**
    * Rates
    */
 
-  Route::get('rates/get', 'Api\RateController@get');
-
-  /**
-   * Time routes
-   */
-
-  Route::get('times/get', 'Api\TimerController@get');
-  Route::get('times/get/byDay', 'Api\TimerController@getByDay');
-  Route::post('time/create', 'Api\TimerController@store');
-  Route::get('time/edit/{time}', 'Api\TimerController@edit');
-  Route::post('time/update/{time}', 'Api\TimerController@update');
-  Route::delete('time/destroy/{time}', 'Api\TimerController@destroy');
+  Route::get('rates/get', [RateController::class, 'get']);
 
   /**
    * Invoice routes
    */
 
-  Route::get('invoices/get', 'Api\InvoiceController@get');
-  Route::get('invoices/get/states/{invoice}', 'Api\InvoiceController@getStates');
-  Route::post('invoice/create', 'Api\InvoiceController@store');
-  Route::get('invoice/edit/{invoice}', 'Api\InvoiceController@edit');
-  Route::post('invoice/update/{invoice}', 'Api\InvoiceController@update');
-  Route::post('invoice/update/state/{invoice}', 'Api\InvoiceStateController@update');
-  Route::get('invoice/clone/{invoice}', 'Api\InvoiceController@clone');
-  Route::delete('invoice/destroy/{invoice}', 'Api\InvoiceController@destroy');
-  Route::delete('invoice/position/destroy/{invoicePosition}', 'Api\InvoicePositionController@destroy');
-  Route::get('invoice/states', 'Api\InvoiceStateController@index');
-
+  Route::get('invoices/get', [InvoiceController::class, 'get']);
+  Route::post('invoice/create', [InvoiceController::class, 'store']);
+  Route::get('invoice/edit/{invoice}', [InvoiceController::class, 'edit']);
+  Route::post('invoice/update/{invoice}', [InvoiceController::class, 'update']);
+  Route::post('invoice/update/state/{invoice}', [InvoiceStateController::class, 'update']);
+  Route::get('invoice/duplicate/{invoice}', [InvoiceController::class, 'duplicate']);
+  Route::delete('invoice/destroy/{invoice}', [InvoiceController::class, 'destroy']);
+  Route::delete('invoice/position/destroy/{invoicePosition}', [InvoicePositionController::class, 'destroy']);
+  Route::get('invoice/states', [InvoiceStateController::class, 'index']);
 
   /**
    * Expense routes
    */
 
-  Route::get('expenses/get', 'Api\ExpenseController@get');
-  Route::post('expense/create', 'Api\ExpenseController@store');
-  Route::get('expense/edit/{expense}', 'Api\ExpenseController@edit');
-  Route::post('expense/update/{expense}', 'Api\ExpenseController@update');
-  Route::delete('expense/destroy/{expense}', 'Api\ExpenseController@destroy');
+  Route::get('expenses/get', [ExpenseController::class, 'get']);
+  Route::post('expense/create', [ExpenseController::class, 'store']);
+  Route::get('expense/edit/{expense}', [ExpenseController::class, 'edit']);
+  Route::post('expense/update/{expense}', [ExpenseController::class, 'update']);
+  Route::delete('expense/destroy/{expense}', [ExpenseController::class, 'destroy']);
 
 });
-
-
 
 /**
  * Fallback if no route is defined
@@ -126,5 +108,3 @@ Route::fallback(function(){
     404
   );
 });
-
-

@@ -1,85 +1,40 @@
 <?php
+
 namespace App\Http\Controllers\Api;
+
 use App\Models\Contact;
-use App\Http\Resources\ContactCollection;
-use App\Http\Requests\ContactStoreRequest;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\ContactStoreRequest;
+use App\Actions\Contact\Get as GetAction;
+use App\Actions\Contact\Show as ShowAction;
+use App\Actions\Contact\Store as StoreAction;
+use App\Actions\Contact\Update as UpdateAction;
+use App\Actions\Contact\Delete as DeleteAction;
 
 class ContactController extends Controller
 {
-    protected $contact;
-    
-    /**
-     * Constructor
-     * 
-     * @param Contact $contact
-     */
-
-    public function __construct(Contact $contact)
-    {
-        $this->contact = $contact;
-    }
-
-    /**
-     * Get all records
-     * 
-     * @param int $clientId
-     * @return \Illuminate\Http\Response
-     */
-
     public function get($clientId = NULL)
     {
-        return new ContactCollection($this->contact->orderBy('name', 'ASC')->where('client_id', '=', $clientId)->get());
+        return (new GetAction)->execute($clientId);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    
     public function store(ContactStoreRequest $request)
-    {   
-        $contact = new Contact($request->all());
-        $contact->save();
-        return response()->json(['contactId' => $contact->id]);
+    {
+        return (new StoreAction)->execute($request);
     }
 
-    /**
-     * Edit a specified resource.
-     *
-     * @param Contact $contact
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Contact $contact)
     {
-        return response()->json($contact);
+        return (new ShowAction)->execute($contact);
     }
 
-    /**
-     * Update the status of the specified resource.
-     *
-     * @param Contact $contact
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function update(Contact $contact, ContactStoreRequest $request)
     {
-        $contact->update($request->all());
-        return response()->json('successfully updated');
+        return (new UpdateAction)->execute($contact, $request);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  Contact $contact
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Contact $contact)
     {
-        $contact->delete();
-        return response()->json('successfully deleted');
+        return (new DeleteAction)->execute($contact);
     }
 }

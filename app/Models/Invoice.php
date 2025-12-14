@@ -2,10 +2,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Invoice extends Model
 {
-    protected $table = 'invoices';
+    use SoftDeletes;
 
     protected $fillable = [
         'number',
@@ -29,7 +30,7 @@ class Invoice extends Model
      */
     public function positions()
     {
-        return $this->hasMany('App\Models\InvoicePosition');
+        return $this->hasMany(InvoicePosition::class);
     }
 
     /**
@@ -37,7 +38,7 @@ class Invoice extends Model
      */
     public function client()
     {
-        return $this->hasOne('App\Models\Client', 'id', 'client_id');
+        return $this->belongsTo(Client::class);
     }
 
     /**
@@ -45,7 +46,7 @@ class Invoice extends Model
      */
     public function state()
     {
-        return $this->hasOne('App\Models\InvoiceState', 'id', 'state_id');
+        return $this->belongsTo(InvoiceState::class, 'state_id');
     }
 
     /**

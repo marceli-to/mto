@@ -92,10 +92,10 @@ The application manages:
 - `config/` - Application configuration files
 
 #### Frontend Structure
-- `resources/js/admin/` - Vue.js application root
-- `resources/js/admin/components/` - Vue components organized by feature
-- `resources/js/admin/store.js` - Vuex state management
-- `resources/js/admin/routes.js` - Vue Router configuration
+- `resources/js/spa/` - Vue.js application root
+- `resources/js/spa/components/` - Vue components organized by feature
+- `resources/js/spa/store.js` - Vuex state management
+- `resources/js/spa/routes.js` - Vue Router configuration
 - `resources/sass/admin/` - SCSS stylesheets
 
 ### API Authentication
@@ -123,11 +123,11 @@ Templates are in `resources/views/pdf/`.
 
 ### Vue.js Frontend Architecture
 - Single-page application with Vue Router
-- Vuex for centralized state management (auth state in `resources/js/admin/store.js`)
+- Vuex for centralized state management (auth state in `resources/js/spa/store.js`)
 - Component structure mirrors backend entities (client, contact, project, timer, invoice, expense)
 - Authentication state managed globally with JWT token persistence
 - API communication via axios with Vue-axios
-- Laravel Mix builds assets to `public/assets/admin/` with alias `@` pointing to `resources/js/admin/`
+- Laravel Mix builds assets to `public/assets/admin/` with alias `@` pointing to `resources/js/spa/`
 
 ### Testing
 - PHPUnit configuration in `phpunit.xml` with Unit and Feature test suites

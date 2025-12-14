@@ -1,10 +1,11 @@
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Expense extends Model
 {
-  protected $table = 'expenses';
+  use SoftDeletes;
 
   protected $fillable = [
     'number',

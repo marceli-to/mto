@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for dir in Client Contact Project Invoice Expense Rate InvoiceState InvoicePosition)",
+      "Bash(do for file in $dir/*.php)",
+      "Bash(do if [ -f \"$file\" ])",
+      "Bash(if [ \"$basename\" != \"$classname\" ])",
+      "Bash(then echo \"MISMATCH: $file -> class $classname\")",
+      "Bash(fi)",
+      "Bash(done)"
+    ]
+  }
+}

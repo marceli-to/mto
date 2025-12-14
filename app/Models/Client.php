@@ -1,10 +1,11 @@
 <?php
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends Model
 {
-    protected $table = 'clients';
+    use SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -20,7 +21,7 @@ class Client extends Model
      */
     public function contacts()
     {
-        return $this->hasMany('App\Models\Contact');
+        return $this->hasMany(Contact::class);
     }
 
     /**
