@@ -202,7 +202,7 @@ onMounted(fetchInvoices)
             <div class="flex items-center gap-x-6">
               <button
                 @click="openStateDialog(invoice)"
-                :class="[stateColors[invoice.state?.description] || 'bg-gray-100', 'px-2 py-1 rounded-xs text-xs font-medium capitalize']"
+                :class="[stateColors[invoice.state?.description] || 'bg-gray-100', 'px-2 py-1 rounded-xs text-xs font-medium capitalize cursor-pointer transition-colors']"
               >
                 {{ invoice.state?.description }}
               </button>
