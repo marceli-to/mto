@@ -27,7 +27,7 @@
   footer {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 12px;
     margin-bottom: 5mm;
   }
 </style>
