@@ -19,7 +19,6 @@ class PdfController extends Controller
 
  		// Generate cached filename with updated_at timestamp
  		$timestamp = $invoice->updated_at->format('d-m-Y-H-i-s');
- 		$slugifiedTitle = Str::slug(str_replace('www.', '', $invoice->title));
  		$cachedFilename = "invoices/{$this->filenamePrefix}{$invoice->number}-{$invoice->client->acronym}-{$timestamp}.pdf";
  		$storagePath = "public/media/{$cachedFilename}";
 
@@ -27,7 +26,12 @@ class PdfController extends Controller
  		if (Storage::exists($storagePath)) {
  			return response()->file(
  				Storage::path($storagePath),
- 				['Content-Type' => 'application/pdf']
+ 				[
+ 					'Content-Type' => 'application/pdf',
+ 					'Cache-Control' => 'no-cache, no-store, must-revalidate',
+ 					'Pragma' => 'no-cache',
+ 					'Expires' => '0',
+ 				]
  			)->setContentDisposition('inline', $this->getInvoiceFilename($invoice));
  		}
 
@@ -42,7 +46,12 @@ class PdfController extends Controller
 
  		return response()->file(
  			Storage::path($storagePath),
- 			['Content-Type' => 'application/pdf']
+ 			[
+ 				'Content-Type' => 'application/pdf',
+ 				'Cache-Control' => 'no-cache, no-store, must-revalidate',
+ 				'Pragma' => 'no-cache',
+ 				'Expires' => '0',
+ 			]
  		)->setContentDisposition('inline', $this->getInvoiceFilename($invoice));
  	}
 
