@@ -175,7 +175,6 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
-        Barryvdh\DomPDF\ServiceProvider::class,
     ],
 
     /*
@@ -229,7 +228,6 @@ return [
         'AppHelper' => App\Helpers\AppHelper::class,
         'ImageHelper' => App\Helpers\ImageHelper::class,
         'Image' => Intervention\Image\Facades\Image::class,
-        'PDF' => Barryvdh\DomPDF\Facade::class,
     ],
 
 ];

@@ -4,80 +4,67 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
     /**
-     * Create a new AuthController instance.
+     * Show the login form.
      *
-     * @return void
+     * @return \Illuminate\View\View
      */
-    public function __construct()
+    public function showLoginForm()
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
+        return view('auth.login');
     }
 
     /**
-     * Get a JWT via given credentials.
+     * Handle user login.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['email', 'password']);
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        if (!Auth::attempt($credentials)) {
+            return back()->withErrors([
+                'email' => 'The provided credentials are incorrect.',
+            ])->onlyInput('email');
         }
 
-        return $this->respondWithToken($token);
+        $request->session()->regenerate();
+
+        return redirect()->intended('/admin');
     }
 
     /**
-     * Get the authenticated User.
+     * Log the user out.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function me()
+    public function logout(Request $request)
     {
-        return response()->json(auth()->user());
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 
     /**
-     * Log the user out (Invalidate the token).
+     * Get the authenticated user (API endpoint).
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout()
+    public function me(Request $request)
     {
-        auth()->logout();
-        return response()->json(['message' => 'Successfully logged out']);
-    }
-
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh()
-    {
-        return $this->respondWithToken(auth()->refresh());
-    }
-
-    /**
-     * Get the token array structure.
-     *
-     * @param  string $token
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    protected function respondWithToken($token)
-    {
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]);
+        return response()->json($request->user());
     }
 }
