@@ -101,6 +101,10 @@
     max-width: 80mm;
     margin-top: 20mm;
     padding: 1mm 2mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    display: inline-block;
+    width: 80mm;
   }
 
   .payment-info table td {
