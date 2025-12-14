@@ -145,7 +145,7 @@
           <span>CHE-398.845.092 MWST</span>
         </div>
         <div class="flex justify-between">
-          <span class="font-medium">Bezahlen bis:</span>
+          <span class="font-medium">Zahlbar bis</span>
           <span class="font-medium">{{ \Carbon\Carbon::parse($invoice->date_due)->format('d.m.Y') }}</span>
         </div>
       </div>
