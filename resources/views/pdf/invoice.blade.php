@@ -88,7 +88,7 @@
     margin-top: 20mm;
   }
 
-  .invoice-description {
+  .invoice-title {
     margin-top: 10mm;
   }
 
@@ -121,8 +121,8 @@
     <!-- Invoice Recipient Address -->
     <div class="invoice-recipient font-size-sm">
       <strong>{{ $invoice->client->name }}</strong><br>
-      @if($invoice->client->byline){{ $invoice->client->byline }}<br>@endif
-      {{ $invoice->client->street }}<br>
+      @if ($invoice->client->byline){{ $invoice->client->byline }}<br>@endif
+      @if ($invoice->client->street){{ $invoice->client->street }}<br>@endif
       {{ $invoice->client->zip }} {{ $invoice->client->city }}
     </div>
 
@@ -151,8 +151,8 @@
       </div>
     </div>
 
-    <!-- Invoice Description -->
-    <div class="invoice-description font-size-md">
+    <!-- Invoice Title -->
+    <div class="invoice-title font-size-md">
       {{ $invoice->title }}
     </div>
 
