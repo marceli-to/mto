@@ -18,7 +18,11 @@ class Update
         foreach ($request->positions as $position) {
             $position['invoice_id'] = $invoice->id;
             $total += $position['amount'];
-            InvoicePosition::updateOrCreate(['id' => $position['id']], $position);
+            if (isset($position['id'])) {
+                InvoicePosition::updateOrCreate(['id' => $position['id']], $position);
+            } else {
+                InvoicePosition::create($position);
+            }
         }
 
         $invoice->total = $total;
