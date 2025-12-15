@@ -57,10 +57,42 @@ class PdfController extends Controller
 
  	public function expense(Expense $expense)
  	{
- 		return $this->buildPdf('pdf.expense', ['expense' => $expense])
-      ->headerView('pdf.partials.header')
-      ->footerView('pdf.partials.footer')
-      ->name($this->getExpenseFilename($expense));
+ 		// Generate cached filename with updated_at timestamp
+ 		$timestamp = $expense->updated_at->format('d-m-Y-H-i-s');
+ 		$cachedFilename = "expenses/{$this->filenamePrefix}{$expense->number}-{$timestamp}.pdf";
+ 		$storagePath = "public/media/{$cachedFilename}";
+
+ 		// Check if cached PDF exists
+ 		if (Storage::exists($storagePath)) {
+ 			return response()->file(
+ 				Storage::path($storagePath),
+ 				[
+ 					'Content-Type' => 'application/pdf',
+ 					'Cache-Control' => 'no-cache, no-store, must-revalidate',
+ 					'Pragma' => 'no-cache',
+ 					'Expires' => '0',
+ 				]
+ 			)->setContentDisposition('inline', $this->getExpenseFilename($expense));
+ 		}
+
+ 		// Ensure directory exists
+ 		Storage::makeDirectory('public/media/expenses');
+
+ 		// Generate and save PDF
+ 		$this->buildPdf('pdf.expense', ['expense' => $expense])
+ 			->headerView('pdf.partials.header')
+ 			->footerView('pdf.partials.footer')
+ 			->save(Storage::path($storagePath));
+
+ 		return response()->file(
+ 			Storage::path($storagePath),
+ 			[
+ 				'Content-Type' => 'application/pdf',
+ 				'Cache-Control' => 'no-cache, no-store, must-revalidate',
+ 				'Pragma' => 'no-cache',
+ 				'Expires' => '0',
+ 			]
+ 		)->setContentDisposition('inline', $this->getExpenseFilename($expense));
  	}
 
  	protected function buildPdf(string $view, array $data = [], array $margins = [30, 20, 30, 20]): PdfBuilder
