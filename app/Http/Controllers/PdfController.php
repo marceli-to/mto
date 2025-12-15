@@ -35,8 +35,11 @@ class PdfController extends Controller
  			)->setContentDisposition('inline', $this->getInvoiceFilename($invoice));
  		}
 
- 		// Ensure directory exists
- 		Storage::makeDirectory('public/media/invoices');
+ 		// Ensure directory exists with proper permissions
+		$dir = Storage::path('public/media/invoices');
+		if (!is_dir($dir)) {
+			mkdir($dir, 0755, true);
+		}
 
  		// Generate and save PDF
  		$this->buildPdf('pdf.invoice', ['invoice' => $invoice])
@@ -75,8 +78,11 @@ class PdfController extends Controller
  			)->setContentDisposition('inline', $this->getExpenseFilename($expense));
  		}
 
- 		// Ensure directory exists
- 		Storage::makeDirectory('public/media/expenses');
+ 		// Ensure directory exists with proper permissions
+		$dir = Storage::path('public/media/expenses');
+		if (!is_dir($dir)) {
+			mkdir($dir, 0755, true);
+		}
 
  		// Generate and save PDF
  		$this->buildPdf('pdf.expense', ['expense' => $expense])
