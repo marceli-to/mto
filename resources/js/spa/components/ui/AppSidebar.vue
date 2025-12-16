@@ -19,7 +19,7 @@ const isActive = (routeName) => {
 </script>
 
 <template>
-  <aside class="fixed left-0 top-0 h-screen w-64 bg-white border-r border-gray-100 flex flex-col">
+  <aside class="fixed left-0 top-0 min-h-screen w-64 bg-gray-100 flex flex-col">
     <!-- Logo -->
     <div class="py-4 px-6">
       <router-link to="/">
@@ -45,7 +45,7 @@ const isActive = (routeName) => {
     </nav>
 
     <!-- Bottom Section -->
-    <div class="px-4 py-1 border-t border-gray-100 space-y-1">
+    <div class="px-4 pb-2">
       <form action="/logout" method="POST">
         <input type="hidden" name="_token" :value="csrfToken">
         <button

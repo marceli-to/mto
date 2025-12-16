@@ -12,7 +12,7 @@
 @vite(['resources/css/app.css', 'resources/js/spa/app.js'])
 <meta name="csrf-token" content="{{ csrf_token() }}" />
 </head>
-<body class="text-sm font-sans tracking-wide">
+<body class="text-sm font-sans tracking-wide bg-gray-100">
 <div id="app"></div>
 </body>
 </html>

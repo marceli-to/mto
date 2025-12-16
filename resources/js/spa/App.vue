@@ -5,7 +5,7 @@ import AppToast from '@/components/ui/AppToast.vue'
 </script>
 
 <template>
-  <div class="min-h-screen bg-white">
+  <div>
     <!-- Desktop Sidebar -->
     <AppSidebar class="hidden lg:flex" />
     
@@ -13,7 +13,7 @@ import AppToast from '@/components/ui/AppToast.vue'
     <AppMobileHeader />
     
     <!-- Main Content -->
-    <main class="lg:ml-64 min-h-screen">
+    <main class="lg:ml-64 min-h-[calc(100vh-2rem)] bg-white m-4 rounded-2xl">
       <div class="pt-16 lg:pt-0">
         <div class="p-4 lg:p-6">
           <router-view />
