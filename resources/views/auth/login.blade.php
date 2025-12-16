@@ -11,9 +11,9 @@
 <title>Login - marceli.to</title>
 @vite(['resources/css/app.css'])
 </head>
-<body class="min-h-screen flex items-center justify-center text-sm font-mono bg-cover bg-center bg-no-repeat bg-[url('/assets/img/wallpaper.jpg')]">
+<body class="min-h-screen flex items-center justify-center text-sm font-mono bg-cover bg-center bg-no-repeat bg-[url('../img/wallpaper.jpg')]">
 
-  <div class="w-full max-w-sm p-6 rounded-xl shadow-md border-amber-100 border bg-amber-50">
+  <div class="w-full max-w-sm p-6 rounded-xl shadow-md _border-white _border bg-white/10 backdrop-blur-xl">
     <!-- Logo -->
     <div class="mb-8 flex justify-center w-full">
       <svg xmlns="http://www.w3.org/2000/svg" width="433.855" height="49.858" viewBox="0 0 433.855 49.858" class="w-full max-w-[200px]">
@@ -34,7 +34,7 @@
       @csrf
 
       <div class="space-y-1">
-          <label for="email" class="block text-sm text-blue-900 mb-2">E-Mail</label>
+          <label for="email" class="block text-sm text-black mb-2">E-Mail</label>
           <input
               type="email"
               name="email"
@@ -42,24 +42,24 @@
               value="{{ old('email') }}"
               required
               autofocus
-              class="w-full px-4 py-2.5 border border-amber-200 rounded-md text-sm bg-amber-50 focus:outline-none"
+              class="w-full px-4 py-2.5 border border-amber-200 focus:border-amber-400 rounded-md text-sm bg-amber-50/50 focus:outline-none"
           >
       </div>
 
       <div class="space-y-1">
-          <label for="password" class="block text-sm text-blue-900 mb-2">Password</label>
+          <label for="password" class="block text-sm text-black mb-2">Password</label>
           <input
               type="password"
               name="password"
               id="password"
               required
-              class="w-full px-4 py-2.5 border border-amber-200 rounded-md text-sm bg-amber-50 focus:outline-none"
+              class="w-full px-4 py-2.5 border border-amber-200 focus:border-amber-400 rounded-md text-sm bg-amber-50/50 focus:outline-none"
           >
       </div>
 
       <button
         type="submit"
-        class="w-full bg-sky-900 border-2 border-sky-800 text-white py-2.5 px-4 mt-2 rounded-md hover:bg-sky-800 cursor-pointer transition-colors">
+        class="w-full bg-sky-900 border-2 border-sky-800 text-white py-2.5 px-4 mt-2 rounded-md hover:bg-sky-800 focus:border-sky-800 focus:outline-none cursor-pointer transition-colors">
         Login
       </button>
 
