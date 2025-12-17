@@ -185,7 +185,7 @@ onMounted(fetchInvoices)
           @click="toggleFilter(state)"
           :class="[
             activeFilters.includes(state) ? stateColors[state] : 'bg-gray-100 text-gray-400',
-            'px-2 py-1 rounded-xs text-xs font-medium capitalize cursor-pointer transition-colors'
+            'px-2 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors'
           ]"
         >
           {{ state }}
@@ -202,7 +202,7 @@ onMounted(fetchInvoices)
             <div class="flex items-center gap-x-6">
               <button
                 @click="openStateDialog(invoice)"
-                :class="[stateColors[invoice.state?.description] || 'bg-gray-100', 'px-2 py-1 rounded-xs text-xs font-medium capitalize cursor-pointer transition-colors']"
+                :class="[stateColors[invoice.state?.description] || 'bg-gray-100', 'px-2 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors']"
               >
                 {{ invoice.state?.description }}
               </button>
@@ -259,24 +259,54 @@ onMounted(fetchInvoices)
 
       <!-- Totals Summary -->
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
-          <p class="text-sm text-gray-500 mb-1">Total</p>
-          <p class="text-xl text-gray-900 font-bold">{{ formatCurrency(totals.total) }}</p>
+        <div class="bg-white rounded-xl border-2 border-gray-100 p-4 transition-shadow duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-medium text-gray-500">Total Revenue</p>
+            <div class="p-2 bg-gray-50 rounded-lg text-gray-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(totals.total) }}</p>
+          <p class="text-xs text-gray-400 mt-1">Gross volume</p>
         </div>
-        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
-          <p class="text-sm text-gray-500 mb-1">Paid</p>
-          <p class="text-xl text-green-600 font-bold">{{ formatCurrency(totals.paid + totals.closed) }}</p>
-        </div>
-        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
-          <p class="text-sm text-gray-500 mb-1">Open</p>
-          <p class="text-xl text-blue-600 font-bold">{{ formatCurrency(totals.open) }}</p>
-        </div>
-        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
-          <p class="text-sm text-gray-500 mb-1">Pending</p>
-          <p class="text-xl text-yellow-600 font-bold">{{ formatCurrency(totals.pending) }}</p>
-        </div>
-      </div>
 
+        <div class="bg-white rounded-xl border-2 border-gray-100 p-4 transition-shadow duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-medium text-gray-500">Paid</p>
+            <div class="p-2 bg-green-50 rounded-lg text-green-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(totals.paid + totals.closed) }}</p>
+          <div class="flex items-center mt-1">
+            <span class="text-xs font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+              {{ ((totals.paid + totals.closed) / totals.total * 100).toFixed(1) }}%
+            </span>
+            <span class="text-xs text-gray-400 ml-2">collected</span>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl border-2 border-gray-100 p-4 transition-shadow duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-medium text-gray-500">Pending</p>
+            <div class="p-2 bg-amber-50 rounded-lg text-amber-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(totals.pending) }}</p>
+          <p class="text-xs text-gray-400 mt-1">Processing</p>
+        </div>
+        <div class="bg-white rounded-xl border-2 border-gray-100 p-4 transition-shadow duration-300">
+          <div class="flex items-center justify-between mb-4">
+            <p class="text-sm font-medium text-gray-500">Open</p>
+            <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(totals.open) }}</p>
+          <p class="text-xs text-gray-400 mt-1">Due soon</p>
+        </div>
+
+      </div>
     </div>
 
     <ConfirmDialog

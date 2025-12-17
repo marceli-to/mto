@@ -158,7 +158,7 @@ onMounted(fetchExpense)
           <textarea
             v-model="expense.description"
             rows="3"
-            class="w-full px-3 py-3 border border-gray-200 rounded-xs text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
+            class="w-full px-3 py-3 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
           />
         </div>
         

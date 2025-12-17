@@ -25,7 +25,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const selectClasses = computed(() => [
-  'w-full px-3 py-3 border rounded-xs transition-all appearance-none bg-white text-sm',
+  'w-full px-3 py-3 border rounded-md transition-all appearance-none bg-white text-sm',
   'focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300',
   props.error
     ? 'border-red-300 bg-red-50'

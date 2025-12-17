@@ -122,7 +122,7 @@ onMounted(() => {
   <div>
     <label v-if="label" class="block text-sm text-gray-500 mb-2">{{ label }}</label>
 
-    <div v-if="hasExistingFile" class="relative rounded-xs bg-gray-50 border border-gray-200 p-4 flex justify-center">
+    <div v-if="hasExistingFile" class="relative rounded-md bg-gray-50 border border-gray-200 p-4 flex justify-center">
       <button
         type="button"
         @click="deleteExisting"
@@ -135,7 +135,7 @@ onMounted(() => {
         <img
           :src="`/storage/media/expenses/${existingFile}`"
           :alt="existingFile"
-          class="max-w-full max-h-48 rounded-xs"
+          class="max-w-full max-h-48 rounded-md"
         />
       </a>
     </div>

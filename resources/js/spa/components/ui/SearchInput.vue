@@ -37,7 +37,7 @@ onUnmounted(() => {
       type="text"
       :value="modelValue"
       :placeholder="placeholder"
-      class="w-full pl-9 pr-14 py-2 bg-white border border-gray-200 rounded-xs text-sm placeholder-gray-400 focus:outline-none focus:border-gray-300 transition-all"
+      class="w-full pl-9 pr-14 py-2 bg-white border border-gray-200 rounded-md text-sm placeholder-gray-400 focus:outline-none focus:border-gray-300 transition-all"
       @input="emit('update:modelValue', $event.target.value)"
     />
     <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-gray-400 text-xs pointer-events-none">

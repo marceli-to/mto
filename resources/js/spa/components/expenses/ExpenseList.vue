@@ -181,7 +181,7 @@ onMounted(fetchExpenses)
 
       <!-- Total Summary -->
       <div class="grid grid-cols-4 gap-4 mt-6">
-        <div class="border border-gray-200 bg-gray-50/50 rounded-xs p-4">
+        <div class="border border-gray-200 bg-gray-50/50 rounded-md p-4">
           <p class="text-sm text-gray-500 mb-1">Total</p>
           <p class="text-xl  text-gray-900">{{ formatCurrency(totalAmount) }}</p>
         </div>
