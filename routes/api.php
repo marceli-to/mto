@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\InvoicePositionController;
 use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\UploadController;
+use App\Http\Controllers\Api\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
  */
 
 Route::middleware('auth:sanctum')->group(function() {
+
+  /**
+   * Dashboard routes
+   */
+
+  Route::get('dashboard/get', [DashboardController::class, 'get']);
 
   /**
    * Client routes

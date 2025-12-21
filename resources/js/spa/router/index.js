@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // List components (forms are now in Flyouts)
+import Dashboard from '@/components/dashboard/Dashboard.vue'
 import ClientList from '@/components/clients/ClientList.vue'
 import ProjectList from '@/components/projects/ProjectList.vue'
 import InvoiceList from '@/components/invoices/InvoiceList.vue'
@@ -9,11 +10,12 @@ import ExpenseList from '@/components/expenses/ExpenseList.vue'
 const routes = [
   {
     path: '/',
-    redirect: { name: 'invoices' }
+    redirect: { name: 'dashboard' }
   },
   {
     path: '/dashboard',
-    redirect: { name: 'invoices' }
+    name: 'dashboard',
+    component: Dashboard
   },
 
   // Invoices

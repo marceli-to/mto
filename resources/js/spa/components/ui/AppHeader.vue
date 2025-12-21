@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { PhList, PhX, PhSignOut, PhUsers, PhFolder, PhReceipt, PhCurrencyDollar } from '@phosphor-icons/vue'
+import { PhList, PhX, PhSignOut, PhUsers, PhFolder, PhReceipt, PhCurrencyDollar, PhChartBar } from '@phosphor-icons/vue'
 
 const menuOpen = ref(false)
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content
@@ -14,6 +14,7 @@ function closeMenu() {
 }
 
 const navigation = [
+  { name: 'Dashboard', route: 'dashboard', icon: PhChartBar },
   { name: 'Invoices', route: 'invoices', icon: PhReceipt },
   { name: 'Expenses', route: 'expenses', icon: PhCurrencyDollar },
   { name: 'Projects', route: 'projects', icon: PhFolder },

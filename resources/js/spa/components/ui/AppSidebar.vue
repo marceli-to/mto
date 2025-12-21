@@ -1,12 +1,13 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { PhFolder, PhUsers, PhReceipt, PhCurrencyCircleDollar, PhSignOut, PhGear, PhQuestion } from '@phosphor-icons/vue'
+import { PhFolder, PhUsers, PhReceipt, PhCurrencyCircleDollar, PhSignOut, PhGear, PhQuestion, PhChartBar } from '@phosphor-icons/vue'
 
 const route = useRoute()
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content
 
 const navigation = [
+  { name: 'Dashboard', route: 'dashboard', icon: PhChartBar },
   { name: 'Invoices', route: 'invoices', icon: PhReceipt },
   { name: 'Expenses', route: 'expenses', icon: PhCurrencyCircleDollar },
   { name: 'Clients', route: 'clients', icon: PhUsers },
