@@ -52,7 +52,7 @@ class Get
         $profitMargin = $paidRevenue > 0 ? ($netProfit / $paidRevenue) * 100 : 0;
 
         // This year's net
-        $thisYearPaid = $thisYearInvoices->whereIn('state_id', [3, 5])->sum('grandtotal'); // paid + closed
+        $thisYearPaid = $thisYearInvoices->whereIn('state_id', [2, 3, 5])->sum('grandtotal'); // pending + paid + closed
         $thisYearNet = $thisYearPaid - $thisYearExpenseTotal;
 
         // Client stats
