@@ -199,19 +199,22 @@ onMounted(fetchInvoices)
             v-for="invoice in filteredInvoices"
             :key="invoice.id"
             class="flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors">
-            <div class="flex items-center gap-x-6">
+            <div class="flex items-center gap-x-6 w-full">
               <button
                 @click="openStateDialog(invoice)"
                 :class="[stateColors[invoice.state?.description] || 'bg-gray-100', 'px-2 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors']"
               >
                 {{ invoice.state?.description }}
               </button>
-              <div>
+              <div class="flex justify-between w-full">
                 <div class="flex items-center gap-x-8">
                   {{ invoice.number }}
                   <span v-if="invoice.client" class="font-bold">{{ invoice.client.acronym }}</span>
                   {{ invoice.title }}
                   <span v-if="invoice.remarks" class="text-sm text-gray-500">({{ invoice.remarks }})</span>
+                </div>
+                <div class="text-right pr-4">
+                  {{ formatCurrency(invoice.grandtotal) }}
                 </div>
               </div>
             </div>
