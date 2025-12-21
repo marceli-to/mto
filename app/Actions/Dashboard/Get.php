@@ -83,10 +83,23 @@ class Get
         $archivedProjects = $projects->where('is_archive', true)->count();
 
         // Yearly net profit rankings (last 5 years)
+        // Fiscal year: Jan 1 of year to Jan 25 of year+1
         $yearlyProfits = collect();
         for ($year = $currentYear; $year >= $currentYear - 4; $year--) {
-            $yearInvoices = $invoices->filter(function ($inv) use ($year) {
-                return Carbon::parse($inv->date)->year === $year && in_array($inv->state_id, [2, 3, 5]);
+            $fiscalStart = Carbon::create($year, 1, 1)->startOfDay();
+            $fiscalEnd = Carbon::create($year + 1, 1, 25)->endOfDay();
+            
+            $yearInvoices = $invoices->filter(function ($inv) use ($year, $fiscalStart, $fiscalEnd) {
+                // Pending invoices: use invoice date
+                if ($inv->state_id == 2) {
+                    return Carbon::parse($inv->date)->year === $year;
+                }
+                // Paid/closed invoices: use date_paid within fiscal window
+                if (in_array($inv->state_id, [3, 5]) && $inv->date_paid) {
+                    $paidDate = Carbon::parse($inv->date_paid);
+                    return $paidDate->between($fiscalStart, $fiscalEnd);
+                }
+                return false;
             });
             $yearRevenue = $yearInvoices->sum('grandtotal');
             
