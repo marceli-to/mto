@@ -82,34 +82,31 @@ class Get
         $activeProjects = $projects->where('is_archive', false)->count();
         $archivedProjects = $projects->where('is_archive', true)->count();
 
-        // Recent activity
-        $recentInvoices = Invoice::with('client', 'state')
-            ->orderBy('created_at', 'DESC')
-            ->take(5)
-            ->get()
-            ->map(function ($inv) {
-                return [
-                    'id' => $inv->id,
-                    'number' => $inv->number,
-                    'title' => $inv->title,
-                    'client' => $inv->client?->acronym,
-                    'amount' => $inv->grandtotal,
-                    'state' => $inv->state?->description,
-                    'date' => $inv->date
-                ];
+        // Yearly net profit rankings (last 5 years)
+        $yearlyProfits = collect();
+        for ($year = $currentYear; $year >= $currentYear - 4; $year--) {
+            $yearInvoices = $invoices->filter(function ($inv) use ($year) {
+                return Carbon::parse($inv->date)->year === $year && in_array($inv->state_id, [2, 3, 5]);
             });
-
-        $recentExpenses = Expense::orderBy('created_at', 'DESC')
-            ->take(5)
-            ->get()
-            ->map(function ($exp) {
-                return [
-                    'id' => $exp->id,
-                    'title' => $exp->title,
-                    'amount' => $exp->amount,
-                    'date' => $exp->date
-                ];
-            });
+            $yearRevenue = $yearInvoices->sum('grandtotal');
+            
+            $yearExpenses = $expenses->filter(function ($exp) use ($year) {
+                return Carbon::parse($exp->date)->year === $year;
+            })->sum('amount');
+            
+            $yearlyProfits->push([
+                'year' => $year,
+                'revenue' => $yearRevenue,
+                'expenses' => $yearExpenses,
+                'net' => $yearRevenue - $yearExpenses
+            ]);
+        }
+        
+        // Sort by net profit descending and add rank
+        $yearlyRankings = $yearlyProfits->sortByDesc('net')->values()->map(function ($item, $index) {
+            $item['rank'] = $index + 1;
+            return $item;
+        })->values();
 
         return response()->json([
             'invoices' => [
@@ -141,10 +138,7 @@ class Get
                 'archived' => $archivedProjects,
                 'total' => $projects->count()
             ],
-            'recent' => [
-                'invoices' => $recentInvoices,
-                'expenses' => $recentExpenses
-            ],
+            'yearlyRankings' => $yearlyRankings,
             'year' => $currentYear
         ]);
     }

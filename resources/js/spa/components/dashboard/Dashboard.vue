@@ -232,31 +232,31 @@ onMounted(fetchDashboard)
           </div>
         </section>
 
-        <!-- Recent Invoices -->
+        <!-- Yearly Rankings -->
         <section>
-          <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Recent Invoices</h2>
+          <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Net Profit by Year</h2>
           <div class="bg-white rounded-xl border-2 border-gray-100 overflow-hidden">
             <ul class="divide-y divide-gray-100">
-              <li v-for="invoice in data.recent.invoices" :key="invoice.id" class="flex items-center justify-between p-4">
+              <li v-for="item in data.yearlyRankings" :key="item.year" class="flex items-center justify-between p-4">
                 <div class="flex items-center gap-3">
-                  <span class="px-2 py-1 rounded-md text-xs font-medium capitalize"
+                  <span class="w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold"
                     :class="{
-                      'bg-blue-100 text-blue-800': invoice.state === 'open',
-                      'bg-yellow-100 text-yellow-800': invoice.state === 'pending',
-                      'bg-green-100 text-green-800': invoice.state === 'paid',
-                      'bg-gray-100 text-gray-800': invoice.state === 'cancelled' || invoice.state === 'closed'
+                      'bg-amber-100 text-amber-700': item.rank === 1,
+                      'bg-gray-200 text-gray-600': item.rank === 2,
+                      'bg-orange-100 text-orange-700': item.rank === 3,
+                      'bg-gray-100 text-gray-500': item.rank > 3
                     }">
-                    {{ invoice.state }}
+                    {{ item.rank }}
                   </span>
                   <div>
-                    <p class="font-medium text-gray-900">{{ invoice.number }}</p>
-                    <p class="text-xs text-gray-400">{{ invoice.client }} &middot; {{ invoice.title?.length > 30 ? invoice.title.slice(0, 30) + '...' : invoice.title }}</p>
+                    <p class="font-medium text-gray-900">{{ item.year }}</p>
+                    <p class="text-xs text-gray-400">{{ formatCurrency(item.revenue) }} - {{ formatCurrency(item.expenses) }}</p>
                   </div>
                 </div>
-                <p class="font-semibold text-gray-900">{{ formatCurrency(invoice.amount) }}</p>
+                <p class="font-semibold" :class="item.net >= 0 ? 'text-emerald-600' : 'text-red-600'">{{ formatCurrency(item.net) }}</p>
               </li>
-              <li v-if="data.recent.invoices.length === 0" class="p-4 text-center text-gray-400 text-sm">
-                No invoices yet
+              <li v-if="data.yearlyRankings.length === 0" class="p-4 text-center text-gray-400 text-sm">
+                No data yet
               </li>
             </ul>
           </div>
