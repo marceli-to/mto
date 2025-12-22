@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 // List components (forms are now in Flyouts)
 import Dashboard from '@/components/dashboard/Dashboard.vue'
+import ClientInvoices from '@/components/dashboard/ClientInvoices.vue'
+import YearInvoices from '@/components/dashboard/YearInvoices.vue'
 import ClientList from '@/components/clients/ClientList.vue'
 import ProjectList from '@/components/projects/ProjectList.vue'
 import InvoiceList from '@/components/invoices/InvoiceList.vue'
@@ -16,6 +18,16 @@ const routes = [
     path: '/dashboard',
     name: 'dashboard',
     component: Dashboard
+  },
+  {
+    path: '/dashboard/invoices/:client',
+    name: 'client-invoices',
+    component: ClientInvoices
+  },
+  {
+    path: '/dashboard/year/:year',
+    name: 'year-invoices',
+    component: YearInvoices
   },
 
   // Invoices

@@ -29,6 +29,14 @@ function navigateTo(route) {
   router.push({ name: route })
 }
 
+function navigateToClientInvoices(acronym) {
+  router.push({ name: 'client-invoices', params: { client: acronym } })
+}
+
+function navigateToYearInvoices(year) {
+  router.push({ name: 'year-invoices', params: { year } })
+}
+
 onMounted(fetchDashboard)
 </script>
 
@@ -213,7 +221,7 @@ onMounted(fetchDashboard)
           <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Top Clients by Revenue</h2>
           <div class="bg-white rounded-xl border-2 border-gray-100 overflow-hidden">
             <ul class="divide-y divide-gray-100">
-              <li v-for="(client, index) in data.clients.top" :key="client.id" class="flex items-center justify-between p-4">
+              <li v-for="(client, index) in data.clients.top" :key="client.id" class="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer transition-colors" @click="navigateToClientInvoices(client.acronym)">
                 <div class="flex items-center gap-3">
                   <span class="w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold" :class="index === 0 ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-500'">
                     {{ index + 1 }}
@@ -237,7 +245,7 @@ onMounted(fetchDashboard)
           <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">Net Profit by Year</h2>
           <div class="bg-white rounded-xl border-2 border-gray-100 overflow-hidden">
             <ul class="divide-y divide-gray-100">
-              <li v-for="item in data.yearlyRankings" :key="item.year" class="flex items-center justify-between p-4">
+              <li v-for="item in data.yearlyRankings" :key="item.year" class="flex items-center justify-between p-4 hover:bg-gray-50 cursor-pointer transition-colors" @click="navigateToYearInvoices(item.year)">
                 <div class="flex items-center gap-3">
                   <span class="w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold"
                     :class="{
