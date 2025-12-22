@@ -37,9 +37,9 @@ function isInFiscalYear(invoice) {
     return invoiceDate.getFullYear() === year.value
   }
 
-  // Paid/closed invoices: use date_paid within fiscal window
-  if (['paid', 'closed'].includes(invoice.state.description) && invoice.date_paid) {
-    const paidDate = new Date(invoice.date_paid)
+  // Paid/closed invoices: use date_paid, fall back to invoice date
+  if (['paid', 'closed'].includes(invoice.state.description)) {
+    const paidDate = new Date(invoice.date_paid ?? invoice.date)
     return paidDate >= fiscalStart && paidDate <= fiscalEnd
   }
 

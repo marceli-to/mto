@@ -94,9 +94,9 @@ class Get
                 if ($inv->state_id == 2) {
                     return Carbon::parse($inv->date)->year === $year;
                 }
-                // Paid/closed invoices: use date_paid within fiscal window
-                if (in_array($inv->state_id, [3, 5]) && $inv->date_paid) {
-                    $paidDate = Carbon::parse($inv->date_paid);
+                // Paid/closed invoices: use date_paid, fall back to invoice date
+                if (in_array($inv->state_id, [3, 5])) {
+                    $paidDate = Carbon::parse($inv->date_paid ?? $inv->date);
                     return $paidDate->between($fiscalStart, $fiscalEnd);
                 }
                 return false;
