@@ -74,7 +74,7 @@ class Get
                 ];
             })
             ->sortByDesc('total')
-            ->take(5)
+            ->take(7)
             ->values();
 
         // Project stats
