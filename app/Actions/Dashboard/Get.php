@@ -82,10 +82,11 @@ class Get
         $activeProjects = $projects->where('is_archive', false)->count();
         $archivedProjects = $projects->where('is_archive', true)->count();
 
-        // Yearly net profit rankings (last 5 years)
+        // Yearly net profit rankings (all years)
         // Fiscal year: Jan 26 of year to Jan 25 of year+1
+        $minYear = $invoices->min(fn($inv) => Carbon::parse($inv->date)->year) ?? $currentYear;
         $yearlyProfits = collect();
-        for ($year = $currentYear; $year >= $currentYear - 4; $year--) {
+        for ($year = $currentYear; $year >= $minYear; $year--) {
             $fiscalStart = Carbon::create($year, 1, 26)->startOfDay();
             $fiscalEnd = Carbon::create($year + 1, 1, 25)->endOfDay();
             
