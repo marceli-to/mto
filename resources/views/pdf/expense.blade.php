@@ -86,16 +86,18 @@
 
   .receipt-container {
     margin-top: 35mm;
-    max-width: 160mm;
     max-height: 220mm;
+    max-width: 160mm;
+    overflow: hidden;
     margin-left: auto;
     margin-right: auto;
   }
 
   .receipt-container img {
+    width: auto;
     max-width: 100%;
-    max-height: 220mm;
     object-fit: contain;
+    height: auto;
     display: block;
   }
 
