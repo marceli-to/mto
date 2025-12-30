@@ -11,7 +11,7 @@ class InvoiceReport extends Command
 {
     protected $signature = 'invoice:report';
 
-    protected $description = 'Generate an invoice report for a specific period with totals by state';
+    protected $description = 'Generate an invoice report for a specific period';
 
     public function __construct()
     {
@@ -37,29 +37,34 @@ class InvoiceReport extends Command
         }
 
         $states = InvoiceState::all();
-        $stateOptions = ['Skip - Show open/pending/paid report'];
-        $stateMap = [0 => 'Skip - Show open/pending/paid report'];
-        
+        $stateOptions = ['All invoices', 'Pending/Paid'];
+
         foreach ($states as $state) {
             $stateOptions[] = $state->description;
-            $stateMap[$state->id] = $state->description;
         }
 
-        $selectedState = $this->choice('Select a state (optional)', $stateOptions, 0);
-        $stateId = array_search($selectedState, $stateMap);
-        
-        if ($stateId === 0) {
-            $stateId = null;
+        $selectedState = $this->choice('Filter by state', $stateOptions, 0);
+
+        $stateFilter = null;
+        if ($selectedState === 'Pending/Paid') {
+            $stateFilter = 'pending_paid';
+        } elseif ($selectedState !== 'All invoices') {
+            $stateFilter = $states->firstWhere('description', $selectedState)->id ?? null;
         }
 
-        $this->info("Generating invoice report from {$from} to {$to}");
+        $this->info("Invoice report from {$from} to {$to}");
         $this->line('');
 
-        $query = Invoice::with('state')
-            ->whereBetween('date', [$fromDate->format('Y.m.d'), $toDate->format('Y.m.d')]);
+        $query = Invoice::with(['client', 'state'])
+            ->whereBetween('date', [$fromDate->format('Y.m.d'), $toDate->format('Y.m.d')])
+            ->orderBy('date', 'asc');
 
-        if ($stateId) {
-            $query->where('state_id', $stateId);
+        if ($stateFilter === 'pending_paid') {
+            $pendingId = $states->firstWhere('description', 'Pending')->id ?? null;
+            $paidId = $states->firstWhere('description', 'Paid')->id ?? null;
+            $query->whereIn('state_id', array_filter([$pendingId, $paidId]));
+        } elseif ($stateFilter) {
+            $query->where('state_id', $stateFilter);
         }
 
         $invoices = $query->get();
@@ -69,77 +74,30 @@ class InvoiceReport extends Command
             return 0;
         }
 
-        $stateMapForReport = $states->keyBy('id');
+        $grandTotal = 0;
+        $tableData = [];
 
-        if ($stateId === null) {
-            // Show open/pending/paid report
-            $reportData = [
-                'open' => ['name' => 'Open', 'count' => 0, 'total' => 0],
-                'pending' => ['name' => 'Pending', 'count' => 0, 'total' => 0],
-                'paid' => ['name' => 'Paid', 'count' => 0, 'total' => 0]
+        foreach ($invoices as $invoice) {
+            $amount = $invoice->grandtotal ?? $invoice->total ?? 0;
+            $grandTotal += $amount;
+
+            $tableData[] = [
+                $invoice->number,
+                Carbon::parse($invoice->date)->format('d.m.Y'),
+                $invoice->client->name ?? 'N/A',
+                $invoice->state->description ?? 'N/A',
+                number_format($amount, 2),
             ];
-            
-            $grandTotal = 0;
-            
-            foreach ($invoices as $invoice) {
-                $invoiceStateId = $invoice->state_id;
-                $stateName = strtolower($stateMapForReport[$invoiceStateId]->description ?? 'unknown');
-                $amount = $invoice->grandtotal ?? $invoice->total ?? 0;
-                
-                if (isset($reportData[$stateName])) {
-                    $reportData[$stateName]['count']++;
-                    $reportData[$stateName]['total'] += $amount;
-                    $grandTotal += $amount;
-                }
-            }
-            
-            $this->table(
-                ['State', 'Count', 'Total Amount'],
-                collect($reportData)->map(function ($data) {
-                    return [
-                        $data['name'],
-                        $data['count'],
-                        number_format($data['total'], 2)
-                    ];
-                })->toArray()
-            );
-        } else {
-            // Show specific state report
-            $reportData = [];
-            $grandTotal = 0;
-
-            foreach ($invoices as $invoice) {
-                $invoiceStateId = $invoice->state_id;
-                $stateName = $stateMapForReport[$invoiceStateId]->description ?? 'Unknown';
-
-                if (!isset($reportData[$invoiceStateId])) {
-                    $reportData[$invoiceStateId] = [
-                        'name' => $stateName,
-                        'count' => 0,
-                        'total' => 0
-                    ];
-                }
-
-                $reportData[$invoiceStateId]['count']++;
-                $reportData[$invoiceStateId]['total'] += $invoice->grandtotal ?? $invoice->total ?? 0;
-                $grandTotal += $invoice->grandtotal ?? $invoice->total ?? 0;
-            }
-
-            $this->table(
-                ['State', 'Count', 'Total Amount'],
-                collect($reportData)->map(function ($data, $stateId) {
-                    return [
-                        $data['name'],
-                        $data['count'],
-                        number_format($data['total'], 2)
-                    ];
-                })->toArray()
-            );
         }
 
+        $this->table(
+            ['Number', 'Date', 'Client', 'State', 'Amount'],
+            $tableData
+        );
+
         $this->line('');
-        $this->info("Grand Total: " . number_format($grandTotal, 2));
         $this->info("Total Invoices: " . $invoices->count());
+        $this->info("Total Revenue: CHF " . number_format($grandTotal, 2));
 
         return 0;
     }
