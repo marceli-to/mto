@@ -86,19 +86,23 @@
 
   .receipt-container {
     margin-top: 35mm;
-    max-height: 220mm;
-    max-width: 160mm;
+    width: 160mm;       /* Changed from max-width for consistency */
+    height: 220mm;      /* Changed from max-height to define a box */
     overflow: hidden;
     margin-left: auto;
     margin-right: auto;
+    display: flex;      /* Added to help with centering */
+    align-items: center; 
+    justify-content: center;
   }
 
   .receipt-container img {
-    width: auto;
-    max-width: 100%;
-    object-fit: contain;
-    height: auto;
+    max-width: 100%;    /* Don't go wider than 160mm */
+    max-height: 100%;   /* Don't go taller than 220mm */
+    width: auto;        /* Maintain aspect ratio */
+    height: auto;       /* Maintain aspect ratio */
     display: block;
+    object-fit: contain; 
   }
 
 </style>
