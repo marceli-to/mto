@@ -38,7 +38,7 @@ class ExpenseReport extends Command
         $this->info("Generating expense report from {$from} to {$to}");
         $this->line('');
 
-        $expenses = Expense::whereBetween('date', [$fromDate->format('Y.m.d'), $toDate->format('Y.m.d')])
+        $expenses = Expense::whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
             ->orderBy('date', 'desc')
             ->get();
 

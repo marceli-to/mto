@@ -56,12 +56,12 @@ class InvoiceReport extends Command
         $this->line('');
 
         $query = Invoice::with(['client', 'state'])
-            ->whereBetween('date', [$fromDate->format('Y.m.d'), $toDate->format('Y.m.d')])
+            ->whereBetween('date', [$fromDate->format('Y-m-d'), $toDate->format('Y-m-d')])
             ->orderBy('date', 'asc');
 
         if ($stateFilter === 'pending_paid') {
-            $pendingId = $states->firstWhere('description', 'Pending')->id ?? null;
-            $paidId = $states->firstWhere('description', 'Paid')->id ?? null;
+            $pendingId = $states->first(fn($s) => strtolower($s->description) === 'pending')->id ?? null;
+            $paidId = $states->first(fn($s) => strtolower($s->description) === 'paid')->id ?? null;
             $query->whereIn('state_id', array_filter([$pendingId, $paidId]));
         } elseif ($stateFilter) {
             $query->where('state_id', $stateFilter);
