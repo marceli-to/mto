@@ -44,6 +44,7 @@ const invoice = ref({
   date_due: '',
   client_id: '',
   vat_rate: 8.1,
+  has_rate_increase_notice: false,
   positions: []
 })
 
@@ -101,6 +102,7 @@ function resetForm() {
     date_due: formatDateForInput(dueDate),
     client_id: '',
     vat_rate: 8.1,
+    has_rate_increase_notice: false,
     positions: []
   }
   errors.value = {}
@@ -262,6 +264,15 @@ onMounted(fetchData)
             label="VAT"
             :options="vatOptions"
           />
+
+          <label class="flex items-center gap-2 cursor-pointer mt-6">
+            <input
+              type="checkbox"
+              v-model="invoice.has_rate_increase_notice"
+              class="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-200"
+            />
+            <span class="text-sm text-gray-600">Hinweis Stundenansatz-Erhöhung</span>
+          </label>
         </div>
       </div>
 

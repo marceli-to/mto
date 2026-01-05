@@ -22,7 +22,12 @@ class Invoice extends Model
         'client_id',
         'processed',
         'remarks',
-        'text'
+        'text',
+        'has_rate_increase_notice'
+    ];
+
+    protected $casts = [
+        'has_rate_increase_notice' => 'boolean',
     ];
 
     /**

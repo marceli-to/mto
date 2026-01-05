@@ -175,7 +175,7 @@
             @elseif($position->is_fee)
               Spesen
             @else
-              {{ number_format($position->hours, 2, '.', "'") }} Std. à {{ number_format($position->rate, 2, '.', "'") }}
+              {{ number_format($position->hours, 2, '.', "'") }} Std. à {{ number_format($position->rate, 2, '.', "'") }}@if($invoice->has_rate_increase_notice)<span>*</span>@endif
             @endif
           </td>
           <td style="width: 5%; text-align: right">{{ number_format($position->amount, 2, '.', "'") }}</td>
@@ -195,6 +195,15 @@
         </tr>
       </tbody>
     </table>
+    <!-- /Invoice Positions -->
+
+    <!-- Raised hourly rate information -->
+    @if($invoice->has_rate_increase_notice)
+    <div class="invoice-raised-hourly-rate font-size-xs" style="margin-top: 5mm;">
+      *Der Stundenansatz wurde per 1. Januar 2026 aufgrund gestiegener Lebenshaltungs- und Betriebskosten angepasst.
+    </div>
+    @endif
+    <!-- /Raised hourly rate information -->
 
     <!-- Payment Info -->
     <div class="payment-info">
