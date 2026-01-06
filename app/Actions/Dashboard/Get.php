@@ -8,60 +8,100 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\InvoiceState;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class Get
 {
+    private int $currentYear;
+    private Collection $invoices;
+    private Collection $expenses;
+
     public function execute()
     {
-        $currentYear = Carbon::now()->year;
-        $currentMonth = Carbon::now()->month;
+        $this->currentYear = Carbon::now()->year;
+        $this->invoices = Invoice::with('client', 'state')->get();
+        $this->expenses = Expense::all();
 
-        // Invoice stats
-        $invoices = Invoice::with('client', 'state')->get();
+        return response()->json([
+            'invoices' => $this->getInvoiceStats(),
+            'expenses' => $this->getExpenseStats(),
+            'profit' => $this->getProfitStats(),
+            'clients' => $this->getClientStats(),
+            'projects' => $this->getProjectStats(),
+            'yearlyRankings' => $this->getYearlyRankings(),
+            'year' => $this->currentYear,
+        ]);
+    }
+
+    private function getInvoiceStats(): array
+    {
         $states = InvoiceState::all();
         
-        $invoiceTotals = [];
+        $totals = [];
         foreach ($states as $state) {
-            $invoiceTotals[$state->description] = $invoices->where('state_id', $state->id)->sum('grandtotal');
+            $totals[$state->description] = $this->invoices
+                ->where('state_id', $state->id)
+                ->sum('grandtotal');
         }
-        $invoiceTotals['total'] = $invoices->where('state_id', '!=', 6)->sum('grandtotal');
+        
+        $activeInvoices = $this->invoices->reject->isCancelled();
+        $totals['total'] = $activeInvoices->sum('grandtotal');
 
-        $invoiceCount = $invoices->where('state_id', '!=', 6)->count();
-        $averageInvoice = $invoiceCount > 0 ? $invoiceTotals['total'] / $invoiceCount : 0;
+        $count = $activeInvoices->count();
+        $average = $count > 0 ? $totals['total'] / $count : 0;
 
-        // This year's invoices (excluding cancelled)
-        $thisYearInvoices = $invoices->filter(function ($inv) use ($currentYear) {
-            return Carbon::parse($inv->date)->year === $currentYear && $inv->state_id != 6;
-        });
-        $thisYearRevenue = $thisYearInvoices->sum('grandtotal');
-        $thisYearCount = $thisYearInvoices->count();
+        $thisYearInvoices = $activeInvoices->filter(
+            fn($inv) => Carbon::parse($inv->date)->year === $this->currentYear
+        );
 
-        // Expense stats
-        $expenses = Expense::all();
-        $totalExpenses = $expenses->sum('amount');
-        $expenseCount = $expenses->count();
+        return [
+            'totals' => $totals,
+            'count' => $count,
+            'average' => round($average, 2),
+            'thisYear' => [
+                'revenue' => $thisYearInvoices->sum('grandtotal'),
+                'count' => $thisYearInvoices->count(),
+                'paid' => $thisYearInvoices->filter->isPaid()->sum('grandtotal')
+                        + $thisYearInvoices->filter->isPending()->sum('grandtotal'),
+                'net' => $thisYearInvoices->filter->isPaid()->sum('grandtotal')
+                       + $thisYearInvoices->filter->isPending()->sum('grandtotal')
+                       - $this->getThisYearExpenses(),
+            ],
+        ];
+    }
 
-        $thisYearExpenses = $expenses->filter(function ($exp) use ($currentYear) {
-            return Carbon::parse($exp->date)->year === $currentYear;
-        });
-        $thisYearExpenseTotal = $thisYearExpenses->sum('amount');
+    private function getExpenseStats(): array
+    {
+        return [
+            'total' => $this->expenses->sum('amount'),
+            'count' => $this->expenses->count(),
+            'thisYear' => $this->getThisYearExpenses(),
+        ];
+    }
 
-        // Net profit (paid invoices minus expenses)
-        $paidRevenue = ($invoiceTotals['paid'] ?? 0) + ($invoiceTotals['closed'] ?? 0);
+    private function getThisYearExpenses(): float
+    {
+        return $this->expenses
+            ->filter(fn($exp) => Carbon::parse($exp->date)->year === $this->currentYear)
+            ->sum('amount');
+    }
+
+    private function getProfitStats(): array
+    {
+        $paidRevenue = $this->invoices->filter->isPaid()->sum('grandtotal');
+        $totalExpenses = $this->expenses->sum('amount');
         $netProfit = $paidRevenue - $totalExpenses;
-        $profitMargin = $paidRevenue > 0 ? ($netProfit / $paidRevenue) * 100 : 0;
 
-        // This year's net
-        $thisYearPaid = $thisYearInvoices->whereIn('state_id', [2, 3, 5])->sum('grandtotal'); // pending + paid + closed
-        $thisYearNet = $thisYearPaid - $thisYearExpenseTotal;
+        return [
+            'net' => $netProfit,
+            'margin' => $paidRevenue > 0 ? round(($netProfit / $paidRevenue) * 100, 1) : 0,
+        ];
+    }
 
-        // Client stats
-        $clients = Client::all();
-        $clientCount = $clients->count();
-
-        // Top clients by revenue (paid invoices)
-        $topClients = $invoices
-            ->whereIn('state_id', [3, 5]) // paid + closed
+    private function getClientStats(): array
+    {
+        $topClients = $this->invoices
+            ->filter->isPaid()
             ->groupBy('client_id')
             ->map(function ($clientInvoices) {
                 $client = $clientInvoices->first()->client;
@@ -70,90 +110,81 @@ class Get
                     'name' => $client?->name ?? 'Unknown',
                     'acronym' => $client?->acronym ?? '?',
                     'total' => $clientInvoices->sum('grandtotal'),
-                    'count' => $clientInvoices->count()
+                    'count' => $clientInvoices->count(),
                 ];
             })
             ->sortByDesc('total')
             ->take(7)
             ->values();
 
-        // Project stats
-        $projects = Project::all();
-        $activeProjects = $projects->where('is_archive', false)->count();
-        $archivedProjects = $projects->where('is_archive', true)->count();
+        return [
+            'count' => Client::count(),
+            'top' => $topClients,
+        ];
+    }
 
-        // Yearly net profit rankings (all years)
-        // Fiscal year: Jan 26 of year to Jan 25 of year+1
-        $minYear = $invoices->min(fn($inv) => Carbon::parse($inv->date)->year) ?? $currentYear;
+    private function getProjectStats(): array
+    {
+        $projects = Project::all();
+
+        return [
+            'active' => $projects->where('is_archive', false)->count(),
+            'archived' => $projects->where('is_archive', true)->count(),
+            'total' => $projects->count(),
+        ];
+    }
+
+    private function getYearlyRankings(): Collection
+    {
+        $minYear = $this->invoices->min(fn($inv) => Carbon::parse($inv->date)->year) 
+                 ?? $this->currentYear;
+
         $yearlyProfits = collect();
-        for ($year = $currentYear; $year >= $minYear; $year--) {
-            $fiscalStart = Carbon::create($year, 1, 26)->startOfDay();
-            $fiscalEnd = Carbon::create($year + 1, 1, 25)->endOfDay();
+
+        for ($year = $this->currentYear; $year >= $minYear; $year--) {
+            [$fiscalStart, $fiscalEnd] = Invoice::fiscalYearRange($year);
             
-            $yearInvoices = $invoices->filter(function ($inv) use ($year, $fiscalStart, $fiscalEnd) {
-                // Pending invoices: use invoice date
-                if ($inv->state_id == 2) {
-                    return Carbon::parse($inv->date)->year === $year;
-                }
-                // Paid/closed invoices: use date_paid, fall back to invoice date
-                if (in_array($inv->state_id, [3, 5])) {
-                    $paidDate = Carbon::parse($inv->date_paid ?? $inv->date);
-                    return $paidDate->between($fiscalStart, $fiscalEnd);
-                }
-                return false;
-            });
-            $yearRevenue = $yearInvoices->sum('grandtotal');
-            
-            $yearExpenses = $expenses->filter(function ($exp) use ($year) {
-                return Carbon::parse($exp->date)->year === $year;
-            })->sum('amount');
+            $yearRevenue = $this->calculateYearRevenue($year, $fiscalStart, $fiscalEnd);
+            $yearExpenses = $this->calculateYearExpenses($year);
             
             $yearlyProfits->push([
                 'year' => $year,
                 'revenue' => $yearRevenue,
                 'expenses' => $yearExpenses,
-                'net' => $yearRevenue - $yearExpenses
+                'net' => $yearRevenue - $yearExpenses,
             ]);
         }
-        
-        // Sort by net profit descending and add rank
-        $yearlyRankings = $yearlyProfits->sortByDesc('net')->values()->map(function ($item, $index) {
-            $item['rank'] = $index + 1;
-            return $item;
-        })->values();
 
-        return response()->json([
-            'invoices' => [
-                'totals' => $invoiceTotals,
-                'count' => $invoiceCount,
-                'average' => round($averageInvoice, 2),
-                'thisYear' => [
-                    'revenue' => $thisYearRevenue,
-                    'count' => $thisYearCount,
-                    'paid' => $thisYearPaid,
-                    'net' => $thisYearNet
-                ]
-            ],
-            'expenses' => [
-                'total' => $totalExpenses,
-                'count' => $expenseCount,
-                'thisYear' => $thisYearExpenseTotal
-            ],
-            'profit' => [
-                'net' => $netProfit,
-                'margin' => round($profitMargin, 1)
-            ],
-            'clients' => [
-                'count' => $clientCount,
-                'top' => $topClients
-            ],
-            'projects' => [
-                'active' => $activeProjects,
-                'archived' => $archivedProjects,
-                'total' => $projects->count()
-            ],
-            'yearlyRankings' => $yearlyRankings,
-            'year' => $currentYear
-        ]);
+        return $yearlyProfits
+            ->sortByDesc('net')
+            ->values()
+            ->map(function ($item, $index) {
+                $item['rank'] = $index + 1;
+                return $item;
+            })
+            ->values();
+    }
+
+    private function calculateYearRevenue(int $year, Carbon $fiscalStart, Carbon $fiscalEnd): float
+    {
+        return $this->invoices
+            ->filter(function ($inv) use ($year, $fiscalStart, $fiscalEnd) {
+                if ($inv->isPending()) {
+                    return Carbon::parse($inv->date)->year === $year;
+                }
+                if ($inv->isPaid()) {
+                    $paidDate = Carbon::parse($inv->date_paid ?? $inv->date);
+                    return $paidDate->between($fiscalStart, $fiscalEnd);
+                }
+                return false;
+            })
+            ->sum('grandtotal');
+    }
+
+    private function calculateYearExpenses(int $year): float
+    {
+        return $this->expenses
+            ->filter(fn($exp) => Carbon::parse($exp->date)->year === $year)
+            ->sum('amount');
     }
 }

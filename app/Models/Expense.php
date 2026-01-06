@@ -19,6 +19,15 @@ class Expense extends Model
   protected $appends = ['dateFormated'];
 
   /**
+   * Generate expense number based on year and ID
+   */
+  public function generateNumber(): void
+  {
+    $this->number = date('y') . '.' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
+    $this->save();
+  }
+
+  /**
    * Mutator 'date'
    */
 

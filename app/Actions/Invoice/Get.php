@@ -21,7 +21,7 @@ class Get
             $totals[$state->description] = $invoices->where('state_id', $state->id)->sum('grandtotal');
         }
 
-        $totals['total'] = $invoices->where('state_id', '!=', 6)->sum('grandtotal');
+        $totals['total'] = $invoices->reject->isCancelled()->sum('grandtotal');
 
         return response()->json([
             'data' => $invoices,

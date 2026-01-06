@@ -3,6 +3,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon;
 
 class Invoice extends Model
 {
@@ -52,6 +54,74 @@ class Invoice extends Model
     public function state()
     {
         return $this->belongsTo(InvoiceState::class, 'state_id');
+    }
+
+    /**
+     * Generate invoice number based on year and ID
+     */
+    public function generateNumber(): void
+    {
+        $this->number = date('y') . '.' . str_pad($this->id, 4, '0', STR_PAD_LEFT);
+        $this->save();
+    }
+
+    /**
+     * Scope: exclude cancelled invoices
+     */
+    public function scopeNotCancelled(Builder $query): Builder
+    {
+        return $query->where('state_id', '!=', InvoiceState::CANCELLED);
+    }
+
+    /**
+     * Scope: paid or closed invoices
+     */
+    public function scopePaid(Builder $query): Builder
+    {
+        return $query->whereIn('state_id', InvoiceState::PAID_STATES);
+    }
+
+    /**
+     * Scope: billable invoices (pending, paid, closed)
+     */
+    public function scopeBillable(Builder $query): Builder
+    {
+        return $query->whereIn('state_id', InvoiceState::BILLABLE_STATES);
+    }
+
+    /**
+     * Check if invoice is cancelled
+     */
+    public function isCancelled(): bool
+    {
+        return $this->state_id === InvoiceState::CANCELLED;
+    }
+
+    /**
+     * Check if invoice is pending
+     */
+    public function isPending(): bool
+    {
+        return $this->state_id === InvoiceState::PENDING;
+    }
+
+    /**
+     * Check if invoice is paid (paid or closed)
+     */
+    public function isPaid(): bool
+    {
+        return in_array($this->state_id, InvoiceState::PAID_STATES);
+    }
+
+    /**
+     * Get fiscal year date range (Jan 26 to Jan 25 of next year)
+     */
+    public static function fiscalYearRange(int $year): array
+    {
+        return [
+            Carbon::create($year, 1, 26)->startOfDay(),
+            Carbon::create($year + 1, 1, 25)->endOfDay(),
+        ];
     }
 
     /**

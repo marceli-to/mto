@@ -12,14 +12,8 @@ class Duplicate
         $clone->title = $invoice->title . ' (copy)';
         $clone->save();
 
-        $this->createInvoiceNumber($clone);
+        $clone->generateNumber();
 
         return response()->json($clone);
-    }
-
-    protected function createInvoiceNumber(Invoice $invoice): void
-    {
-        $invoice->number = date('y', time()) . '.' . str_pad($invoice->id, 4, "0", STR_PAD_LEFT);
-        $invoice->save();
     }
 }

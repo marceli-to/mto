@@ -13,16 +13,10 @@ class Store
         $expense = new Expense($request->all());
         $expense->save();
 
-        $this->createExpenseNumber($expense);
+        $expense->generateNumber();
         $this->moveUploadedFile($expense, $request->input('temp_file'));
 
         return response()->json($expense);
-    }
-
-    protected function createExpenseNumber(Expense $expense): void
-    {
-        $expense->number = date('y', time()) . '.' . str_pad($expense->id, 4, "0", STR_PAD_LEFT);
-        $expense->save();
     }
 
     protected function moveUploadedFile(Expense $expense, ?string $tempFile): void

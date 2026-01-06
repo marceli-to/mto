@@ -13,15 +13,8 @@ class Store
         $invoice->save();
 
         $invoice->positions()->createMany($request->positions);
-
-        $this->createInvoiceNumber($invoice);
+        $invoice->generateNumber();
 
         return response()->json(['invoiceId' => $invoice->id]);
-    }
-
-    protected function createInvoiceNumber(Invoice $invoice): void
-    {
-        $invoice->number = date('y', time()) . '.' . str_pad($invoice->id, 4, "0", STR_PAD_LEFT);
-        $invoice->save();
     }
 }
