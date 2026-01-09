@@ -44,7 +44,7 @@ onMounted(fetchDashboard)
   <div>
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-12">
-      <h1 class="text-xl text-gray-900 font-bold">Dashboard</h1>
+      <h1 class="text-xl text-gray-900 font-bold text-red-200">Dashboard</h1>
       <span v-if="data" class="text-sm text-gray-400">{{ data.year }}</span>
     </div>
 
