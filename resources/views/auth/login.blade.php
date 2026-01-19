@@ -11,7 +11,7 @@
 <title>Login - marceli.to</title>
 @vite(['resources/css/app.css'])
 </head>
-<body class="min-h-screen flex items-center justify-center text-sm font-mono bg-cover bg-center bg-no-repeat bg-[url('https://source.unsplash.com/1920x1080/?office')]">
+<body class="min-h-screen flex items-center justify-center text-sm font-mono bg-cover bg-center bg-no-repeat bg-[url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=80')]">
 
   <div class="w-full max-w-sm p-6 rounded-xl shadow-md _border-white _border bg-white/10 backdrop-blur-xl">
     <!-- Logo -->
