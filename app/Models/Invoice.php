@@ -25,11 +25,14 @@ class Invoice extends Model
         'processed',
         'remarks',
         'text',
-        'has_rate_increase_notice'
+        'has_rate_increase_notice',
+        'is_reminder',
+        'reminder_level'
     ];
 
     protected $casts = [
         'has_rate_increase_notice' => 'boolean',
+        'is_reminder' => 'boolean',
     ];
 
     /**

@@ -45,6 +45,8 @@ const invoice = ref({
   client_id: '',
   vat_rate: 8.1,
   has_rate_increase_notice: false,
+  is_reminder: false,
+  reminder_level: 1,
   positions: []
 })
 
@@ -103,6 +105,8 @@ function resetForm() {
     client_id: '',
     vat_rate: 8.1,
     has_rate_increase_notice: false,
+    is_reminder: false,
+    reminder_level: 1,
     positions: []
   }
   errors.value = {}
@@ -273,6 +277,26 @@ onMounted(fetchData)
             />
             <span class="text-sm text-gray-600">Hinweis Stundenansatz-Erhöhung</span>
           </label>
+
+          <div class="flex items-center gap-4 mt-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                v-model="invoice.is_reminder"
+                class="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-200"
+              />
+              <span class="text-sm text-gray-600">Mahnung</span>
+            </label>
+            <select
+              v-if="invoice.is_reminder"
+              v-model="invoice.reminder_level"
+              class="px-3 py-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
+            >
+              <option :value="1">1. Mahnung</option>
+              <option :value="2">2. Mahnung</option>
+              <option :value="3">3. Mahnung</option>
+            </select>
+          </div>
         </div>
       </div>
 

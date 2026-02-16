@@ -129,7 +129,7 @@
     <!-- Invoice Info -->
     <div class="invoice-info grid grid-cols-12">
       <h1 class="font-size-lg col-span-7">
-        <strong class="text-highlight">Rechnung</strong>
+        <strong class="text-highlight">@if($invoice->is_reminder){{ $invoice->reminder_level }}. Mahnung @else Rechnung @endif</strong>
       </h1>
       <div class="font-size-sm col-span-5">
         <div class="flex justify-between">
