@@ -12,6 +12,7 @@
         "doctrine/dbal": "^4.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "hammerstone/sidecar": "^0.7.1",
+        "laravel/ai": "^0.3.2",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.0",

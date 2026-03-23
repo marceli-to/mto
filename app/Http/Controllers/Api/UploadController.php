@@ -12,11 +12,12 @@ class UploadController extends Controller
     public function upload(Request $request)
     {
         $request->validate([
-            'filepond' => 'required|file|mimes:jpg,jpeg|max:10240'
+            'filepond' => 'required|file|mimes:jpg,jpeg,pdf|max:10240'
         ]);
 
         $file = $request->file('filepond');
-        $filename = Str::uuid() . '.jpg';
+        $extension = strtolower($file->getClientOriginalExtension());
+        $filename = Str::uuid() . '.' . $extension;
 
         $file->storeAs('public/temp', $filename);
 

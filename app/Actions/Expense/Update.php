@@ -24,9 +24,11 @@ class Update
 
     protected function deleteExistingFile(Expense $expense): void
     {
-        $filePath = 'public/media/expenses/' . $expense->number . '.jpg';
-        if (Storage::exists($filePath)) {
-            Storage::delete($filePath);
+        foreach (['jpg', 'pdf'] as $ext) {
+            $filePath = 'public/media/expenses/' . $expense->number . '.' . $ext;
+            if (Storage::exists($filePath)) {
+                Storage::delete($filePath);
+            }
         }
     }
 
@@ -37,7 +39,8 @@ class Update
         }
 
         $tempPath = 'public/temp/' . $tempFile;
-        $finalPath = 'public/media/expenses/' . $expense->number . '.jpg';
+        $extension = pathinfo($tempFile, PATHINFO_EXTENSION) ?: 'jpg';
+        $finalPath = 'public/media/expenses/' . $expense->number . '.' . $extension;
 
         if (Storage::exists($tempPath)) {
             Storage::move($tempPath, $finalPath);

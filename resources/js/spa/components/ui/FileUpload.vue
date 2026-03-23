@@ -25,7 +25,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'delete-existing'])
+const emit = defineEmits(['update:modelValue', 'delete-existing', 'uploaded'])
 
 const pond = ref(null)
 const files = ref([])
@@ -55,6 +55,7 @@ const serverConfig = {
     .then(response => {
       uploadedFilename.value = response.data.filename
       emit('update:modelValue', response.data.filename)
+      emit('uploaded', response.data.filename)
       load(response.data.filename)
     })
     .catch(err => {
@@ -146,8 +147,8 @@ onMounted(() => {
       :files="files"
       :server="serverConfig"
       :allow-multiple="false"
-      accepted-file-types="image/jpeg"
-      label-idle="Drop JPG file or <span class='filepond--label-action'>Browse</span>"
+      :accepted-file-types="['image/jpeg', 'application/pdf']"
+      label-idle="Drop JPG or PDF file or <span class='filepond--label-action'>Browse</span>"
       credits=""
       @init="handleInit"
       @processfile="handleProcessFile"

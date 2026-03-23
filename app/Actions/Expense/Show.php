@@ -10,9 +10,17 @@ class Show
     public function execute(Expense $expense)
     {
         $data = $expense->toArray();
-        $filePath = 'public/media/expenses/' . $expense->number . '.jpg';
-        $data['has_file'] = Storage::exists($filePath);
-        $data['file_name'] = $data['has_file'] ? $expense->number . '.jpg' : null;
+        $data['has_file'] = false;
+        $data['file_name'] = null;
+
+        foreach (['jpg', 'pdf'] as $ext) {
+            $filePath = 'public/media/expenses/' . $expense->number . '.' . $ext;
+            if (Storage::exists($filePath)) {
+                $data['has_file'] = true;
+                $data['file_name'] = $expense->number . '.' . $ext;
+                break;
+            }
+        }
 
         return response()->json($data);
     }

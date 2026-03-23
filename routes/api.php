@@ -99,6 +99,7 @@ Route::middleware('auth:sanctum')->group(function() {
    */
 
   Route::get('expenses/get', [ExpenseController::class, 'get']);
+  Route::post('expense/scan', [ExpenseController::class, 'scan']);
   Route::post('expense/create', [ExpenseController::class, 'store']);
   Route::get('expense/edit/{expense}', [ExpenseController::class, 'edit']);
   Route::post('expense/update/{expense}', [ExpenseController::class, 'update']);

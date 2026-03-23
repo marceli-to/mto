@@ -26,7 +26,8 @@ class Store
         }
 
         $tempPath = 'public/temp/' . $tempFile;
-        $finalPath = 'public/media/expenses/' . $expense->number . '.jpg';
+        $extension = pathinfo($tempFile, PATHINFO_EXTENSION) ?: 'jpg';
+        $finalPath = 'public/media/expenses/' . $expense->number . '.' . $extension;
 
         if (Storage::exists($tempPath)) {
             Storage::move($tempPath, $finalPath);

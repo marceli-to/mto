@@ -24,7 +24,11 @@ const title = computed(() => isEdit.value ? 'Edit Expense' : 'New Expense')
 
 const loading = ref(false)
 const saving = ref(false)
+const scanning = ref(false)
+const scanned = ref(false)
 const errors = ref({})
+
+const showFields = computed(() => isEdit.value || scanned.value)
 
 const currencyOptions = [
   { value: 'CHF', label: 'CHF' },
@@ -48,9 +52,27 @@ function onDeleteExisting() {
   expense.value.delete_file = true
 }
 
+async function scanReceipt(filename) {
+  if (isEdit.value) return
+
+  scanning.value = true
+  try {
+    const data = await post('/api/expense/scan', { temp_file: filename })
+    expense.value.title = data.title || expense.value.title
+    expense.value.date = data.date || expense.value.date
+    expense.value.description = data.description || expense.value.description
+    expense.value.amount = data.amount || expense.value.amount
+    expense.value.currency = data.currency || expense.value.currency
+  } catch (e) {
+    // Scan failed — user can still fill in manually
+  } finally {
+    scanning.value = false
+    scanned.value = true
+  }
+}
+
 async function fetchExpense() {
   if (!isEdit.value) {
-    // Set today's date for new expenses
     expense.value.date = new Date().toISOString().split('T')[0]
     return
   }
@@ -83,6 +105,7 @@ function resetForm() {
   }
   existingFile.value = ''
   errors.value = {}
+  scanned.value = false
 }
 
 watch(() => props.expenseId, (newId) => {
@@ -139,59 +162,66 @@ onMounted(fetchExpense)
 
     <form v-else @submit.prevent="submit">
       <div class="space-y-4">
-        <BaseInput
-          v-model="expense.title"
-          label="Title"
-          required
-          :error="errors.title"
-          @focus="errors.title = null"
-        />
-
-        <BaseInput
-          v-model="expense.date"
-          label="Date"
-          type="date"
-        />
-
-        <div>
-          <label class="block text-sm text-gray-500 mb-2">Description</label>
-          <textarea
-            v-model="expense.description"
-            rows="3"
-            class="w-full px-3 py-3 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
-          />
-        </div>
-        
-        <div class="grid grid-cols-12 gap-x-4 w-full">
-          <div class="col-span-8">
-            <BaseInput
-              v-model="expense.amount"
-              label="Amount"
-              type="number"
-              step="0.01"
-              required
-              :error="errors.amount"
-              @focus="errors.amount = null"
-            />
-          </div>
-          <div class="col-span-4">
-            <BaseSelect
-              v-model="expense.currency"
-              label="Currency"
-              :options="currencyOptions"
-            />
-          </div>
-        </div>
-
         <FileUpload
           v-model="expense.temp_file"
           label="Receipt"
           :existing-file="existingFile"
           @delete-existing="onDeleteExisting"
+          @uploaded="scanReceipt"
         />
+
+        <div v-if="scanning" class="text-sm text-gray-500 animate-pulse">
+          Scanning receipt...
+        </div>
+
+        <template v-if="showFields">
+          <BaseInput
+            v-model="expense.title"
+            label="Title"
+            required
+            :error="errors.title"
+            @focus="errors.title = null"
+          />
+
+          <BaseInput
+            v-model="expense.date"
+            label="Date"
+            type="date"
+          />
+
+          <div>
+            <label class="block text-sm text-gray-500 mb-2">Description</label>
+            <textarea
+              v-model="expense.description"
+              rows="3"
+              class="w-full px-3 py-3 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
+            />
+          </div>
+
+          <div class="grid grid-cols-12 gap-x-4 w-full">
+            <div class="col-span-8">
+              <BaseInput
+                v-model="expense.amount"
+                label="Amount"
+                type="number"
+                step="0.01"
+                required
+                :error="errors.amount"
+                @focus="errors.amount = null"
+              />
+            </div>
+            <div class="col-span-4">
+              <BaseSelect
+                v-model="expense.currency"
+                label="Currency"
+                :options="currencyOptions"
+              />
+            </div>
+          </div>
+        </template>
       </div>
 
-      <div class="flex items-center justify-end gap-3 mt-8">
+      <div v-if="showFields" class="flex items-center justify-end gap-3 mt-8">
         <BaseButton type="button" variant="secondary" @click="emit('cancel')">
           Cancel
         </BaseButton>
