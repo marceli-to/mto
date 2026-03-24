@@ -13,7 +13,7 @@ class Show
         $data['has_file'] = false;
         $data['file_name'] = null;
 
-        foreach (['jpg', 'pdf'] as $ext) {
+        foreach (['jpg', 'png', 'pdf'] as $ext) {
             $filePath = 'public/media/expenses/' . $expense->number . '.' . $ext;
             if (Storage::exists($filePath)) {
                 $data['has_file'] = true;

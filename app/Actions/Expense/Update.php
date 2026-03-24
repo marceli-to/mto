@@ -24,7 +24,7 @@ class Update
 
     protected function deleteExistingFile(Expense $expense): void
     {
-        foreach (['jpg', 'pdf'] as $ext) {
+        foreach (['jpg', 'png', 'pdf'] as $ext) {
             $filePath = 'public/media/expenses/' . $expense->number . '.' . $ext;
             if (Storage::exists($filePath)) {
                 Storage::delete($filePath);
