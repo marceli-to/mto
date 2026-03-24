@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/invoices/pdf', 'PdfController@invoices')->name('pdf.invoices');
     Route::get('/expense/pdf/{expense}', 'PdfController@expense')->name('pdf.expense');
     Route::get('/expenses/pdf', 'PdfController@expenses')->name('pdf.expenses');
+    Route::get('/quote/pdf/{quote}', 'PdfController@quote')->name('pdf.quote');
 
     // SPA catch-all
     Route::view('/', 'spa.app');

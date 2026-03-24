@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\Expense;
+use App\Models\Quote;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelPdf\Facades\Pdf;
@@ -56,6 +57,51 @@ class PdfController extends Controller
  				'Expires' => '0',
  			]
  		)->setContentDisposition('inline', $this->getInvoiceFilename($invoice));
+ 	}
+
+ 	public function quote(Quote $quote)
+ 	{
+ 		$quote->load(['sections.positions', 'client']);
+
+ 		// Generate cached filename with updated_at timestamp
+ 		$timestamp = $quote->updated_at->format('d-m-Y-H-i-s');
+ 		$cachedFilename = "quotes/{$this->filenamePrefix}{$quote->number}-{$quote->client->acronym}-{$timestamp}.pdf";
+ 		$storagePath = "public/media/{$cachedFilename}";
+
+ 		// Check if cached PDF exists
+ 		if (Storage::exists($storagePath)) {
+ 			return response()->file(
+ 				Storage::path($storagePath),
+ 				[
+ 					'Content-Type' => 'application/pdf',
+ 					'Cache-Control' => 'no-cache, no-store, must-revalidate',
+ 					'Pragma' => 'no-cache',
+ 					'Expires' => '0',
+ 				]
+ 			)->setContentDisposition('inline', $this->getQuoteFilename($quote));
+ 		}
+
+ 		// Ensure directory exists with proper permissions
+		$dir = Storage::path('public/media/quotes');
+		if (!is_dir($dir)) {
+			mkdir($dir, 0755, true);
+		}
+
+ 		// Generate and save PDF
+ 		$this->buildPdf('pdf.quote', ['quote' => $quote])
+ 			->headerView('pdf.partials.header')
+ 			->footerView('pdf.partials.footer')
+ 			->save(Storage::path($storagePath));
+
+ 		return response()->file(
+ 			Storage::path($storagePath),
+ 			[
+ 				'Content-Type' => 'application/pdf',
+ 				'Cache-Control' => 'no-cache, no-store, must-revalidate',
+ 				'Pragma' => 'no-cache',
+ 				'Expires' => '0',
+ 			]
+ 		)->setContentDisposition('inline', $this->getQuoteFilename($quote));
  	}
 
  	public function expense(Expense $expense)
@@ -128,6 +174,17 @@ class PdfController extends Controller
  			$invoice->number,
  			$invoice->client->acronym,
  			Str::slug(str_replace('www.', '', $invoice->title))
+ 		);
+ 	}
+
+ 	protected function getQuoteFilename(Quote $quote): string
+ 	{
+ 		return sprintf(
+ 			'%s%s-%s-%s.pdf',
+ 			$this->filenamePrefix,
+ 			$quote->number,
+ 			$quote->client->acronym,
+ 			Str::slug(str_replace('www.', '', $quote->title))
  		);
  	}
 

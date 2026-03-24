@@ -11,6 +11,9 @@ use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\QuoteController;
+use App\Http\Controllers\Api\QuoteSectionController;
+use App\Http\Controllers\Api\QuotePositionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -93,6 +96,20 @@ Route::middleware('auth:sanctum')->group(function() {
   Route::delete('invoice/destroy/{invoice}', [InvoiceController::class, 'destroy']);
   Route::delete('invoice/position/destroy/{invoicePosition}', [InvoicePositionController::class, 'destroy']);
   Route::get('invoice/states', [InvoiceStateController::class, 'index']);
+
+  /**
+   * Quote routes
+   */
+
+  Route::get('quotes/get', [QuoteController::class, 'get']);
+  Route::post('quote/create', [QuoteController::class, 'store']);
+  Route::get('quote/edit/{quote}', [QuoteController::class, 'edit']);
+  Route::post('quote/update/{quote}', [QuoteController::class, 'update']);
+  Route::post('quote/update/status/{quote}', [QuoteController::class, 'updateStatus']);
+  Route::get('quote/duplicate/{quote}', [QuoteController::class, 'duplicate']);
+  Route::delete('quote/destroy/{quote}', [QuoteController::class, 'destroy']);
+  Route::delete('quote/section/destroy/{quoteSection}', [QuoteSectionController::class, 'destroy']);
+  Route::delete('quote/position/destroy/{quotePosition}', [QuotePositionController::class, 'destroy']);
 
   /**
    * Expense routes

@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Models\Invoice;
+use App\Models\Quote;
 use App\Observers\InvoiceObserver;
+use App\Observers\QuoteObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -22,5 +24,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Invoice::observe(InvoiceObserver::class);
+        Quote::observe(QuoteObserver::class);
     }
 }

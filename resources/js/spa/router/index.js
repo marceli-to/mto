@@ -7,6 +7,7 @@ import YearInvoices from '@/components/dashboard/YearInvoices.vue'
 import ClientList from '@/components/clients/ClientList.vue'
 import ProjectList from '@/components/projects/ProjectList.vue'
 import InvoiceList from '@/components/invoices/InvoiceList.vue'
+import QuoteList from '@/components/quotes/QuoteList.vue'
 import ExpenseList from '@/components/expenses/ExpenseList.vue'
 
 const routes = [
@@ -35,6 +36,13 @@ const routes = [
     path: '/invoices',
     name: 'invoices',
     component: InvoiceList
+  },
+
+  // Quotes
+  {
+    path: '/quotes',
+    name: 'quotes',
+    component: QuoteList
   },
 
   // Expenses
