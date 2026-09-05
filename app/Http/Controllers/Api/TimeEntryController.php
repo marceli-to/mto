@@ -21,6 +21,13 @@ class TimeEntryController extends Controller
         return (new GetAction)->execute($request);
     }
 
+    public function config()
+    {
+        return response()->json([
+            'activities' => config('timetracking.activities', []),
+        ]);
+    }
+
     public function store(TimeEntryStoreRequest $request)
     {
         return (new StoreAction)->execute($request);

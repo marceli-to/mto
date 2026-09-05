@@ -128,6 +128,7 @@ Route::middleware('auth:sanctum')->group(function() {
    */
 
   Route::get('time-entries/get', [TimeEntryController::class, 'get']);
+  Route::get('time-entries/config', [TimeEntryController::class, 'config']);
   Route::post('time-entry/create', [TimeEntryController::class, 'store']);
   Route::get('time-entry/edit/{timeEntry}', [TimeEntryController::class, 'edit']);
   Route::post('time-entry/update/{timeEntry}', [TimeEntryController::class, 'update']);

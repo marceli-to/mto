@@ -9,6 +9,7 @@ import ProjectList from '@/components/projects/ProjectList.vue'
 import InvoiceList from '@/components/invoices/InvoiceList.vue'
 import QuoteList from '@/components/quotes/QuoteList.vue'
 import ExpenseList from '@/components/expenses/ExpenseList.vue'
+import TimeList from '@/components/time/TimeList.vue'
 
 const routes = [
   {
@@ -50,6 +51,13 @@ const routes = [
     path: '/expenses',
     name: 'expenses',
     component: ExpenseList
+  },
+
+  // Time
+  {
+    path: '/time',
+    name: 'time',
+    component: TimeList
   },
 
   // Clients

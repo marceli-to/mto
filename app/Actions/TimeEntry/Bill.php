@@ -40,7 +40,7 @@ class Bill
                 $position = InvoicePosition::create([
                     'invoice_id'  => $invoice->id,
                     'periode'     => $entry->date->format('d.m.Y'),
-                    'description' => $entry->description,
+                    'description' => $entry->description ?? '',
                     'rate'        => $entry->resolvedRate(),
                     'hours'       => $entry->hours,
                     'amount'      => $entry->value(),
