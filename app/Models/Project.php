@@ -26,4 +26,21 @@ class Project extends Model
     {
         return $this->belongsTo(Client::class);
     }
+
+    /**
+     * Relation 'rateModel' — the Rate referenced by rate_id.
+     * Named to avoid colliding with the legacy free-text 'rate' column.
+     */
+    public function rateModel()
+    {
+        return $this->belongsTo(Rate::class, 'rate_id');
+    }
+
+    /**
+     * Relation 'timeEntries'
+     */
+    public function timeEntries()
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
 }

@@ -69,6 +69,21 @@ class Invoice extends Model
     }
 
     /**
+     * Recalculate total / vat / grandtotal from the invoice's current positions.
+     * Mirrors the frontend computation (VAT rounded to 0.05). Persists the invoice.
+     */
+    public function recalculateTotal(): void
+    {
+        $total = (float) $this->positions()->sum('amount');
+        $vat = ceil(($total / 100 * (float) ($this->vat_rate ?? 0)) * 20) / 20;
+
+        $this->total = $total;
+        $this->vat = $vat;
+        $this->grandtotal = $total + $vat;
+        $this->save();
+    }
+
+    /**
      * Scope: exclude cancelled invoices
      */
     public function scopeNotCancelled(Builder $query): Builder

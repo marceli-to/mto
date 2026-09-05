@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\InvoiceStateController;
 use App\Http\Controllers\Api\InvoicePositionController;
 use App\Http\Controllers\Api\ExpenseController;
+use App\Http\Controllers\Api\TimeEntryController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\UploadController;
 use App\Http\Controllers\Api\DashboardController;
@@ -121,6 +122,18 @@ Route::middleware('auth:sanctum')->group(function() {
   Route::get('expense/edit/{expense}', [ExpenseController::class, 'edit']);
   Route::post('expense/update/{expense}', [ExpenseController::class, 'update']);
   Route::delete('expense/destroy/{expense}', [ExpenseController::class, 'destroy']);
+
+  /**
+   * Time entry routes
+   */
+
+  Route::get('time-entries/get', [TimeEntryController::class, 'get']);
+  Route::post('time-entry/create', [TimeEntryController::class, 'store']);
+  Route::get('time-entry/edit/{timeEntry}', [TimeEntryController::class, 'edit']);
+  Route::post('time-entry/update/{timeEntry}', [TimeEntryController::class, 'update']);
+  Route::delete('time-entry/destroy/{timeEntry}', [TimeEntryController::class, 'destroy']);
+  Route::post('time-entries/bill', [TimeEntryController::class, 'bill']);
+  Route::post('time-entries/unbill', [TimeEntryController::class, 'unbill']);
 
   /**
    * Upload routes

@@ -12,12 +12,8 @@ class Update
     {
         $invoice->update($request->all());
 
-        $positions = [];
-        $total = 0;
-
         foreach ($request->positions as $position) {
             $position['invoice_id'] = $invoice->id;
-            $total += $position['amount'];
             if (isset($position['id'])) {
                 InvoicePosition::updateOrCreate(['id' => $position['id']], $position);
             } else {
@@ -25,8 +21,8 @@ class Update
             }
         }
 
-        $invoice->total = $total;
-        $invoice->save();
+        // Recompute total/vat/grandtotal from the persisted positions (source of truth).
+        $invoice->recalculateTotal();
 
         return response()->json('successfully updated');
     }
