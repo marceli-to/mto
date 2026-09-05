@@ -322,6 +322,35 @@ Route::post('time-entries/unbill', [TimeEntryController::class, 'unbill']);  // 
 
 ---
 
+---
+
+## Implementation status (as of 2026-09-05)
+
+**All 10 tasks implemented and committed to `master` (local — may be unpushed).** Commits:
+- `d621f8a` CLAUDE.md accuracy fixes
+- `405659e` this plan doc
+- `d5dd0d7` backend (model, RevenueEngine, CRUD, billing)
+- `47275dc` frontend + feature tests
+
+**Tests:** 16 passing (5 `tests/Unit/RevenueEngineTest.php` + 11 `tests/Feature/TimeEntryTest.php`). Run: `./vendor/bin/phpunit --filter=RevenueEngineTest` / `--filter=TimeEntryTest`.
+
+**Verified:** backend end-to-end (tinker + feature tests), frontend compiles (`npm run build`). **NOT yet verified:** live UI in a browser — needs a manual click-through of `/time` (add project entry + activity, check day collapsibles + revenue cards, edit/delete).
+
+**Decisions made during build (not in the original plan):**
+- `Invoice::recalculateTotal()` was extracted and now recomputes `total`/`vat`/`grandtotal` from persisted positions. `Invoice\Update` was refactored to use it (previously only `total` was recomputed server-side; `vat`/`grandtotal` were trusted from the client). This makes the server authoritative for invoice totals — a behavior change to core invoicing worth regression-checking.
+- `periode` on generated positions is formatted `d.m.Y` (matches existing German date strings).
+- Bill coalesces null entry description to `''` (invoice_positions.description is NOT NULL).
+- `config/timetracking.php` seeds activity chips `['Admin','Gym','Lunch']` — adjust to taste.
+- Test DB: SQLite in-memory added to `phpunit.xml` (was previously unconfigured — a real risk, tests would have hit dev MySQL).
+
+**Known pre-existing issue (not caused by this work):** stock `tests/Feature/ExampleTest.php` fails (GETs `/`, expects 200, app redirects to login → 302). Left untouched — decide whether to delete.
+
+**Deferred / remaining work (user notes 2026-09-05):**
+
+1. **Bill / unbill time entry (UI)** — ⏳ *partially done.* Billing a collection project's entries is now available in the **invoice-create flyout** (see #3). Still missing: an **unbill** affordance in the UI (backend `Unbill` exists + tested) and per-entry multi-select billing from the Time screen (not needed if project-level billing suffices — revisit).
+2. **Rate handling (set on project, manual)** — both paths already exist: project rate via `rate_id` (Rate picker on `ProjectForm`) and per-entry manual override (rate field in `TimeForm`, falls back to project rate). Verified end-to-end via tinker (override wins, blank inherits). Review item only: confirm the UX is clear in the browser.
+3. **Create bill for collection project (ui + backend)** — ✅ **done (2026-09-05).** The invoice-create flyout now has a source toggle: **Manual** or **From collection project**. Selecting an `is_collection` project loads its unbilled billable entries (`GET /api/time-entries/unbilled/{project}`), prefills title + client, and previews one position per entry. On save it creates a draft invoice then calls `time-entries/bill` (positions created server-side, entries linked so they can't be double-billed). New backend: `App\Actions\TimeEntry\UnbilledForProject`. Verified end-to-end via tinker (2 entries → 2 positions, total/grandtotal correct, entries no longer unbilled). **Still needs a browser UI check.**
+
 ### Open questions to resolve during implementation
 1. **`periode` format** — match how existing InvoicePositions format the period string before writing Bill.
 2. **`is_collection` boolean coercion** — confirm the SPA sends a real boolean so the `required_if` budget rule fires correctly; normalize in the request if needed.

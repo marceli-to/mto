@@ -12,6 +12,8 @@ use App\Actions\TimeEntry\Update as UpdateAction;
 use App\Actions\TimeEntry\Delete as DeleteAction;
 use App\Actions\TimeEntry\Bill as BillAction;
 use App\Actions\TimeEntry\Unbill as UnbillAction;
+use App\Actions\TimeEntry\UnbilledForProject as UnbilledForProjectAction;
+use App\Models\Project;
 use Illuminate\Http\Request;
 
 class TimeEntryController extends Controller
@@ -46,6 +48,11 @@ class TimeEntryController extends Controller
     public function destroy(TimeEntry $timeEntry)
     {
         return (new DeleteAction)->execute($timeEntry);
+    }
+
+    public function unbilledForProject(Project $project)
+    {
+        return (new UnbilledForProjectAction)->execute($project);
     }
 
     public function bill(Request $request)

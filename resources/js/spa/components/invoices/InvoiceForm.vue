@@ -31,6 +31,13 @@ const errors = ref({})
 const clients = ref([])
 const positionDialog = ref({ show: false, position: null })
 
+// Invoice source (create mode only): 'manual' or 'collection' (bill a collection project's time)
+const source = ref('manual')
+const collectionProjects = ref([])
+const selectedProjectId = ref('')
+const billableEntries = ref([]) // unbilled entries pulled in for a collection project
+const loadingEntries = ref(false)
+
 const vatOptions = [
   { value: 0, label: 'None' },
   { value: 7.7, label: '7.7%' },
@@ -68,6 +75,12 @@ async function fetchData() {
   try {
     const clientsData = await get('/api/clients/get')
     clients.value = clientsData.data || []
+
+    // Collection projects are billing candidates (create mode only).
+    if (!isEdit.value) {
+      const projectsData = await get('/api/projects/get')
+      collectionProjects.value = (projectsData.data || []).filter(p => p.is_collection)
+    }
 
     if (isEdit.value) {
       const data = await get(`/api/invoice/edit/${props.invoiceId}`)
@@ -110,6 +123,9 @@ function resetForm() {
     positions: []
   }
   errors.value = {}
+  source.value = 'manual'
+  selectedProjectId.value = ''
+  billableEntries.value = []
 }
 
 watch(() => props.invoiceId, (newId) => {
@@ -136,10 +152,58 @@ function setDueDate() {
   }
 }
 
+const collectionProjectOptions = computed(() =>
+  collectionProjects.value.map(p => ({ value: p.id, label: p.name }))
+)
+
+function setSource(next) {
+  source.value = next
+  if (next === 'manual') {
+    selectedProjectId.value = ''
+    billableEntries.value = []
+  }
+}
+
+async function onCollectionProjectSelected() {
+  billableEntries.value = []
+  if (!selectedProjectId.value) return
+  loadingEntries.value = true
+  try {
+    const data = await get(`/api/time-entries/unbilled/${selectedProjectId.value}`)
+    billableEntries.value = data.entries || []
+    // Prefill title + client + positions preview from the project's entries.
+    invoice.value.client_id = data.project?.client_id || invoice.value.client_id
+    if (!invoice.value.title?.trim()) {
+      invoice.value.title = data.project?.name || ''
+    }
+    invoice.value.positions = billableEntries.value.map(e => ({
+      periode: e.periode,
+      description: e.description || '',
+      rate: e.rate,
+      hours: e.hours,
+      amount: e.amount,
+      is_flat: false,
+      is_fee: false,
+      _from_entry: e.id // marker: created via Bill, not sent as a manual position
+    }))
+    if (!billableEntries.value.length) {
+      error('This project has no unbilled billable time entries')
+    }
+  } catch (e) {
+    error('Failed to load time entries')
+  } finally {
+    loadingEntries.value = false
+  }
+}
+
 function validate() {
   errors.value = {}
   if (!invoice.value.title?.trim()) {
     errors.value.title = 'Title is required'
+  }
+  if (source.value === 'collection' && !billableEntries.value.length) {
+    error('Select a collection project with unbilled entries')
+    return false
   }
   return Object.keys(errors.value).length === 0
 }
@@ -155,12 +219,25 @@ async function submit() {
   invoice.value.vat = vat.value
   invoice.value.grandtotal = grandtotal.value
 
+  const billFromEntries = !isEdit.value && source.value === 'collection' && billableEntries.value.length > 0
+
   saving.value = true
   try {
     let savedInvoice
     if (isEdit.value) {
       savedInvoice = await post(`/api/invoice/update/${props.invoiceId}`, invoice.value)
       success('Invoice updated')
+    } else if (billFromEntries) {
+      // Create the invoice WITHOUT the entry-derived positions; Bill creates those
+      // server-side and links each entry (so they can't be double-billed).
+      const payload = { ...invoice.value, positions: [] }
+      savedInvoice = await post('/api/invoice/create', payload)
+      const invoiceId = savedInvoice.invoiceId || savedInvoice.id
+      await post('/api/time-entries/bill', {
+        invoice_id: invoiceId,
+        time_entry_ids: billableEntries.value.map(e => e.id)
+      })
+      success('Invoice created from time entries')
     } else {
       savedInvoice = await post('/api/invoice/create', invoice.value)
       success('Invoice created')
@@ -225,6 +302,45 @@ onMounted(fetchData)
     <form v-else @submit.prevent="submit" class="space-y-6">
       <div>
         <div class="space-y-4">
+          <!-- Source selector (create mode only) -->
+          <div v-if="!isEdit">
+            <label class="block text-sm text-gray-500 mb-2">Invoice source</label>
+            <div class="flex gap-2 mb-2">
+              <button
+                type="button"
+                @click="setSource('manual')"
+                class="px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
+                :class="source === 'manual'
+                  ? 'bg-gray-900 text-white border-gray-900'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'"
+              >
+                Manual
+              </button>
+              <button
+                type="button"
+                @click="setSource('collection')"
+                class="px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
+                :class="source === 'collection'
+                  ? 'bg-gray-900 text-white border-gray-900'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'"
+              >
+                From collection project
+              </button>
+            </div>
+            <div v-if="source === 'collection'">
+              <BaseSelect
+                v-model="selectedProjectId"
+                :options="collectionProjectOptions"
+                placeholder="Select a collection project..."
+                @update:modelValue="onCollectionProjectSelected"
+              />
+              <p v-if="loadingEntries" class="text-sm text-gray-400 mt-2 animate-pulse">Loading time entries...</p>
+              <p v-else-if="selectedProjectId && billableEntries.length" class="text-sm text-gray-500 mt-2">
+                {{ billableEntries.length }} unbilled {{ billableEntries.length === 1 ? 'entry' : 'entries' }} → positions below.
+              </p>
+            </div>
+          </div>
+
           <BaseInput
             v-model="invoice.title"
             label="Title"
