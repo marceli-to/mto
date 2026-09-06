@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhCaretDown, PhCaretRight } from '@phosphor-icons/vue'
+import { PhPlus, PhPencil, PhTrash, PhCaretDown, PhCaretRight, PhCalendar, PhCalendarBlank } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
@@ -12,8 +12,14 @@ const { get, del, post } = useApi()
 const { success, error } = useToast()
 const { formatCurrency } = useCurrency()
 
+const emptyStats = () => ({
+  day: 0,
+  week: 0, week_label: '', last_week: 0,
+  month: 0, month_label: '', last_month: 0,
+})
+
 const days = ref([])
-const stats = ref({ day: 0, week: 0, month: 0 })
+const stats = ref(emptyStats())
 const loading = ref(true)
 
 const today = () => new Date().toISOString().split('T')[0]
@@ -47,7 +53,7 @@ async function fetchEntries() {
   try {
     const data = await get(`/api/time-entries/get?date=${selectedDate.value}`)
     days.value = data.days || []
-    stats.value = data.stats || { day: 0, week: 0, month: 0 }
+    stats.value = data.stats || emptyStats()
     // Expand today by default (first load); keep any user-toggled state otherwise.
     if (Object.keys(expanded).length === 0) {
       const t = today()
@@ -64,7 +70,7 @@ async function fetchEntries() {
 
 async function toggleDay(date) {
   expanded[date] = !expanded[date]
-  // Opening a day selects it -> refresh the "selected day" stat card.
+  // Opening a day re-anchors the week/month stat periods to that date.
   if (expanded[date] && date !== selectedDate.value) {
     selectedDate.value = date
     await refreshStats()
@@ -99,11 +105,14 @@ async function deleteEntry() {
   }
 }
 
-const selectedDayLabel = computed(() => {
-  const d = days.value.find(x => x.date === selectedDate.value)
-  if (d) return d.weekday_label
-  return new Date(selectedDate.value).toLocaleDateString('de-CH')
-})
+/** Percentage change vs the previous period; null when there is no baseline to compare against. */
+function delta(current, previous) {
+  if (!previous) return null
+  return Math.round(((current - previous) / previous) * 100)
+}
+
+const weekDelta = computed(() => delta(stats.value.week, stats.value.last_week))
+const monthDelta = computed(() => delta(stats.value.month, stats.value.last_month))
 
 onMounted(fetchEntries)
 </script>
@@ -125,18 +134,43 @@ onMounted(fetchEntries)
     </div>
 
     <!-- Stat cards -->
-    <div class="grid grid-cols-3 gap-4 mb-10">
-      <div class="border border-gray-200 bg-gray-50/50 rounded-md p-4">
-        <p class="text-sm text-gray-500 mb-1">{{ selectedDayLabel }}</p>
-        <p class="text-xl text-gray-900">{{ formatCurrency(stats.day) }}</p>
+    <div class="grid grid-cols-2 gap-4 mb-10">
+      <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-medium text-gray-500">{{ stats.week_label }}</p>
+          <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+            <PhCalendarBlank class="h-5 w-5" />
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats.week) }}</p>
+        <div class="flex items-center mt-1">
+          <span v-if="weekDelta !== null" class="text-xs font-medium px-2 py-0.5 rounded-full"
+            :class="weekDelta >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'">
+            {{ weekDelta >= 0 ? '+' : '' }}{{ weekDelta }}%
+          </span>
+          <span class="text-xs text-gray-400" :class="{ 'ml-2': weekDelta !== null }">
+            {{ formatCurrency(stats.last_week) }}
+          </span>
+        </div>
       </div>
-      <div class="border border-gray-200 bg-gray-50/50 rounded-md p-4">
-        <p class="text-sm text-gray-500 mb-1">This week</p>
-        <p class="text-xl text-gray-900">{{ formatCurrency(stats.week) }}</p>
-      </div>
-      <div class="border border-gray-200 bg-gray-50/50 rounded-md p-4">
-        <p class="text-sm text-gray-500 mb-1">This month</p>
-        <p class="text-xl text-gray-900">{{ formatCurrency(stats.month) }}</p>
+
+      <div class="bg-white rounded-xl border-2 border-gray-100 p-4">
+        <div class="flex items-center justify-between mb-4">
+          <p class="text-sm font-medium text-gray-500">{{ stats.month_label }}</p>
+          <div class="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+            <PhCalendar class="h-5 w-5" />
+          </div>
+        </div>
+        <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(stats.month) }}</p>
+        <div class="flex items-center mt-1">
+          <span v-if="monthDelta !== null" class="text-xs font-medium px-2 py-0.5 rounded-full"
+            :class="monthDelta >= 0 ? 'text-emerald-600 bg-emerald-100' : 'text-red-600 bg-red-100'">
+            {{ monthDelta >= 0 ? '+' : '' }}{{ monthDelta }}%
+          </span>
+          <span class="text-xs text-gray-400" :class="{ 'ml-2': monthDelta !== null }">
+            {{ formatCurrency(stats.last_month) }}
+          </span>
+        </div>
       </div>
     </div>
 
@@ -157,37 +191,43 @@ onMounted(fetchEntries)
         <!-- Day header -->
         <button
           @click="toggleDay(day.date)"
-          class="w-full flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors cursor-pointer"
-          :class="{ 'text-black': day.date === selectedDate }"
+          class="w-full flex items-center justify-between py-5 hover:bg-gray-50/50 transition-colors cursor-pointer"
         >
           <div class="flex items-center gap-2">
             <component :is="expanded[day.date] ? PhCaretDown : PhCaretRight" class="w-4 h-4 text-gray-400" />
-            <span class="font-medium text-gray-900">{{ day.weekday_label }}</span>
+            <span>{{ day.weekday_label }}</span>
           </div>
-          <span class="text-gray-500">{{ day.total_hours }} h</span>
+          <div class="flex items-center gap-4">
+            <span class="tabular-nums w-20 text-right">{{ day.total_hours }} h</span>
+            <span class="tabular-nums w-24 text-right">
+              {{ day.total_revenue > 0 ? formatCurrency(day.total_revenue) : '—' }}
+            </span>
+            <!-- spacer matching the per-entry action column -->
+            <div class="w-20" aria-hidden="true"></div>
+          </div>
         </button>
 
         <!-- Entries -->
-        <ul v-if="expanded[day.date]" class="divide-y divide-gray-50 pb-2">
+        <ul v-if="expanded[day.date]" class="divide-y divide-gray-100 border-t border-gray-100 pb-2">
           <li
             v-for="entry in day.entries"
             :key="entry.id"
-            class="flex items-center justify-between py-3 pl-6 hover:bg-gray-50/50 transition-colors"
-            :class="{ 'opacity-60': !entry.is_billable }"
+            class="flex items-center justify-between py-4 pl-6 hover:bg-gray-50/50 transition-colors"
+            :class="{ 'opacity-60': !entry.is_billable && !entry.is_activity }"
           >
-            <div class="flex items-center gap-x-4 min-w-0">
-              <span class="font-medium text-gray-900 truncate">{{ entry.label }}</span>
-              <span v-if="entry.description" class="text-gray-500 truncate">{{ entry.description }}</span>
+            <div class="flex items-center gap-x-8 min-w-0 flex-1">
+              <span v-if="entry.description" class="font-bold truncate">{{ entry.description }}</span>
+              <span v-if="entry.label" class="truncate">{{ entry.label }}</span>
               <span v-if="entry.is_activity" class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">Activity</span>
               <span v-else-if="!entry.is_billable" class="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">Non-billable</span>
               <span v-if="entry.is_billed" class="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600">Billed</span>
             </div>
             <div class="flex items-center gap-4">
-              <span class="text-gray-500 tabular-nums">{{ entry.hours }} h</span>
-              <span class="text-gray-900 tabular-nums w-24 text-right">
+              <span class="tabular-nums w-20 text-right">{{ entry.hours }} h</span>
+              <span class="tabular-nums w-24 text-right">
                 {{ entry.revenue > 0 ? formatCurrency(entry.revenue) : '—' }}
               </span>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center justify-end gap-1 w-20">
                 <button
                   @click="openEdit(entry.id)"
                   :disabled="entry.is_billed"

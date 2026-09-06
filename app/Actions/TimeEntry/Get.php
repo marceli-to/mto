@@ -40,19 +40,42 @@ class Get
                     'date'          => $date,
                     'weekday_label' => $carbon->locale('de')->isoFormat('dddd, D.M.'),
                     'total_hours'   => round($group->sum(fn (TimeEntry $e) => (float) $e->hours), 2),
+                    'total_revenue' => round($group->sum(fn (TimeEntry $e) => $revenue[$e->id]['revenue'] ?? 0), 2),
                     'entries'       => $group->map(fn (TimeEntry $e) => $this->transform($e, $revenue))->values(),
                 ];
             })
             ->values();
 
+        $lastWeek  = $anchor->copy()->subWeek();
+        $lastMonth = $anchor->copy()->subMonthNoOverflow();
+
+        $weekStart      = $anchor->copy()->startOfWeek();
+        $weekEnd        = $anchor->copy()->endOfWeek();
+        $lastWeekStart  = $lastWeek->copy()->startOfWeek();
+        $lastWeekEnd    = $lastWeek->copy()->endOfWeek();
+        $monthStart     = $anchor->copy()->startOfMonth();
+        $monthEnd       = $anchor->copy()->endOfMonth();
+        $lastMonthStart = $lastMonth->copy()->startOfMonth();
+        $lastMonthEnd   = $lastMonth->copy()->endOfMonth();
+
         return response()->json([
             'days'  => $days,
             'stats' => [
-                'day'   => $engine->periodRevenue($anchor->copy(), $anchor->copy()),
-                'week'  => $engine->periodRevenue($anchor->copy()->startOfWeek(), $anchor->copy()->endOfWeek()),
-                'month' => $engine->periodRevenue($anchor->copy()->startOfMonth(), $anchor->copy()->endOfMonth()),
+                'day'              => $engine->periodRevenue($anchor->copy(), $anchor->copy()),
+                'week'             => $engine->periodRevenue($weekStart, $weekEnd),
+                'week_label'       => $this->rangeLabel($weekStart, $weekEnd),
+                'last_week'        => $engine->periodRevenue($lastWeekStart, $lastWeekEnd),
+                'month'            => $engine->periodRevenue($monthStart, $monthEnd),
+                'month_label'      => $monthStart->locale('de')->isoFormat('MMMM YYYY'),
+                'last_month'       => $engine->periodRevenue($lastMonthStart, $lastMonthEnd),
             ],
         ]);
+    }
+
+    /** "31.8. - 6.9." for a week range. */
+    protected function rangeLabel(Carbon $from, Carbon $to): string
+    {
+        return $from->format('j.n.') . ' - ' . $to->format('j.n.');
     }
 
     protected function transform(TimeEntry $entry, array $revenue): array
