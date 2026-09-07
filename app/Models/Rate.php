@@ -7,6 +7,11 @@ class Rate extends Model
 {
   protected $fillable = [
     'description',
-    'amount'
+    'amount',
+    'is_default'
+  ];
+
+  protected $casts = [
+    'is_default' => 'boolean'
   ];
 }

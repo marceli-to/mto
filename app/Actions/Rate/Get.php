@@ -9,6 +9,7 @@ class Get
 {
     public function execute()
     {
-        return new RateCollection(Rate::all());
+        // Cheapest first, so the select reads as a ladder.
+        return new RateCollection(Rate::orderBy('amount')->get());
     }
 }

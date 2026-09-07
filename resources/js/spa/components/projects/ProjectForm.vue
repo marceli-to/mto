@@ -55,6 +55,9 @@ async function fetchData() {
         client_id: data.client_id || '',
         rate_id: data.rate_id || ''
       }
+    } else {
+      // New projects start on the rate flagged as the default.
+      project.value.rate_id = rates.value.find(r => r.is_default)?.id ?? ''
     }
   } catch (e) {
     error('Failed to load data')
