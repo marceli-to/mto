@@ -243,37 +243,32 @@ onMounted(async () => {
           :error="errors.project_id"
         />
 
-        <div class="grid grid-cols-12 gap-x-4">
-          <div class="col-span-6">
-            <BaseInput
-              v-model="entry.date"
-              label="Date"
-              type="date"
-              required
-              :error="errors.date"
-            />
-          </div>
-          <div class="col-span-3">
-            <BaseInput
-              v-model="entry.time_from"
-              label="From"
-              placeholder="08.30"
-              required
-              :error="errors.time_from"
-              @blur="blurTime('time_from')"
-            />
-          </div>
-          <div class="col-span-3">
-            <BaseInput
-              v-model="entry.time_to"
-              label="To"
-              placeholder="10.15"
-              required
-              :error="errors.time_to"
-              @blur="blurTime('time_to')"
-            />
-          </div>
+        <div class="grid grid-cols-2 gap-x-4">
+          <BaseInput
+            v-model="entry.time_from"
+            label="From"
+            placeholder="08.30"
+            required
+            :error="errors.time_from"
+            @blur="blurTime('time_from')"
+          />
+          <BaseInput
+            v-model="entry.time_to"
+            label="To"
+            placeholder="10.15"
+            required
+            :error="errors.time_to"
+            @blur="blurTime('time_to')"
+          />
         </div>
+
+        <BaseInput
+          v-model="entry.date"
+          label="Date"
+          type="date"
+          required
+          :error="errors.date"
+        />
 
         <div>
           <label class="block text-sm text-gray-500 mb-2">Description</label>
