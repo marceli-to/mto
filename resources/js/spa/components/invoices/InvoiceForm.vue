@@ -32,12 +32,22 @@ const errors = ref({})
 const clients = ref([])
 const positionDialog = ref({ show: false, position: null })
 
-// Invoice source (create mode only): 'manual' or 'collection' (bill a collection project's time)
+// Invoice source (create mode only): 'manual', or 'project' to bill a project.
+// A project invoice prefills title and client either way; a COLLECTION project
+// additionally pulls its unbilled time entries in as positions, while a
+// fixed-price one leaves the positions to be entered by hand.
 const source = ref('manual')
-const collectionProjects = ref([])
+const projects = ref([])
 const selectedProjectId = ref('')
 const billableEntries = ref([]) // unbilled entries pulled in for a collection project
 const loadingEntries = ref(false)
+
+// BaseSelect emits the raw <option> value, so the id arrives as a string.
+const selectedProject = computed(() =>
+  projects.value.find(p => String(p.id) === String(selectedProjectId.value)) || null
+)
+
+const isCollectionProject = computed(() => !!selectedProject.value?.is_collection)
 
 const vatOptions = [
   { value: 0, label: 'None' },
@@ -77,10 +87,10 @@ async function fetchData() {
     const clientsData = await get('/api/clients/get')
     clients.value = clientsData.data || []
 
-    // Collection projects are billing candidates (create mode only).
+    // Any project can be invoiced (create mode only).
     if (!isEdit.value) {
       const projectsData = await get('/api/projects/get')
-      collectionProjects.value = (projectsData.data || []).filter(p => p.is_collection)
+      projects.value = projectsData.data || []
     }
 
     if (isEdit.value) {
@@ -153,43 +163,57 @@ function setDueDate() {
   }
 }
 
-const collectionProjectOptions = computed(() =>
-  collectionProjects.value.map(p => ({ value: p.id, label: p.name }))
+const projectOptions = computed(() =>
+  projects.value.map(p => ({
+    value: p.id,
+    label: p.client?.acronym ? `${p.name} (${p.client.acronym})` : p.name
+  }))
 )
+
+/** Drop only the positions derived from time entries, keeping anything hand-added. */
+function clearEntryPositions() {
+  billableEntries.value = []
+  invoice.value.positions = invoice.value.positions.filter(p => !p._from_entry)
+}
 
 function setSource(next) {
   source.value = next
   if (next === 'manual') {
     selectedProjectId.value = ''
-    billableEntries.value = []
+    clearEntryPositions()
   }
 }
 
-async function onCollectionProjectSelected() {
-  billableEntries.value = []
-  if (!selectedProjectId.value) return
+async function onProjectSelected() {
+  clearEntryPositions()
+  if (!selectedProject.value) return
+
+  // Title and client come from the project itself in both billing modes.
+  invoice.value.client_id = selectedProject.value.client_id || invoice.value.client_id
+  if (!invoice.value.title?.trim()) {
+    invoice.value.title = selectedProject.value.name || ''
+  }
+
+  // Fixed-price projects get their positions by hand.
+  if (!isCollectionProject.value) return
+
   loadingEntries.value = true
   try {
     const data = await get(`/api/time-entries/unbilled/${selectedProjectId.value}`)
     billableEntries.value = data.entries || []
-    // Prefill title + client + positions preview from the project's entries.
-    invoice.value.client_id = data.project?.client_id || invoice.value.client_id
-    if (!invoice.value.title?.trim()) {
-      invoice.value.title = data.project?.name || ''
-    }
-    invoice.value.positions = billableEntries.value.map(e => ({
-      periode: e.periode,
-      description: e.description || '',
-      rate: e.rate,
-      hours: e.hours,
-      amount: e.amount,
-      is_flat: false,
-      is_fee: false,
-      _from_entry: e.id // marker: created via Bill, not sent as a manual position
-    }))
-    if (!billableEntries.value.length) {
-      error('This project has no unbilled billable time entries')
-    }
+    invoice.value.positions = [
+      ...invoice.value.positions,
+      ...billableEntries.value.map(e => ({
+        periode: e.periode,
+        description: e.description || '',
+        rate: e.rate,
+        hours: e.hours,
+        amount: e.amount,
+        is_flat: false,
+        is_fee: false,
+        _from_entry: e.id // marker: created via Bill, not sent as a manual position
+      }))
+    ]
   } catch (e) {
     error('Failed to load time entries')
   } finally {
@@ -202,8 +226,8 @@ function validate() {
   if (!invoice.value.title?.trim()) {
     errors.value.title = 'Title is required'
   }
-  if (source.value === 'collection' && !billableEntries.value.length) {
-    error('Select a collection project with unbilled entries')
+  if (source.value === 'project' && !selectedProjectId.value) {
+    error('Select a project')
     return false
   }
   return Object.keys(errors.value).length === 0
@@ -220,7 +244,7 @@ async function submit() {
   invoice.value.vat = vat.value
   invoice.value.grandtotal = grandtotal.value
 
-  const billFromEntries = !isEdit.value && source.value === 'collection' && billableEntries.value.length > 0
+  const billFromEntries = !isEdit.value && source.value === 'project' && billableEntries.value.length > 0
 
   saving.value = true
   try {
@@ -306,7 +330,7 @@ onMounted(fetchData)
           <!-- Source selector (create mode only) -->
           <div v-if="!isEdit">
             <label class="block text-sm text-gray-500 mb-2">Invoice source</label>
-            <div class="flex gap-2 mb-2">
+            <div class="flex gap-2 mb-4">
               <button
                 type="button"
                 @click="setSource('manual')"
@@ -319,26 +343,31 @@ onMounted(fetchData)
               </button>
               <button
                 type="button"
-                @click="setSource('collection')"
+                @click="setSource('project')"
                 class="px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
-                :class="source === 'collection'
+                :class="source === 'project'
                   ? 'bg-gray-900 text-white border-gray-900'
                   : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'"
               >
-                From collection project
+                Project
               </button>
             </div>
-            <div v-if="source === 'collection'">
+            <div v-if="source === 'project'">
               <BaseSelect
                 v-model="selectedProjectId"
-                :options="collectionProjectOptions"
-                placeholder="Select a collection project..."
-                @update:modelValue="onCollectionProjectSelected"
+                :options="projectOptions"
+                placeholder="Select a project..."
+                @update:modelValue="onProjectSelected"
               />
               <p v-if="loadingEntries" class="text-sm text-gray-400 mt-2 animate-pulse">Loading time entries...</p>
-              <p v-else-if="selectedProjectId && billableEntries.length" class="text-sm text-gray-500 mt-2">
-                {{ billableEntries.length }} unbilled {{ billableEntries.length === 1 ? 'entry' : 'entries' }} → positions below.
-              </p>
+              <template v-else-if="selectedProject && isCollectionProject">
+                <p v-if="billableEntries.length" class="text-sm text-gray-500 mt-2">
+                  {{ billableEntries.length }} unbilled {{ billableEntries.length === 1 ? 'entry' : 'entries' }} → positions below.
+                </p>
+                <p v-else class="text-sm text-gray-500 mt-2">
+                  No unbilled time entries — add the positions below.
+                </p>
+              </template>
             </div>
           </div>
 
