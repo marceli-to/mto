@@ -11,7 +11,7 @@ use App\Actions\Project\Store as StoreAction;
 use App\Actions\Project\Update as UpdateAction;
 use App\Actions\Project\Delete as DeleteAction;
 use App\Actions\Project\Duplicate as DuplicateAction;
-use App\Actions\Project\UpdateStatus as UpdateStatusAction;
+use App\Actions\Project\Archive as ArchiveAction;
 
 class ProjectController extends Controller
 {
@@ -40,9 +40,9 @@ class ProjectController extends Controller
         return (new DuplicateAction)->execute($project);
     }
 
-    public function status(Project $project)
+    public function archive(Project $project)
     {
-        return (new UpdateStatusAction)->execute($project);
+        return (new ArchiveAction)->execute($project);
     }
 
     public function destroy(Project $project)

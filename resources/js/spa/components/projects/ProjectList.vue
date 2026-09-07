@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhCopy, PhFolder } from '@phosphor-icons/vue'
+import { PhPlus, PhPencil, PhTrash, PhCopy, PhArchive, PhArrowCounterClockwise } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import SearchInput from '@/components/ui/SearchInput.vue'
@@ -8,12 +8,13 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import Flyout from '@/components/ui/Flyout.vue'
 import ProjectForm from './ProjectForm.vue'
 
-const { get, del } = useApi()
+const { get, post, del } = useApi()
 const { success, error } = useToast()
 
 const projects = ref([])
 const search = ref('')
 const loading = ref(true)
+const activeFilters = ref(['active'])
 const deleteDialog = ref({ show: false, id: null, loading: false })
 const flyout = ref({ show: false, projectId: null })
 
@@ -43,13 +44,40 @@ function onProjectSaved(savedProject) {
   closeFlyout()
 }
 
+const stateFilters = ['active', 'archived']
+
+const stateColors = {
+  active: 'bg-blue-100 text-blue-800',
+  archived: 'bg-gray-100 text-gray-800'
+}
+
+const projectState = (project) => project.is_archive ? 'archived' : 'active'
+
+function toggleFilter(state) {
+  const index = activeFilters.value.indexOf(state)
+  if (index === -1) {
+    activeFilters.value.push(state)
+  } else {
+    activeFilters.value.splice(index, 1)
+  }
+}
+
 const filteredProjects = computed(() => {
-  if (!search.value) return projects.value
-  const q = search.value.toLowerCase()
-  return projects.value.filter(p =>
-    p.name?.toLowerCase().includes(q) ||
-    p.client?.name?.toLowerCase().includes(q)
-  )
+  let result = projects.value
+
+  if (activeFilters.value.length > 0) {
+    result = result.filter(p => activeFilters.value.includes(projectState(p)))
+  }
+
+  if (search.value) {
+    const q = search.value.toLowerCase()
+    result = result.filter(p =>
+      p.name?.toLowerCase().includes(q) ||
+      p.client?.name?.toLowerCase().includes(q)
+    )
+  }
+
+  return result
 })
 
 async function fetchProjects() {
@@ -71,6 +99,19 @@ async function cloneProject(id) {
     success('Project cloned')
   } catch (e) {
     error('Failed to clone project')
+  }
+}
+
+async function toggleArchive(project) {
+  try {
+    const saved = await post(`/api/project/archive/${project.id}`)
+    const index = projects.value.findIndex(p => p.id === project.id)
+    if (index !== -1) {
+      projects.value[index] = { ...projects.value[index], ...saved }
+    }
+    success(saved.is_archive ? 'Project archived' : 'Project restored')
+  } catch (e) {
+    error('Failed to change the project state')
   }
 }
 
@@ -124,50 +165,79 @@ onMounted(fetchProjects)
       <div class="animate-pulse">Loading...</div>
     </div>
 
-    <!-- Empty State -->
-    <div v-else-if="filteredProjects.length === 0" class="text-center py-16">
-      <div class="text-gray-400 mb-2">No projects found</div>
-      <p class="text-sm text-gray-400">Create your first project to get started</p>
-    </div>
-
-    <!-- Projects List -->
-    <div v-else class="overflow-hidden border-t border-gray-100">
-      <ul class="divide-y divide-gray-100">
-        <li
-          v-for="project in filteredProjects"
-          :key="project.id"
-          class="flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors"
+    <template v-else>
+      <!-- State Filters -->
+      <div class="flex items-center gap-2 mb-6">
+        <button
+          v-for="state in stateFilters"
+          :key="state"
+          @click="toggleFilter(state)"
+          :class="[
+            activeFilters.includes(state) ? stateColors[state] : 'bg-gray-100 text-gray-400',
+            'px-2 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors'
+          ]"
         >
-          <div class="flex items-center gap-x-8">
-            {{ project.name }}
-            <span v-if="project.client" class="font-bold">{{ project.client.acronym }}</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <button
-              @click="openEdit(project.id)"
-              class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
-              title="Edit"
-            >
-              <PhPencil class="w-5 h-5" />
-            </button>
-            <button
-              @click="cloneProject(project.id)"
-              class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
-              title="Clone"
-            >
-              <PhCopy class="w-5 h-5" />
-            </button>
-            <button
-              @click="confirmDelete(project.id)"
-              class="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer rounded-sm transition-colors"
-              title="Delete"
-            >
-              <PhTrash class="w-5 h-5" />
-            </button>
-          </div>
-        </li>
-      </ul>
-    </div>
+          {{ state }}
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="filteredProjects.length === 0" class="text-center py-16">
+        <div class="text-gray-400 mb-2">No projects found</div>
+        <p class="text-sm text-gray-400">Create your first project to get started</p>
+      </div>
+
+      <!-- Projects List -->
+      <div v-else class="overflow-hidden border-t border-gray-100">
+        <ul class="divide-y divide-gray-100">
+          <li
+            v-for="project in filteredProjects"
+            :key="project.id"
+            class="flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors"
+          >
+            <div class="flex items-center gap-x-6">
+              <span :class="[stateColors[projectState(project)], 'px-2 py-1 rounded-md text-xs font-medium capitalize']">
+                {{ projectState(project) }}
+              </span>
+              <div class="flex items-center gap-x-8">
+                {{ project.name }}
+                <span v-if="project.client" class="font-bold">{{ project.client.acronym }}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button
+                @click="openEdit(project.id)"
+                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+                title="Edit"
+              >
+                <PhPencil class="w-5 h-5" />
+              </button>
+              <button
+                @click="cloneProject(project.id)"
+                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+                title="Clone"
+              >
+                <PhCopy class="w-5 h-5" />
+              </button>
+              <button
+                @click="toggleArchive(project)"
+                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+                :title="project.is_archive ? 'Restore' : 'Archive'"
+              >
+                <component :is="project.is_archive ? PhArrowCounterClockwise : PhArchive" class="w-5 h-5" />
+              </button>
+              <button
+                @click="confirmDelete(project.id)"
+                class="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer rounded-sm transition-colors"
+                title="Delete"
+              >
+                <PhTrash class="w-5 h-5" />
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </template>
 
     <ConfirmDialog
       :show="deleteDialog.show"
