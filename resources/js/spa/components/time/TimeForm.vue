@@ -204,6 +204,42 @@ onMounted(async () => {
 
     <form v-else @submit.prevent="submit">
       <div class="space-y-6">
+        <BaseInput
+          v-model="entry.date"
+          label="Date"
+          type="date"
+          required
+          :error="errors.date"
+        />
+
+        <div class="grid grid-cols-2 gap-x-4">
+          <BaseInput
+            v-model="entry.time_from"
+            label="From"
+            placeholder="08.30"
+            required
+            :error="errors.time_from"
+            @blur="blurTime('time_from')"
+          />
+          <BaseInput
+            v-model="entry.time_to"
+            label="To"
+            placeholder="10.15"
+            required
+            :error="errors.time_to"
+            @blur="blurTime('time_to')"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm text-gray-500 mb-2">Description</label>
+          <textarea
+            v-model="entry.description"
+            rows="3"
+            class="w-full px-3 py-3 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
+          />
+        </div>
+
         <!-- Activity chips: "Project" is one of them and is the default. -->
         <div>
           <label class="block text-sm text-gray-500 mb-2">Activity</label>
@@ -242,42 +278,6 @@ onMounted(async () => {
           required
           :error="errors.project_id"
         />
-
-        <div class="grid grid-cols-2 gap-x-4">
-          <BaseInput
-            v-model="entry.time_from"
-            label="From"
-            placeholder="08.30"
-            required
-            :error="errors.time_from"
-            @blur="blurTime('time_from')"
-          />
-          <BaseInput
-            v-model="entry.time_to"
-            label="To"
-            placeholder="10.15"
-            required
-            :error="errors.time_to"
-            @blur="blurTime('time_to')"
-          />
-        </div>
-
-        <BaseInput
-          v-model="entry.date"
-          label="Date"
-          type="date"
-          required
-          :error="errors.date"
-        />
-
-        <div>
-          <label class="block text-sm text-gray-500 mb-2">Description</label>
-          <textarea
-            v-model="entry.description"
-            rows="3"
-            class="w-full px-3 py-3 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
-          />
-        </div>
 
         <BaseCheckbox
           v-if="mode === 'project'"
