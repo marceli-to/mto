@@ -1,12 +1,13 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhCopy, PhArchive, PhArrowCounterClockwise } from '@phosphor-icons/vue'
+import { PhPlus, PhPencil, PhTrash, PhCopy, PhArchive, PhArrowCounterClockwise, PhClock } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import Flyout from '@/components/ui/Flyout.vue'
 import ProjectForm from './ProjectForm.vue'
+import ProjectTimeEntries from './ProjectTimeEntries.vue'
 
 const { get, post, del } = useApi()
 const { success, error } = useToast()
@@ -17,6 +18,7 @@ const loading = ref(true)
 const activeFilters = ref(['active'])
 const deleteDialog = ref({ show: false, id: null, loading: false })
 const flyout = ref({ show: false, projectId: null })
+const timeFlyout = ref({ show: false, projectId: null, title: '' })
 
 const flyoutTitle = computed(() => flyout.value.projectId ? 'Edit Project' : 'New Project')
 
@@ -26,6 +28,14 @@ function openCreate() {
 
 function openEdit(id) {
   flyout.value = { show: true, projectId: id }
+}
+
+function openTimeEntries(project) {
+  timeFlyout.value = { show: true, projectId: project.id, title: project.name }
+}
+
+function closeTimeFlyout() {
+  timeFlyout.value = { show: false, projectId: null, title: '' }
 }
 
 function closeFlyout() {
@@ -206,6 +216,13 @@ onMounted(fetchProjects)
             </div>
             <div class="flex items-center gap-1">
               <button
+                @click="openTimeEntries(project)"
+                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+                title="Time entries"
+              >
+                <PhClock class="w-5 h-5" />
+              </button>
+              <button
                 @click="openEdit(project.id)"
                 class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
                 title="Edit"
@@ -259,6 +276,15 @@ onMounted(fetchProjects)
         @saved="onProjectSaved"
         @cancel="closeFlyout"
       />
+    </Flyout>
+
+    <Flyout
+      :show="timeFlyout.show"
+      :title="timeFlyout.title"
+      size="xl"
+      @close="closeTimeFlyout"
+    >
+      <ProjectTimeEntries :project-id="timeFlyout.projectId" />
     </Flyout>
   </div>
 </template>

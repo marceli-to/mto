@@ -13,6 +13,7 @@ use App\Actions\TimeEntry\Delete as DeleteAction;
 use App\Actions\TimeEntry\Bill as BillAction;
 use App\Actions\TimeEntry\Unbill as UnbillAction;
 use App\Actions\TimeEntry\UnbilledForProject as UnbilledForProjectAction;
+use App\Actions\TimeEntry\ForProject as ForProjectAction;
 use App\Models\Project;
 use Illuminate\Http\Request;
 
@@ -53,6 +54,11 @@ class TimeEntryController extends Controller
     public function unbilledForProject(Project $project)
     {
         return (new UnbilledForProjectAction)->execute($project);
+    }
+
+    public function forProject(Project $project)
+    {
+        return (new ForProjectAction)->execute($project);
     }
 
     public function bill(Request $request)
