@@ -135,6 +135,7 @@ Route::middleware('auth:sanctum')->group(function() {
   Route::delete('time-entry/destroy/{timeEntry}', [TimeEntryController::class, 'destroy']);
   Route::get('time-entries/unbilled/{project}', [TimeEntryController::class, 'unbilledForProject']);
   Route::get('time-entries/project/{project}', [TimeEntryController::class, 'forProject']);
+  Route::get('time-entries/last-end/{date}', [TimeEntryController::class, 'lastEnd']);
   Route::post('time-entries/bill', [TimeEntryController::class, 'bill']);
   Route::post('time-entries/unbill', [TimeEntryController::class, 'unbill']);
 

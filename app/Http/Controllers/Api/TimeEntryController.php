@@ -14,6 +14,7 @@ use App\Actions\TimeEntry\Bill as BillAction;
 use App\Actions\TimeEntry\Unbill as UnbillAction;
 use App\Actions\TimeEntry\UnbilledForProject as UnbilledForProjectAction;
 use App\Actions\TimeEntry\ForProject as ForProjectAction;
+use App\Actions\TimeEntry\LastEnd as LastEndAction;
 use App\Models\Project;
 use Illuminate\Http\Request;
 
@@ -59,6 +60,11 @@ class TimeEntryController extends Controller
     public function forProject(Project $project)
     {
         return (new ForProjectAction)->execute($project);
+    }
+
+    public function lastEnd(string $date)
+    {
+        return (new LastEndAction)->execute($date);
     }
 
     public function bill(Request $request)

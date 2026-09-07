@@ -46,6 +46,23 @@ const blankEntry = () => ({
 
 const entry = ref(blankEntry())
 
+/** Hint the next start time with the last end time booked on that date. */
+const lastEnd = ref('')
+const fromPlaceholder = computed(() => lastEnd.value ? lastEnd.value.replace(':', '.') : '08.30')
+
+async function fetchLastEnd() {
+  lastEnd.value = ''
+  if (isEdit.value || !entry.value.date) return
+  try {
+    const data = await get(`/api/time-entries/last-end/${entry.value.date}`)
+    lastEnd.value = data.time_to || ''
+  } catch (e) {
+    // A missing hint is not worth bothering the user about.
+  }
+}
+
+watch(() => entry.value.date, fetchLastEnd)
+
 const projectOptions = computed(() =>
   projects.value.map(p => ({ value: p.id, label: p.name }))
 )
@@ -118,8 +135,12 @@ function resetForm() {
 }
 
 watch(() => props.timeEntryId, (newId) => {
-  if (newId) fetchEntry()
-  else resetForm()
+  if (newId) {
+    fetchEntry()
+  } else {
+    resetForm()
+    fetchLastEnd()
+  }
 })
 
 function validate() {
@@ -193,6 +214,7 @@ async function submit() {
 onMounted(async () => {
   await fetchOptions()
   await fetchEntry()
+  await fetchLastEnd()
 })
 </script>
 
@@ -216,7 +238,7 @@ onMounted(async () => {
           <BaseInput
             v-model="entry.time_from"
             label="From"
-            placeholder="08.30"
+            :placeholder="fromPlaceholder"
             required
             :error="errors.time_from"
             @blur="blurTime('time_from')"
