@@ -74,7 +74,7 @@ function onStateChange() {
           </button>
         </div>
 
-        <form @submit.prevent="submit" class="space-y-4">
+        <form @submit.prevent="submit" class="space-y-6">
           <BaseSelect
             v-model="form.state_id"
             label="Status"

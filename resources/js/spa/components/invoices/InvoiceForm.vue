@@ -7,6 +7,7 @@ import { useCurrency } from '@/composables/useCurrency'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 import InvoicePositionForm from './InvoicePositionForm.vue'
 
 const props = defineProps({
@@ -301,7 +302,7 @@ onMounted(fetchData)
 
     <form v-else @submit.prevent="submit" class="space-y-6">
       <div>
-        <div class="space-y-4">
+        <div class="space-y-6">
           <!-- Source selector (create mode only) -->
           <div v-if="!isEdit">
             <label class="block text-sm text-gray-500 mb-2">Invoice source</label>
@@ -385,24 +386,14 @@ onMounted(fetchData)
             :options="vatOptions"
           />
 
-          <label class="flex items-center gap-2 cursor-pointer mt-6">
-            <input
-              type="checkbox"
-              v-model="invoice.has_rate_increase_notice"
-              class="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-200"
-            />
-            <span class="text-sm text-gray-600">Hinweis Stundenansatz-Erhöhung</span>
-          </label>
+          <BaseCheckbox
+            v-model="invoice.has_rate_increase_notice"
+            label="Hinweis Stundenansatz-Erhöhung"
+            class="mt-6"
+          />
 
-          <div class="flex items-center gap-4 mt-4">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                v-model="invoice.is_reminder"
-                class="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-200"
-              />
-              <span class="text-sm text-gray-600">Mahnung</span>
-            </label>
+          <div class="flex items-center gap-4">
+            <BaseCheckbox v-model="invoice.is_reminder" label="Mahnung" />
             <select
               v-if="invoice.is_reminder"
               v-model="invoice.reminder_level"

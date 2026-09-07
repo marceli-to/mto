@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceState;
 use App\Models\Project;
 use App\Models\Rate;
+use App\Http\Requests\TimeEntryStoreRequest;
 use App\Models\TimeEntry;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -67,16 +68,19 @@ class TimeEntryTest extends TestCase
         $res = $this->postJson('/api/time-entry/create', [
             'project_id' => $project->id,
             'date' => '2026-09-05',
-            'hours' => 2.5,
+            'time_from' => '08.30',
+            'time_to' => '11.00',
             'description' => 'Work',
         ]);
 
         $res->assertOk();
-        $this->assertDatabaseHas('time_entries', [
-            'project_id' => $project->id,
-            'hours' => 2.5,
-            'is_billable' => true,
-        ]);
+        // Asserted through the model: MySQL hands back "08:30:00" where SQLite keeps "08:30".
+        $entry = TimeEntry::first();
+        $this->assertSame($project->id, $entry->project_id);
+        $this->assertSame('08:30', $entry->time_from);
+        $this->assertSame('11:00', $entry->time_to);
+        $this->assertEquals(2.5, $entry->hours);
+        $this->assertTrue($entry->is_billable);
     }
 
     public function test_creates_an_activity_entry_forcing_non_billable_and_no_project(): void
@@ -84,7 +88,8 @@ class TimeEntryTest extends TestCase
         $res = $this->postJson('/api/time-entry/create', [
             'activity' => 'Gym',
             'date' => '2026-09-05',
-            'hours' => 1,
+            'time_from' => '08.00',
+            'time_to' => '09.00',
             'is_billable' => true, // should be forced false
             'project_id' => 999,   // should be nulled
         ]);
@@ -101,7 +106,8 @@ class TimeEntryTest extends TestCase
         $this->postJson('/api/time-entry/create', [
             'activity' => 'Skydiving',
             'date' => '2026-09-05',
-            'hours' => 1,
+            'time_from' => '08.00',
+            'time_to' => '09.00',
         ])->assertStatus(422);
     }
 
@@ -109,7 +115,8 @@ class TimeEntryTest extends TestCase
     {
         $this->postJson('/api/time-entry/create', [
             'date' => '2026-09-05',
-            'hours' => 1,
+            'time_from' => '08.00',
+            'time_to' => '09.00',
         ])->assertStatus(422);
     }
 
@@ -125,10 +132,144 @@ class TimeEntryTest extends TestCase
             'project_id' => $project->id,
             'activity' => 'Admin',
             'date' => '2026-09-05',
-            'hours' => 1,
+            'time_from' => '08.00',
+            'time_to' => '09.00',
         ]);
         $res->assertOk();
         $this->assertNull(TimeEntry::first()->project_id); // project dropped in favor of activity
+    }
+
+    /** @dataProvider timeFormatProvider */
+    public function test_normalizes_the_shapes_people_type(string $typed, ?string $expected): void
+    {
+        $this->assertSame($expected, TimeEntryStoreRequest::normalizeTime($typed));
+    }
+
+    public static function timeFormatProvider(): array
+    {
+        return [
+            'dotted'              => ['08.30', '08:30'],
+            'dotted no padding'   => ['8.30', '08:30'],
+            'colon'               => ['08:30', '08:30'],
+            'compact four digits' => ['0830', '08:30'],
+            'compact three'       => ['830', '08:30'],
+            'hour only'           => ['9', '09:00'],
+            'single minute digit' => ['8.3', '08:30'],
+            'snaps down'          => ['08.32', '08:30'],
+            'snaps up'            => ['10.10', '10:15'],
+            'never rolls over'    => ['23.59', '23:45'],
+            'out of range hour'   => ['25.00', null],
+            'out of range minute' => ['08.75', null],
+            'nonsense'            => ['later', null],
+            'empty'               => ['', null],
+        ];
+    }
+
+    public function test_derives_hours_from_the_span_and_ignores_client_hours(): void
+    {
+        $project = $this->collectionProject();
+
+        $this->postJson('/api/time-entry/create', [
+            'project_id' => $project->id,
+            'date' => '2026-09-05',
+            'time_from' => '08.30',
+            'time_to' => '10.15',
+            'hours' => 99, // must not be trusted
+        ])->assertOk();
+
+        $this->assertEquals(1.75, TimeEntry::first()->hours);
+    }
+
+    public function test_snaps_entered_times_to_quarter_hours(): void
+    {
+        $project = $this->collectionProject();
+
+        $this->postJson('/api/time-entry/create', [
+            'project_id' => $project->id,
+            'date' => '2026-09-05',
+            'time_from' => '08.22',
+            'time_to' => '09.53',
+        ])->assertOk();
+
+        $entry = TimeEntry::first();
+        $this->assertSame('08:15', $entry->time_from);
+        $this->assertSame('10:00', $entry->time_to); // 09:53 is nearer 10:00 than 09:45
+        $this->assertEquals(1.75, $entry->hours);
+    }
+
+    public function test_rejects_an_end_time_at_or_before_the_start(): void
+    {
+        $project = $this->collectionProject();
+
+        $this->postJson('/api/time-entry/create', [
+            'project_id' => $project->id,
+            'date' => '2026-09-05',
+            'time_from' => '10.00',
+            'time_to' => '09.00',
+        ])->assertStatus(422)->assertJsonValidationErrors('time_to');
+
+        $this->postJson('/api/time-entry/create', [
+            'project_id' => $project->id,
+            'date' => '2026-09-05',
+            'time_from' => '10.00',
+            'time_to' => '10.00',
+        ])->assertStatus(422)->assertJsonValidationErrors('time_to');
+    }
+
+    public function test_rejects_a_missing_or_unparseable_time(): void
+    {
+        $project = $this->collectionProject();
+
+        $this->postJson('/api/time-entry/create', [
+            'project_id' => $project->id,
+            'date' => '2026-09-05',
+            'time_to' => '10.00',
+        ])->assertStatus(422)->assertJsonValidationErrors('time_from');
+
+        $this->postJson('/api/time-entry/create', [
+            'project_id' => $project->id,
+            'date' => '2026-09-05',
+            'time_from' => '08.00',
+            'time_to' => 'noon',
+        ])->assertStatus(422)->assertJsonValidationErrors('time_to');
+    }
+
+    public function test_the_rate_always_comes_from_the_project(): void
+    {
+        $project = $this->collectionProject();
+
+        $this->postJson('/api/time-entry/create', [
+            'project_id' => $project->id,
+            'date' => '2026-09-05',
+            'time_from' => '08.00',
+            'time_to' => '09.00',
+            'rate' => 500, // per-entry overrides are no longer accepted
+        ])->assertOk();
+
+        $entry = TimeEntry::first();
+        $this->assertNull($entry->rate);
+        $this->assertSame(200.0, $entry->resolvedRate()); // the project's rate
+    }
+
+    public function test_orders_entries_within_a_day_by_start_time_newest_first(): void
+    {
+        $project = $this->collectionProject();
+        $common = ['project_id' => $project->id, 'date' => '2026-09-05', 'hours' => 1, 'is_billable' => true];
+
+        // Created out of order, and one legacy row with no times at all.
+        TimeEntry::create($common + ['description' => 'noon', 'time_from' => '12:00', 'time_to' => '13:00']);
+        TimeEntry::create($common + ['description' => 'legacy']);
+        TimeEntry::create($common + ['description' => 'morning', 'time_from' => '08:30', 'time_to' => '09:30']);
+
+        $entries = $this->getJson('/api/time-entries/get')->json('days.0.entries');
+
+        $this->assertSame(
+            ['noon', 'morning', 'legacy'], // latest start first, untimed rows last
+            array_column($entries, 'description')
+        );
+        $this->assertSame('12:00', $entries[0]['time_from']);
+        $this->assertSame('13:00', $entries[0]['time_to']);
+        $this->assertNull($entries[2]['time_from']);
     }
 
     public function test_day_grouping_and_revenue_stats(): void

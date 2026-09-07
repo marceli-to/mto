@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhCaretDown, PhCaretRight, PhCalendar, PhCalendarBlank } from '@phosphor-icons/vue'
+import { PhPlus, PhPencil, PhTrash, PhCalendar, PhCalendarBlank } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
@@ -191,13 +191,12 @@ onMounted(fetchEntries)
         <!-- Day header -->
         <button
           @click="toggleDay(day.date)"
-          class="w-full flex items-center justify-between py-5 hover:bg-gray-50/50 transition-colors cursor-pointer"
+          class="w-full flex items-center justify-between py-5 pl-2 hover:bg-gray-50/50 transition-colors cursor-pointer"
         >
-          <div class="flex items-center gap-2">
-            <component :is="expanded[day.date] ? PhCaretDown : PhCaretRight" class="w-4 h-4 text-gray-400" />
-            <span>{{ day.weekday_label }}</span>
-          </div>
+          <span class="font-bold">{{ day.weekday_label }}</span>
           <div class="flex items-center gap-4">
+            <!-- spacer matching the per-entry time span column -->
+            <div class="w-28" aria-hidden="true"></div>
             <span class="tabular-nums w-20 text-right">{{ day.total_hours }} h</span>
             <span class="tabular-nums w-24 text-right">
               {{ day.total_revenue > 0 ? formatCurrency(day.total_revenue) : '—' }}
@@ -208,11 +207,11 @@ onMounted(fetchEntries)
         </button>
 
         <!-- Entries -->
-        <ul v-if="expanded[day.date]" class="divide-y divide-gray-100 border-t border-gray-100 pb-2">
+        <ul v-if="expanded[day.date]" class="divide-y divide-gray-100 border-t border-gray-100">
           <li
             v-for="entry in day.entries"
             :key="entry.id"
-            class="flex items-center justify-between py-4 pl-6 hover:bg-gray-50/50 transition-colors"
+            class="flex items-center justify-between py-4 pl-2 hover:bg-gray-50/50 transition-colors"
             :class="{ 'opacity-60': !entry.is_billable && !entry.is_activity }"
           >
             <div class="flex items-center gap-x-8 min-w-0 flex-1">
@@ -223,6 +222,9 @@ onMounted(fetchEntries)
               <span v-if="entry.is_billed" class="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600">Billed</span>
             </div>
             <div class="flex items-center gap-4">
+              <span class="tabular-nums w-28 text-right">
+                {{ entry.time_from && entry.time_to ? `${entry.time_from}–${entry.time_to}` : '—' }}
+              </span>
               <span class="tabular-nums w-20 text-right">{{ entry.hours }} h</span>
               <span class="tabular-nums w-24 text-right">
                 {{ entry.revenue > 0 ? formatCurrency(entry.revenue) : '—' }}

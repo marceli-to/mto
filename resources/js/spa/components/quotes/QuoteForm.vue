@@ -7,6 +7,7 @@ import { useCurrency } from '@/composables/useCurrency'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 import TiptapEditor from '@/components/ui/TiptapEditor.vue'
 import QuotePositionForm from './QuotePositionForm.vue'
 
@@ -257,7 +258,7 @@ onMounted(fetchData)
 
     <form v-else @submit.prevent="submit" class="space-y-6">
       <!-- Basic Fields -->
-      <div class="space-y-4">
+      <div class="space-y-6">
         <BaseInput
           v-model="quote.title"
           label="Title"
@@ -312,14 +313,7 @@ onMounted(fetchData)
           />
         </div>
 
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            v-model="quote.include_terms_page"
-            class="w-4 h-4 rounded border-gray-300 text-gray-600 focus:ring-gray-200"
-          />
-          <span class="text-sm text-gray-600">Include terms page</span>
-        </label>
+        <BaseCheckbox v-model="quote.include_terms_page" label="Include terms page" />
       </div>
 
       <!-- Sections -->

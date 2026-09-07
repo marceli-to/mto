@@ -50,7 +50,7 @@ function submit() {
         <div class="px-6 py-4 border-b border-gray-100">
           <h3 class="font-bold text-gray-900">{{ position ? 'Edit Position' : 'Add Position' }}</h3>
         </div>
-        <form @submit.prevent="submit" class="p-6 space-y-4">
+        <form @submit.prevent="submit" class="p-6 space-y-6">
           <div>
             <label class="block text-sm text-gray-500 mb-2">Description</label>
             <textarea

@@ -19,6 +19,8 @@ class UnbilledForProject
             ->billable()
             ->unbilled()
             ->orderBy('date')
+            ->orderByRaw('time_from IS NULL')
+            ->orderBy('time_from')
             ->orderBy('id')
             ->get();
 

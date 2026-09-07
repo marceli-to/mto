@@ -116,7 +116,7 @@ onMounted(fetchContact)
     </div>
 
     <form v-else @submit.prevent="submit">
-      <div class="space-y-4">
+      <div class="space-y-6">
         <BaseInput
           v-model="contact.firstname"
           label="First Name"

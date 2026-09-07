@@ -9,8 +9,8 @@ class TimeEntry extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'project_id', 'activity', 'is_billable', 'date', 'hours', 'description', 'rate',
-        'invoice_id', 'invoice_position_id',
+        'project_id', 'activity', 'is_billable', 'date', 'time_from', 'time_to', 'hours',
+        'description', 'rate', 'invoice_id', 'invoice_position_id',
     ];
 
     protected $casts = [
@@ -19,6 +19,10 @@ class TimeEntry extends Model
         'rate'        => 'decimal:2',
         'is_billable' => 'boolean',
     ];
+
+    /** MySQL hands back "08:30:00"; the app only ever deals in "08:30". */
+    public function getTimeFromAttribute($value) { return $value ? substr($value, 0, 5) : null; }
+    public function getTimeToAttribute($value)   { return $value ? substr($value, 0, 5) : null; }
 
     public function project()         { return $this->belongsTo(Project::class); }
     public function invoice()         { return $this->belongsTo(Invoice::class); }

@@ -67,7 +67,7 @@ function submit() {
           </button>
         </div>
 
-        <form @submit.prevent="submit" class="space-y-4">
+        <form @submit.prevent="submit" class="space-y-6">
           <BaseInput
             v-model="form.periode"
             label="Period"

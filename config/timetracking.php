@@ -19,7 +19,7 @@ return [
     'activities' => [
         'Admin',
         'Gym',
-        'Lunch',
+        'Other',
     ],
 
 ];

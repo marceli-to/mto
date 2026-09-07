@@ -16,6 +16,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
+// Attributes (step, inputmode, @focus, @blur, …) belong on the input, not the wrapper.
+defineOptions({ inheritAttrs: false })
+
 const inputClasses = computed(() => [
   'w-full px-3 py-3 border rounded-md transition-all text-sm',
   'focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300',
@@ -27,12 +30,13 @@ const inputClasses = computed(() => [
 </script>
 
 <template>
-  <div class="space-y-1">
+  <div class="space-y-2">
     <label v-if="label" class="block text-sm text-gray-500 mb-2">
       {{ error ?? label }}
       <span v-if="required" class="text-red-500">*</span>
     </label>
     <input
+      v-bind="$attrs"
       :type="type"
       :value="modelValue"
       :placeholder="placeholder"

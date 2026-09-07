@@ -5,6 +5,8 @@ import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
+import { normalizeTime, toMinutes } from '@/utils/time'
 
 const props = defineProps({
   timeEntryId: {
@@ -32,32 +34,42 @@ const mode = ref('project')
 
 const today = () => new Date().toISOString().split('T')[0]
 
-const entry = ref({
+const blankEntry = () => ({
   project_id: '',
   activity: '',
   is_billable: true,
   date: today(),
-  hours: '',
-  description: '',
-  rate: ''
+  time_from: '',
+  time_to: '',
+  description: ''
 })
+
+const entry = ref(blankEntry())
 
 const projectOptions = computed(() =>
   projects.value.map(p => ({ value: p.id, label: p.name }))
 )
 
+function selectProject() {
+  mode.value = 'project'
+  entry.value.activity = ''
+  entry.value.is_billable = true
+  errors.value.activity = null
+}
+
 function selectActivity(name) {
   mode.value = 'activity'
   entry.value.activity = name
   entry.value.project_id = ''
-  entry.value.rate = ''
   entry.value.is_billable = false
+  errors.value.project_id = null
 }
 
-function switchToProject() {
-  mode.value = 'project'
-  entry.value.activity = ''
-  entry.value.is_billable = true
+/** Snap what was typed to a displayable "HH:MM" as soon as the field is left. */
+function blurTime(field) {
+  const normalized = normalizeTime(entry.value[field])
+  if (normalized) entry.value[field] = normalized
+  errors.value[field] = null
 }
 
 async function fetchOptions() {
@@ -87,9 +99,9 @@ async function fetchEntry() {
       activity: data.activity || '',
       is_billable: !!data.is_billable,
       date: data.date ? new Date(data.date).toISOString().split('T')[0] : today(),
-      hours: data.hours ?? '',
-      description: data.description || '',
-      rate: data.rate ?? ''
+      time_from: data.time_from || '',
+      time_to: data.time_to || '',
+      description: data.description || ''
     }
   } catch (e) {
     error('Failed to load time entry')
@@ -101,15 +113,7 @@ async function fetchEntry() {
 
 function resetForm() {
   mode.value = 'project'
-  entry.value = {
-    project_id: '',
-    activity: '',
-    is_billable: true,
-    date: today(),
-    hours: '',
-    description: '',
-    rate: ''
-  }
+  entry.value = blankEntry()
   errors.value = {}
 }
 
@@ -120,18 +124,30 @@ watch(() => props.timeEntryId, (newId) => {
 
 function validate() {
   errors.value = {}
+
   if (mode.value === 'project' && !entry.value.project_id) {
     errors.value.project_id = 'Select a project'
   }
   if (mode.value === 'activity' && !entry.value.activity) {
     errors.value.activity = 'Select an activity'
   }
-  if (!entry.value.hours || parseFloat(entry.value.hours) <= 0) {
-    errors.value.hours = 'Hours are required'
-  }
   if (!entry.value.date) {
     errors.value.date = 'Date is required'
   }
+
+  const from = normalizeTime(entry.value.time_from)
+  const to = normalizeTime(entry.value.time_to)
+
+  if (!from) {
+    errors.value.time_from = 'From'
+  }
+  if (!to) {
+    errors.value.time_to = 'To'
+  }
+  if (from && to && toMinutes(to) <= toMinutes(from)) {
+    errors.value.time_to = 'After start'
+  }
+
   return Object.keys(errors.value).length === 0
 }
 
@@ -141,10 +157,11 @@ async function submit() {
     return
   }
 
-  // Build payload according to mode.
+  // Hours, rate and billability of activity entries are all derived server-side.
   const payload = {
     date: entry.value.date,
-    hours: entry.value.hours,
+    time_from: normalizeTime(entry.value.time_from),
+    time_to: normalizeTime(entry.value.time_to),
     description: entry.value.description
   }
   if (mode.value === 'activity') {
@@ -152,7 +169,6 @@ async function submit() {
   } else {
     payload.project_id = entry.value.project_id
     payload.is_billable = entry.value.is_billable
-    payload.rate = entry.value.rate === '' ? null : entry.value.rate
   }
 
   saving.value = true
@@ -187,11 +203,21 @@ onMounted(async () => {
     </div>
 
     <form v-else @submit.prevent="submit">
-      <div class="space-y-4">
-        <!-- Activity chips -->
+      <div class="space-y-6">
+        <!-- Activity chips: "Project" is one of them and is the default. -->
         <div>
           <label class="block text-sm text-gray-500 mb-2">Activity</label>
           <div class="flex flex-wrap gap-2">
+            <button
+              type="button"
+              @click="selectProject"
+              class="px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
+              :class="mode === 'project'
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'"
+            >
+              Project
+            </button>
             <button
               v-for="name in activities"
               :key="name"
@@ -204,50 +230,18 @@ onMounted(async () => {
             >
               {{ name }}
             </button>
-            <button
-              v-if="mode === 'activity'"
-              type="button"
-              @click="switchToProject"
-              class="px-3 py-1.5 rounded-full text-sm border border-gray-200 text-gray-500 hover:border-gray-300 cursor-pointer"
-            >
-              ← Back to project
-            </button>
           </div>
         </div>
 
-        <!-- Project mode fields -->
-        <template v-if="mode === 'project'">
-          <BaseSelect
-            v-model="entry.project_id"
-            label="Project"
-            :options="projectOptions"
-            placeholder="Select a project"
-            required
-            :error="errors.project_id"
-          />
-
-          <div class="grid grid-cols-12 gap-x-4">
-            <div class="col-span-6">
-              <BaseInput
-                v-model="entry.rate"
-                label="Rate (optional)"
-                type="number"
-                step="0.01"
-                placeholder="Uses project rate"
-              />
-            </div>
-            <div class="col-span-6 flex items-end pb-3">
-              <label class="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  v-model="entry.is_billable"
-                  class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span class="text-sm text-gray-700">Billable</span>
-              </label>
-            </div>
-          </div>
-        </template>
+        <BaseSelect
+          v-if="mode === 'project'"
+          v-model="entry.project_id"
+          label="Project"
+          :options="projectOptions"
+          placeholder="Select a project"
+          required
+          :error="errors.project_id"
+        />
 
         <div class="grid grid-cols-12 gap-x-4">
           <div class="col-span-6">
@@ -259,15 +253,24 @@ onMounted(async () => {
               :error="errors.date"
             />
           </div>
-          <div class="col-span-6">
+          <div class="col-span-3">
             <BaseInput
-              v-model="entry.hours"
-              label="Hours"
-              type="number"
-              step="0.25"
+              v-model="entry.time_from"
+              label="From"
+              placeholder="08.30"
               required
-              :error="errors.hours"
-              @focus="errors.hours = null"
+              :error="errors.time_from"
+              @blur="blurTime('time_from')"
+            />
+          </div>
+          <div class="col-span-3">
+            <BaseInput
+              v-model="entry.time_to"
+              label="To"
+              placeholder="10.15"
+              required
+              :error="errors.time_to"
+              @blur="blurTime('time_to')"
             />
           </div>
         </div>
@@ -280,6 +283,12 @@ onMounted(async () => {
             class="w-full px-3 py-3 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
           />
         </div>
+
+        <BaseCheckbox
+          v-if="mode === 'project'"
+          v-model="entry.is_billable"
+          label="Billable"
+        />
       </div>
 
       <div class="flex items-center justify-end gap-3 mt-8">

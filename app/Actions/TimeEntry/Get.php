@@ -15,10 +15,14 @@ class Get
             ? Carbon::parse($request->input('date'))
             : Carbon::today();
 
-        // All entries for display (newest first), optionally filtered by project.
+        // Newest first throughout: latest day at the top, and within a day the latest
+        // start time first, so the oldest entry is last. Entries predating the from/to
+        // fields have no start time and sort last within their day.
         $query = TimeEntry::query()
             ->with(['project.rateModel'])
             ->orderBy('date', 'DESC')
+            ->orderByRaw('time_from IS NULL')
+            ->orderBy('time_from', 'DESC')
             ->orderBy('id', 'DESC');
 
         if ($projectId) {
@@ -38,7 +42,7 @@ class Get
                 $carbon = Carbon::parse($date);
                 return [
                     'date'          => $date,
-                    'weekday_label' => $carbon->locale('de')->isoFormat('dddd, D.M.'),
+                    'weekday_label' => $carbon->locale('de')->isoFormat('dddd, D. MMMM'),
                     'total_hours'   => round($group->sum(fn (TimeEntry $e) => (float) $e->hours), 2),
                     'total_revenue' => round($group->sum(fn (TimeEntry $e) => $revenue[$e->id]['revenue'] ?? 0), 2),
                     'entries'       => $group->map(fn (TimeEntry $e) => $this->transform($e, $revenue))->values(),
@@ -92,6 +96,8 @@ class Get
             'is_activity'         => $entry->isActivity(),
             'is_billable'         => (bool) $entry->is_billable,
             'date'                => $entry->date->format('Y-m-d'),
+            'time_from'           => $entry->time_from,
+            'time_to'             => $entry->time_to,
             'hours'               => (float) $entry->hours,
             'description'         => $entry->description,
             'rate'                => is_null($entry->rate) ? null : (float) $entry->rate,

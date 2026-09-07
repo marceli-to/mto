@@ -44,6 +44,8 @@ class RevenueEngine
             ->with('project.rateModel')
             ->orderBy('project_id')
             ->orderBy('date')
+            ->orderByRaw('time_from IS NULL')
+            ->orderBy('time_from')
             ->orderBy('id');
 
         if (!is_null($projectIds)) {

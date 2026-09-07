@@ -5,6 +5,7 @@ import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 
 const props = defineProps({
   projectId: {
@@ -138,7 +139,7 @@ onMounted(fetchData)
     </div>
 
     <form v-else @submit.prevent="submit">
-      <div class="space-y-4">
+      <div class="space-y-6">
         <BaseInput
           v-model="project.name"
           label="Name"
@@ -176,22 +177,8 @@ onMounted(fetchData)
         />
 
         <div class="flex gap-6 pt-2">
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              v-model="project.is_collection"
-              class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <span class="text-sm text-gray-700">Collection</span>
-          </label>
-          <label class="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              v-model="project.is_archive"
-              class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <span class="text-sm text-gray-700">Archived</span>
-          </label>
+          <BaseCheckbox v-model="project.is_collection" label="Collection" />
+          <BaseCheckbox v-model="project.is_archive" label="Archived" />
         </div>
       </div>
 
