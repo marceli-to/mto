@@ -216,7 +216,11 @@ onMounted(fetchEntries)
           >
             <div class="flex items-center gap-x-8 min-w-0 flex-1">
               <span v-if="entry.description" class="truncate">{{ entry.description }}</span>
-              <span v-if="entry.label" class="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs font-medium truncate">{{ entry.label }}</span>
+              <span
+                v-if="entry.label"
+                class="px-2 py-1 rounded-md text-xs font-medium truncate"
+                :class="entry.is_activity ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'"
+              >{{ entry.label }}</span>
               <span v-if="!entry.is_activity && !entry.is_billable" class="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">Non-billable</span>
               <span v-if="entry.is_billed" class="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600">Billed</span>
             </div>
