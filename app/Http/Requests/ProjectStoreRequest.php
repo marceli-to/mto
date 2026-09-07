@@ -61,8 +61,8 @@ class ProjectStoreRequest extends FormRequest
             'name.required' => 'Name is required!',
             'rate_id.required' => 'Rate is required',
             'client_id.required' => 'Client is required!',
-            'budget.required' => 'A budget is required for flat-rate (non-collection) projects.',
-            'budget.gt' => 'A budget is required for flat-rate (non-collection) projects.',
+            'budget.required' => 'A budget is required for flat-rate projects.',
+            'budget.gt' => 'A budget is required for flat-rate projects.',
         ];
     }
 }

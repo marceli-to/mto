@@ -5,7 +5,6 @@ import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 
 const props = defineProps({
   projectId: {
@@ -34,8 +33,7 @@ const project = ref({
   client_id: '',
   rate_id: '',
   budget: '',
-  is_collection: false,
-  is_archive: false
+  is_collection: false
 })
 
 async function fetchData() {
@@ -53,7 +51,8 @@ async function fetchData() {
       project.value = {
         ...data,
         client_id: data.client_id || '',
-        rate_id: data.rate_id || ''
+        rate_id: data.rate_id || '',
+        is_collection: !!data.is_collection
       }
     } else {
       // New projects start on the rate flagged as the default.
@@ -74,8 +73,7 @@ function resetForm() {
     client_id: '',
     rate_id: '',
     budget: '',
-    is_collection: false,
-    is_archive: false
+    is_collection: false
   }
   errors.value = {}
 }
@@ -97,7 +95,27 @@ function validate() {
   if (!project.value.client_id) {
     errors.value.client_id = 'Client is required'
   }
+  if (!project.value.rate_id) {
+    errors.value.rate_id = 'Rate is required'
+  }
+  // Flat-rate projects are billed at a fixed price, so the budget IS the price.
+  // Collection projects may leave it empty, meaning uncapped.
+  if (!project.value.is_collection && !(parseFloat(project.value.budget) > 0)) {
+    errors.value.budget = 'A budget is required for flat-rate projects.'
+  }
   return Object.keys(errors.value).length === 0
+}
+
+/** Surface a 422 from the API on the fields themselves, not just as a toast. */
+function applyServerErrors(e) {
+  const serverErrors = e?.response?.data?.errors
+  if (!serverErrors) return false
+
+  errors.value = Object.fromEntries(
+    Object.entries(serverErrors).map(([field, messages]) => [field, messages[0]])
+  )
+
+  return true
 }
 
 async function submit() {
@@ -118,10 +136,27 @@ async function submit() {
     }
     emit('saved', savedProject)
   } catch (e) {
-    error('Failed to save project')
+    error(applyServerErrors(e) ? 'Please fix the errors' : 'Failed to save project')
   } finally {
     saving.value = false
   }
+}
+
+// A project is billed one way or the other, and which one decides whether the
+// budget is a required fixed price or an optional cap.
+const billingModes = [
+  { value: true, label: 'Collection' },
+  { value: false, label: 'Fixed' }
+]
+
+function setBilling(isCollection) {
+  if (project.value.is_collection === isCollection) return
+
+  project.value.is_collection = isCollection
+  errors.value.budget = null
+  // The fixed price is meaningless once the project bills by collection, and the
+  // field is hidden from here on — don't leave a value behind that can't be seen.
+  if (isCollection) project.value.budget = ''
 }
 
 const clientOptions = computed(() =>
@@ -143,6 +178,25 @@ onMounted(fetchData)
 
     <form v-else @submit.prevent="submit">
       <div class="space-y-6">
+        <!-- Billing mode: governs whether the budget below is required. -->
+        <div>
+          <label class="block text-sm text-gray-500 mb-2">Billing</label>
+          <div class="flex flex-wrap gap-2">
+            <button
+              v-for="mode in billingModes"
+              :key="mode.label"
+              type="button"
+              @click="setBilling(mode.value)"
+              class="px-3 py-1.5 rounded-full text-sm border transition-colors cursor-pointer"
+              :class="project.is_collection === mode.value
+                ? 'bg-gray-900 text-white border-gray-900'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'"
+            >
+              {{ mode.label }}
+            </button>
+          </div>
+        </div>
+
         <BaseInput
           v-model="project.name"
           label="Name"
@@ -168,21 +222,23 @@ onMounted(fetchData)
         <BaseSelect
           v-model="project.rate_id"
           label="Hourly Rate"
+          required
           :options="rateOptions"
           placeholder="Select rate..."
-        />
-        
-        <BaseInput
-          v-model="project.budget"
-          label="Budget (CHF)"
-          type="number"
-          step="0.01"
+          :error="errors.rate_id"
         />
 
-        <div class="flex gap-6 pt-2">
-          <BaseCheckbox v-model="project.is_collection" label="Collection" />
-          <BaseCheckbox v-model="project.is_archive" label="Archived" />
-        </div>
+        <!-- Only flat-rate projects carry a price; collection projects bill by time. -->
+        <BaseInput
+          v-if="!project.is_collection"
+          v-model="project.budget"
+          label="Fixed price (CHF)"
+          type="number"
+          step="0.01"
+          required
+          :error="errors.budget"
+          @focus="errors.budget = null"
+        />
       </div>
 
       <div class="flex items-center justify-end gap-3 mt-8">
