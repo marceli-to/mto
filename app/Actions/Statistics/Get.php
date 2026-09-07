@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions\Dashboard;
+namespace App\Actions\Statistics;
 
 use App\Models\Invoice;
 use App\Models\Expense;

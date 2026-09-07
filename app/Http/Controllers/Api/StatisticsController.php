@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Actions\Dashboard\Get as GetAction;
+use App\Actions\Statistics\Get as GetAction;
 
-class DashboardController extends Controller
+class StatisticsController extends Controller
 {
     public function get()
     {

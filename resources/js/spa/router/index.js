@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 // List components (forms are now in Flyouts)
-import Dashboard from '@/components/dashboard/Dashboard.vue'
-import ClientInvoices from '@/components/dashboard/ClientInvoices.vue'
-import YearInvoices from '@/components/dashboard/YearInvoices.vue'
+import Statistics from '@/components/statistics/Statistics.vue'
+import ClientInvoices from '@/components/statistics/ClientInvoices.vue'
+import YearInvoices from '@/components/statistics/YearInvoices.vue'
 import ClientList from '@/components/clients/ClientList.vue'
 import ProjectList from '@/components/projects/ProjectList.vue'
 import InvoiceList from '@/components/invoices/InvoiceList.vue'
@@ -14,20 +14,20 @@ import TimeList from '@/components/time/TimeList.vue'
 const routes = [
   {
     path: '/',
-    redirect: { name: 'dashboard' }
+    redirect: { name: 'time' }
   },
   {
-    path: '/dashboard',
-    name: 'dashboard',
-    component: Dashboard
+    path: '/statistics',
+    name: 'statistics',
+    component: Statistics
   },
   {
-    path: '/dashboard/invoices/:client',
+    path: '/statistics/invoices/:client',
     name: 'client-invoices',
     component: ClientInvoices
   },
   {
-    path: '/dashboard/year/:year',
+    path: '/statistics/year/:year',
     name: 'year-invoices',
     component: YearInvoices
   },
@@ -74,10 +74,10 @@ const routes = [
     component: ProjectList
   },
 
-  // Catch all - redirect to invoices
+  // Catch all - redirect to time
   {
     path: '/:pathMatch(.*)*',
-    redirect: { name: 'invoices' }
+    redirect: { name: 'time' }
   }
 ]
 

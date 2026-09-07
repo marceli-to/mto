@@ -13,13 +13,13 @@ const { formatCurrency } = useCurrency()
 const data = ref(null)
 const loading = ref(true)
 
-async function fetchDashboard() {
+async function fetchStatistics() {
   loading.value = true
   try {
-    const response = await get('/api/dashboard/get')
+    const response = await get('/api/statistics/get')
     data.value = response
   } catch (e) {
-    error('Failed to load dashboard')
+    error('Failed to load statistics')
   } finally {
     loading.value = false
   }
@@ -37,14 +37,14 @@ function navigateToYearInvoices(year) {
   router.push({ name: 'year-invoices', params: { year } })
 }
 
-onMounted(fetchDashboard)
+onMounted(fetchStatistics)
 </script>
 
 <template>
   <div>
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-12">
-      <h1 class="text-xl text-gray-900 font-bold">Dashboard</h1>
+      <h1 class="text-xl text-gray-900 font-bold">Statistics</h1>
       <span v-if="data" class="text-sm text-gray-400">{{ data.year }}</span>
     </div>
 

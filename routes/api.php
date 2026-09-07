@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\TimeEntryController;
 use App\Http\Controllers\Api\RateController;
 use App\Http\Controllers\Api\UploadController;
-use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\QuoteController;
 use App\Http\Controllers\Api\QuoteSectionController;
 use App\Http\Controllers\Api\QuotePositionController;
@@ -38,10 +38,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function() {
 
   /**
-   * Dashboard routes
+   * Statistics routes
    */
 
-  Route::get('dashboard/get', [DashboardController::class, 'get']);
+  Route::get('statistics/get', [StatisticsController::class, 'get']);
 
   /**
    * Client routes

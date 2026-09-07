@@ -53,7 +53,7 @@ async function fetchInvoices() {
 }
 
 function goBack() {
-  router.push({ name: 'dashboard' })
+  router.push({ name: 'statistics' })
 }
 
 onMounted(fetchInvoices)
@@ -67,7 +67,7 @@ onMounted(fetchInvoices)
         <button
           @click="goBack"
           class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
-          title="Back to Dashboard"
+          title="Back to Statistics"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />

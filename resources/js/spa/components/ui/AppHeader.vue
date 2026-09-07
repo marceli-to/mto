@@ -14,7 +14,7 @@ function closeMenu() {
 }
 
 const navigation = [
-  { name: 'Dashboard', route: 'dashboard', icon: PhChartBar },
+  { name: 'Statistics', route: 'statistics', icon: PhChartBar },
   { name: 'Invoices', route: 'invoices', icon: PhReceipt },
   { name: 'Expenses', route: 'expenses', icon: PhCurrencyDollar },
   { name: 'Projects', route: 'projects', icon: PhFolder },
