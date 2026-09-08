@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { PhPlus, PhPencil, PhTrash, PhCopy, PhArchive, PhArrowCounterClockwise, PhClock } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
+import { useCurrency } from '@/composables/useCurrency'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import Flyout from '@/components/ui/Flyout.vue'
@@ -11,6 +12,7 @@ import ProjectTimeEntries from './ProjectTimeEntries.vue'
 
 const { get, post, del } = useApi()
 const { success, error } = useToast()
+const { formatCurrency } = useCurrency()
 
 const projects = ref([])
 const search = ref('')
@@ -214,42 +216,53 @@ onMounted(fetchProjects)
                 <span v-if="project.client" class="font-bold">{{ project.client.acronym }}</span>
               </div>
             </div>
-            <div class="flex items-center gap-1">
-              <button
-                @click="openTimeEntries(project)"
-                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
-                title="Time entries"
-              >
-                <PhClock class="w-5 h-5" />
-              </button>
-              <button
-                @click="openEdit(project.id)"
-                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
-                title="Edit"
-              >
-                <PhPencil class="w-5 h-5" />
-              </button>
-              <button
-                @click="cloneProject(project.id)"
-                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
-                title="Clone"
-              >
-                <PhCopy class="w-5 h-5" />
-              </button>
-              <button
-                @click="toggleArchive(project)"
-                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
-                :title="project.is_archive ? 'Restore' : 'Archive'"
-              >
-                <component :is="project.is_archive ? PhArrowCounterClockwise : PhArchive" class="w-5 h-5" />
-              </button>
-              <button
-                @click="confirmDelete(project.id)"
-                class="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer rounded-sm transition-colors"
-                title="Delete"
-              >
-                <PhTrash class="w-5 h-5" />
-              </button>
+            <div class="flex items-center gap-6">
+              <!-- What the project has consumed: revenue for collection work, budget burn for fixed. -->
+              <div v-if="project.hours_spent > 0" class="flex items-center gap-4 text-sm text-gray-500">
+                <span class="tabular-nums w-16 text-right">{{ project.hours_spent }} h</span>
+                <span class="tabular-nums w-16 text-right">
+                  <template v-if="project.is_collection">{{ formatCurrency(project.revenue) }}</template>
+                  <template v-else-if="project.budget_used !== null">{{ project.budget_used }}%</template>
+                  <template v-else>—</template>
+                </span>
+              </div>
+              <div class="flex items-center gap-1">
+                <button
+                  @click="openTimeEntries(project)"
+                  class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+                  title="Time entries"
+                >
+                  <PhClock class="w-5 h-5" />
+                </button>
+                <button
+                  @click="openEdit(project.id)"
+                  class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+                  title="Edit"
+                >
+                  <PhPencil class="w-5 h-5" />
+                </button>
+                <button
+                  @click="cloneProject(project.id)"
+                  class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+                  title="Clone"
+                >
+                  <PhCopy class="w-5 h-5" />
+                </button>
+                <button
+                  @click="toggleArchive(project)"
+                  class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+                  :title="project.is_archive ? 'Restore' : 'Archive'"
+                >
+                  <component :is="project.is_archive ? PhArrowCounterClockwise : PhArchive" class="w-5 h-5" />
+                </button>
+                <button
+                  @click="confirmDelete(project.id)"
+                  class="p-2.5 text-gray-400 hover:text-red-600 hover:bg-red-50 cursor-pointer rounded-sm transition-colors"
+                  title="Delete"
+                >
+                  <PhTrash class="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </li>
         </ul>

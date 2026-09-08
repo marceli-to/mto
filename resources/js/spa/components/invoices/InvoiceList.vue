@@ -15,7 +15,7 @@ const { success, error } = useToast()
 const { formatCurrency } = useCurrency()
 
 const invoices = ref([])
-const totals = ref({ paid: 0, pending: 0, open: 0, overdue: 0, closed: 0, total: 0 })
+const totals = ref({ paid: 0, pending: 0, open: 0, overdue: 0, closed: 0, total: 0, unbilled: 0 })
 const search = ref('')
 const loading = ref(true)
 const activeFilters = ref(['open', 'pending'])
@@ -89,7 +89,7 @@ async function fetchInvoices() {
   try {
     const data = await get('/api/invoices/get')
     invoices.value = data.data || []
-    totals.value = data.totals || { paid: 0, pending: 0, open: 0, overdue: 0, closed: 0, total: 0 }
+    totals.value = data.totals || { paid: 0, pending: 0, open: 0, overdue: 0, closed: 0, total: 0, unbilled: 0 }
   } catch (e) {
     error('Failed to load invoices')
   } finally {
@@ -306,7 +306,9 @@ onMounted(fetchInvoices)
             </div>
           </div>
           <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(totals.open) }}</p>
-          <p class="text-xs text-gray-400 mt-1">Due soon</p>
+          <p class="text-xs text-gray-400 mt-1">
+            {{ totals.unbilled > 0 ? `incl. ${formatCurrency(totals.unbilled)} not billed yet` : 'Due soon' }}
+          </p>
         </div>
 
       </div>

@@ -18,7 +18,7 @@ const emptyStats = () => ({
   month: 0, month_label: '', last_month: 0,
 })
 
-const days = ref([])
+const weeks = ref([])
 const stats = ref(emptyStats())
 const loading = ref(true)
 
@@ -52,15 +52,15 @@ async function fetchEntries() {
   loading.value = true
   try {
     const data = await get(`/api/time-entries/get?date=${selectedDate.value}`)
-    days.value = data.days || []
+    weeks.value = data.weeks || []
     stats.value = data.stats || emptyStats()
     // Expand today by default (first load); keep any user-toggled state otherwise.
-    if (Object.keys(expanded).length === 0) {
-      const t = today()
-      days.value.forEach(d => { expanded[d.date] = d.date === t })
-    } else {
-      days.value.forEach(d => { if (!(d.date in expanded)) expanded[d.date] = false })
-    }
+    const firstLoad = Object.keys(expanded).length === 0
+    const t = today()
+    weeks.value.forEach(w => w.days.forEach(d => {
+      if (firstLoad) expanded[d.date] = d.date === t
+      else if (!(d.date in expanded)) expanded[d.date] = false
+    }))
   } catch (e) {
     error('Failed to load time entries')
   } finally {
@@ -180,86 +180,92 @@ onMounted(fetchEntries)
     </div>
 
     <!-- Empty -->
-    <div v-else-if="days.length === 0" class="text-center py-16">
+    <div v-else-if="weeks.length === 0" class="text-center py-16">
       <div class="text-gray-400 mb-2">No time entries yet</div>
       <p class="text-sm text-gray-400">Add your first entry to get started</p>
     </div>
 
-    <!-- Day list -->
-    <div v-else class="border-t border-gray-100">
-      <div v-for="day in days" :key="day.date" class="border-b border-gray-100">
-        <!-- Day header -->
-        <button
-          @click="toggleDay(day.date)"
-          class="w-full flex items-center justify-between py-5 pl-2 hover:bg-gray-50/50 transition-colors cursor-pointer"
-        >
-          <span class="font-bold">{{ day.weekday_label }}</span>
-          <div class="flex items-center gap-4">
-            <!-- spacer matching the per-entry time span column -->
-            <div class="w-28" aria-hidden="true"></div>
-            <span class="tabular-nums w-20 text-right">{{ day.total_hours }} h</span>
-            <span class="tabular-nums w-24 text-right">
-              {{ day.total_revenue > 0 ? formatCurrency(day.total_revenue) : '—' }}
-            </span>
-            <!-- spacer matching the per-entry action column -->
-            <div class="w-20" aria-hidden="true"></div>
-          </div>
-        </button>
+    <!-- Week list -->
+    <div v-else>
+      <section v-for="week in weeks" :key="week.key" class="mb-10">
+        <h2 class="text-lg text-gray-900 font-bold mb-2 pl-2">{{ week.label }}</h2>
 
-        <!-- Entries -->
-        <ul v-if="expanded[day.date]" class="divide-y divide-gray-100 border-t border-gray-100">
-          <li
-            v-for="entry in day.entries"
-            :key="entry.id"
-            class="flex items-center justify-between py-4 pl-2 hover:bg-gray-50/50 transition-colors"
-            :class="{ 'opacity-60': !entry.is_billable && !entry.is_activity }"
-          >
-            <div class="flex items-center gap-x-8 min-w-0 flex-1">
-              <span
-                v-if="entry.description"
-                class="truncate max-w-[50%]"
-                :title="entry.description"
-              >{{ entry.description }}</span>
-              <span
-                v-if="entry.label"
-                class="px-2 py-1 rounded-md text-xs font-medium shrink-0"
-                :class="entry.is_activity ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'"
-              >{{ entry.label }}</span>
-              <span v-if="!entry.is_activity && !entry.is_billable" class="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 shrink-0">Non-billable</span>
-              <span v-if="entry.is_billed" class="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 shrink-0">Billed</span>
-            </div>
-            <div class="flex items-center gap-4">
-              <span class="tabular-nums w-28 text-right">
-                {{ entry.time_from && entry.time_to ? `${entry.time_from}–${entry.time_to}` : '—' }}
-              </span>
-              <span class="tabular-nums w-20 text-right">{{ entry.hours }} h</span>
-              <span class="tabular-nums w-24 text-right">
-                {{ entry.revenue > 0 ? formatCurrency(entry.revenue) : '—' }}
-              </span>
-              <div class="flex items-center justify-end gap-1 w-20">
-                <button
-                  @click="openEdit(entry.id)"
-                  :disabled="entry.is_billed"
-                  class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-sm transition-colors"
-                  :class="entry.is_billed ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'"
-                  title="Edit"
-                >
-                  <PhPencil class="w-4 h-4" />
-                </button>
-                <button
-                  @click="confirmDelete(entry.id)"
-                  :disabled="entry.is_billed"
-                  class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-sm transition-colors"
-                  :class="entry.is_billed ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'"
-                  title="Delete"
-                >
-                  <PhTrash class="w-4 h-4" />
-                </button>
+        <div class="border-t border-gray-100">
+          <div v-for="day in week.days" :key="day.date" class="border-b border-gray-100">
+            <!-- Day header -->
+            <button
+              @click="toggleDay(day.date)"
+              class="w-full flex items-center justify-between py-5 pl-2 hover:bg-gray-50/50 transition-colors cursor-pointer"
+            >
+              <span class="font-bold">{{ day.weekday_label }}</span>
+              <div class="flex items-center gap-4">
+                <!-- spacer matching the per-entry time span column -->
+                <div class="w-28" aria-hidden="true"></div>
+                <span class="tabular-nums w-20 text-right">{{ day.total_hours }} h</span>
+                <span class="tabular-nums w-24 text-right">
+                  {{ day.total_revenue > 0 ? formatCurrency(day.total_revenue) : '—' }}
+                </span>
+                <!-- spacer matching the per-entry action column -->
+                <div class="w-20" aria-hidden="true"></div>
               </div>
-            </div>
-          </li>
-        </ul>
-      </div>
+            </button>
+
+            <!-- Entries -->
+            <ul v-if="expanded[day.date]" class="divide-y divide-gray-100 border-t border-gray-100">
+              <li
+                v-for="entry in day.entries"
+                :key="entry.id"
+                class="flex items-center justify-between py-4 pl-2 hover:bg-gray-50/50 transition-colors"
+                :class="{ 'opacity-60': !entry.is_billable && !entry.is_activity }"
+              >
+                <div class="flex items-center gap-x-8 min-w-0 flex-1">
+                  <span
+                    v-if="entry.description"
+                    class="truncate max-w-[50%]"
+                    :title="entry.description"
+                  >{{ entry.description }}</span>
+                  <span
+                    v-if="entry.label"
+                    class="px-2 py-1 rounded-md text-xs font-medium shrink-0"
+                    :class="entry.is_activity ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'"
+                  >{{ entry.label }}</span>
+                  <span v-if="!entry.is_activity && !entry.is_billable" class="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 shrink-0">Non-billable</span>
+                  <span v-if="entry.is_billed" class="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 shrink-0">Billed</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <span class="tabular-nums w-28 text-right">
+                    {{ entry.time_from && entry.time_to ? `${entry.time_from}–${entry.time_to}` : '—' }}
+                  </span>
+                  <span class="tabular-nums w-20 text-right">{{ entry.hours }} h</span>
+                  <span class="tabular-nums w-24 text-right">
+                    {{ entry.revenue > 0 ? formatCurrency(entry.revenue) : '—' }}
+                  </span>
+                  <div class="flex items-center justify-end gap-1 w-20">
+                    <button
+                      @click="openEdit(entry.id)"
+                      :disabled="entry.is_billed"
+                      class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-sm transition-colors"
+                      :class="entry.is_billed ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'"
+                      title="Edit"
+                    >
+                      <PhPencil class="w-4 h-4" />
+                    </button>
+                    <button
+                      @click="confirmDelete(entry.id)"
+                      :disabled="entry.is_billed"
+                      class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-sm transition-colors"
+                      :class="entry.is_billed ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'"
+                      title="Delete"
+                    >
+                      <PhTrash class="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
 
     <ConfirmDialog

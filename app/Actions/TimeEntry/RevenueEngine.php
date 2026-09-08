@@ -109,6 +109,52 @@ class RevenueEngine
     }
 
     /**
+     * Per-project roll-up keyed by project id:
+     *   [id => ['hours' => float, 'value' => float, 'revenue' => float]]
+     *
+     * Hours and value are the gross figures (before budget capping), revenue the
+     * capped one — so a fixed project's value/budget is its true consumption.
+     */
+    public function perProjectTotals(): array
+    {
+        $perEntry = $this->perEntryRevenue();
+        $result = [];
+
+        foreach ($this->entries as $entry) {
+            if (!isset($perEntry[$entry->id])) {
+                continue;
+            }
+
+            $projectId = $entry->project_id;
+            $result[$projectId] ??= ['hours' => 0.0, 'value' => 0.0, 'revenue' => 0.0];
+            $result[$projectId]['hours']   += (float) $entry->hours;
+            $result[$projectId]['value']   += $perEntry[$entry->id]['value'];
+            $result[$projectId]['revenue'] += $perEntry[$entry->id]['revenue'];
+        }
+
+        return array_map(fn (array $t) => array_map(fn ($v) => round($v, 2), $t), $result);
+    }
+
+    /**
+     * Revenue of entries that have not been put on an invoice yet — the work done
+     * but not yet billed.
+     */
+    public function unbilledRevenue(): float
+    {
+        $perEntry = $this->perEntryRevenue();
+        $total = 0.0;
+
+        foreach ($this->entries as $entry) {
+            if ($entry->isBilled() || !isset($perEntry[$entry->id])) {
+                continue;
+            }
+            $total += $perEntry[$entry->id]['revenue'];
+        }
+
+        return round($total, 2);
+    }
+
+    /**
      * Revenue attributable to entries dated within [from, to] (inclusive),
      * given budget already consumed by all earlier entries.
      */

@@ -50,6 +50,18 @@ class Get
             })
             ->values();
 
+        // Group the days into calendar weeks (newest week first).
+        $weeks = $days
+            ->groupBy(fn (array $day) => Carbon::parse($day['date'])->format('o-\\WW'))
+            ->map(fn ($group, $key) => [
+                'key'           => $key,
+                'label'         => $this->weekLabel($group),
+                'total_hours'   => round($group->sum('total_hours'), 2),
+                'total_revenue' => round($group->sum('total_revenue'), 2),
+                'days'          => $group->values(),
+            ])
+            ->values();
+
         $lastWeek  = $anchor->copy()->subWeek();
         $lastMonth = $anchor->copy()->subMonthNoOverflow();
 
@@ -63,7 +75,7 @@ class Get
         $lastMonthEnd   = $lastMonth->copy()->endOfMonth();
 
         return response()->json([
-            'days'  => $days,
+            'weeks' => $weeks,
             'stats' => [
                 'day'              => $engine->periodRevenue($anchor->copy(), $anchor->copy()),
                 'week'             => $engine->periodRevenue($weekStart, $weekEnd),
@@ -74,6 +86,24 @@ class Get
                 'last_month'       => $engine->periodRevenue($lastMonthStart, $lastMonthEnd),
             ],
         ]);
+    }
+
+    /**
+     * "7. September – 11. September" — the span of days actually booked in a week,
+     * so a Mon-Fri week does not advertise an empty weekend.
+     *
+     * @param  \Illuminate\Support\Collection  $days  The week's days, newest first.
+     */
+    protected function weekLabel($days): string
+    {
+        $latest   = Carbon::parse($days->first()['date'])->locale('de');
+        $earliest = Carbon::parse($days->last()['date'])->locale('de');
+
+        if ($earliest->isSameDay($latest)) {
+            return $earliest->isoFormat('D. MMMM');
+        }
+
+        return $earliest->isoFormat('D. MMMM') . ' – ' . $latest->isoFormat('D. MMMM');
     }
 
     /** "31.8. - 6.9." for a week range. */
