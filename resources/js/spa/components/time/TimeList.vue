@@ -197,7 +197,7 @@ onMounted(fetchEntries)
               @click="toggleDay(day.date)"
               class="w-full flex items-center justify-between py-5 pl-2 hover:bg-gray-50/50 transition-colors cursor-pointer"
             >
-              <span class="font-bold">{{ day.weekday_label }}</span>
+              <span class="font-medium">{{ day.weekday_label }}</span>
               <div class="flex items-center gap-4">
                 <!-- spacer matching the per-entry time span column -->
                 <div class="w-28" aria-hidden="true"></div>
