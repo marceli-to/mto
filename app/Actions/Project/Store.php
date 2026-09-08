@@ -12,6 +12,6 @@ class Store
         $project = new Project($request->all());
         $project->save();
 
-        return response()->json(['projectId' => $project->id]);
+        return response()->json((new Present)->execute($project));
     }
 }

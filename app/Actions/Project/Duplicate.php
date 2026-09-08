@@ -13,6 +13,6 @@ class Duplicate
         $clone->is_archive = 0;
         $clone->save();
 
-        return response()->json($clone);
+        return response()->json((new Present)->execute($clone));
     }
 }

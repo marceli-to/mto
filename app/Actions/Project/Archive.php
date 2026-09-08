@@ -16,6 +16,6 @@ class Archive
         $project->is_archive = $project->is_archive ? 0 : 1;
         $project->save();
 
-        return response()->json($project->load('client'));
+        return response()->json((new Present)->execute($project));
     }
 }

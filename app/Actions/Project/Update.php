@@ -11,6 +11,6 @@ class Update
     {
         $project->update($request->all());
 
-        return response()->json('successfully updated');
+        return response()->json((new Present)->execute($project));
     }
 }
