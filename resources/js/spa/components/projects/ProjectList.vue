@@ -214,8 +214,6 @@ onMounted(fetchProjects)
               <div class="flex items-center gap-x-8">
                 {{ project.name }}
                 <span v-if="project.client" class="font-bold">{{ project.client.acronym }}</span>
-                <!-- TEMPORARY: project id for debugging, remove later -->
-                <span class="text-gray-400 tabular-nums">{{ project.id }}</span>
               </div>
             </div>
             <div class="flex items-center gap-6">
