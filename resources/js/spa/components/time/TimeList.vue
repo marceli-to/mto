@@ -188,7 +188,7 @@ onMounted(fetchEntries)
     <!-- Week list -->
     <div v-else>
       <section v-for="week in weeks" :key="week.key" class="mb-10">
-        <h2 class="text-lg text-gray-900 font-bold mb-2 pl-2">{{ week.label }}</h2>
+        <h2 class="text-lg text-gray-400 font-medium mb-2 pl-2">{{ week.label }}</h2>
 
         <div class="border-t border-gray-100">
           <div v-for="day in week.days" :key="day.date" class="border-b border-gray-100">

@@ -89,21 +89,24 @@ class Get
     }
 
     /**
-     * "7. September – 11. September" — the span of days actually booked in a week,
-     * so a Mon-Fri week does not advertise an empty weekend.
+     * "7. September – 11. September" — always the full working week (Mon-Fri),
+     * regardless of which days were actually booked. Weekend bookings extend the
+     * range so every listed day stays inside the heading.
      *
      * @param  \Illuminate\Support\Collection  $days  The week's days, newest first.
      */
     protected function weekLabel($days): string
     {
-        $latest   = Carbon::parse($days->first()['date'])->locale('de');
-        $earliest = Carbon::parse($days->last()['date'])->locale('de');
+        $latestBooked = Carbon::parse($days->first()['date']);
 
-        if ($earliest->isSameDay($latest)) {
-            return $earliest->isoFormat('D. MMMM');
+        $start = $latestBooked->copy()->startOfWeek();
+        $end   = $start->copy()->addDays(4);
+
+        if ($latestBooked->greaterThan($end)) {
+            $end = $latestBooked->copy();
         }
 
-        return $earliest->isoFormat('D. MMMM') . ' – ' . $latest->isoFormat('D. MMMM');
+        return $start->locale('de')->isoFormat('D. MMMM') . ' – ' . $end->locale('de')->isoFormat('D. MMMM');
     }
 
     /** "31.8. - 6.9." for a week range. */
