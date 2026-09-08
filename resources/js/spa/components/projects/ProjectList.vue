@@ -218,14 +218,15 @@ onMounted(fetchProjects)
             </div>
             <div class="flex items-center gap-6">
               <!-- What the project has consumed: revenue for collection work, budget burn for fixed. -->
-              <div v-if="project.hours_spent > 0" class="flex items-center gap-4 text-sm text-gray-500">
-                <span class="tabular-nums w-16 text-right">{{ project.hours_spent }} h</span>
-                <span class="tabular-nums w-16 text-right">
-                  <template v-if="project.is_collection">{{ formatCurrency(project.revenue) }}</template>
-                  <template v-else-if="project.budget_used !== null">{{ project.budget_used }}%</template>
-                  <template v-else>—</template>
-                </span>
-              </div>
+              <span
+                v-if="project.hours_spent > 0"
+                class="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs font-medium tabular-nums"
+              >
+                {{ project.hours_spent }} h &bull;
+                <template v-if="project.is_collection">{{ formatCurrency(project.revenue) }}</template>
+                <template v-else-if="project.budget_used !== null">{{ project.budget_used }}%</template>
+                <template v-else>&mdash;</template>
+              </span>
               <div class="flex items-center gap-1">
                 <button
                   @click="openTimeEntries(project)"
