@@ -8,11 +8,11 @@ const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.conten
 
 const navigation = [
   { name: 'Time', route: 'time', icon: PhClock },
+  { name: 'Projects', route: 'projects', icon: PhFolder },
   { name: 'Invoices', route: 'invoices', icon: PhReceipt },
-  { name: 'Quotes', route: 'quotes', icon: PhFileText },
   { name: 'Expenses', route: 'expenses', icon: PhCurrencyCircleDollar },
   { name: 'Clients', route: 'clients', icon: PhUsers },
-  { name: 'Projects', route: 'projects', icon: PhFolder },
+  { name: 'Quotes', route: 'quotes', icon: PhFileText },
   { name: 'Statistics', route: 'statistics', icon: PhChartBar },
 ]
 
