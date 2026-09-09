@@ -31,6 +31,8 @@ const flyout = ref({ show: false, timeEntryId: null })
 
 const flyoutTitle = computed(() => flyout.value.timeEntryId ? 'Edit Time Entry' : 'New Time Entry')
 
+const badgeBase = 'shrink-0 px-2 py-1 rounded-md text-xs font-medium inset-ring-1'
+
 function openCreate() {
   flyout.value = { show: true, timeEntryId: null }
 }
@@ -188,13 +190,24 @@ onMounted(fetchEntries)
     <!-- Week list -->
     <div v-else>
       <section v-for="week in weeks" :key="week.key" class="mb-10">
-        <h2 class="text-lg text-gray-400 font-medium mb-2 pl-2">{{ week.label }}</h2>
+        <div class="flex items-center justify-between border-b border-gray-100 pb-2 pl-2">
+          <h2 class="truncate text-sm font-medium text-gray-500">{{ week.label }}</h2>
+          <div class="flex items-center gap-4">
+            <!-- spacer matching the per-entry time span column -->
+            <div class="w-28" aria-hidden="true"></div>
+            <div class="w-20 text-right text-sm text-gray-500 tabular-nums">{{ week.total_hours }} h</div>
+            <div class="w-24 text-right text-sm text-gray-500 tabular-nums">{{ formatCurrency(week.total_revenue) }}</div>
+            <!-- spacer matching the per-entry action column -->
+            <div class="w-20" aria-hidden="true"></div>
+          </div>
+        </div>
 
-        <div class="border-t border-gray-100">
+        <div>
           <div v-for="day in week.days" :key="day.date" class="border-b border-gray-100">
             <!-- Day header -->
             <button
               @click="toggleDay(day.date)"
+              :aria-expanded="!!expanded[day.date]"
               class="w-full flex items-center justify-between py-5 pl-2 hover:bg-gray-50/50 transition-colors cursor-pointer"
             >
               <span class="font-medium">{{ day.weekday_label }}</span>
@@ -211,26 +224,35 @@ onMounted(fetchEntries)
             </button>
 
             <!-- Entries -->
-            <ul v-if="expanded[day.date]" class="divide-y divide-gray-100 border-t border-gray-100">
+            <ul v-if="expanded[day.date]" role="list" class="divide-y divide-gray-100 border-t border-gray-100">
               <li
                 v-for="entry in day.entries"
                 :key="entry.id"
                 class="flex items-center justify-between py-4 pl-2 hover:bg-gray-50/50 transition-colors"
                 :class="{ 'opacity-60': !entry.is_billable && !entry.is_activity }"
               >
-                <div class="flex items-center gap-x-8 min-w-0 flex-1">
-                  <span
-                    v-if="entry.description"
-                    class="truncate max-w-[50%]"
-                    :title="entry.description"
-                  >{{ entry.description }}</span>
-                  <span
+                <div class="flex items-center gap-x-3 min-w-0 flex-1">
+                  <div
                     v-if="entry.label"
-                    class="px-2 py-1 rounded-md text-xs font-medium shrink-0"
-                    :class="entry.is_activity ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-100 text-blue-800'"
-                  >{{ entry.label }}</span>
-                  <span v-if="!entry.is_activity && !entry.is_billable" class="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 shrink-0">Non-billable</span>
-                  <span v-if="entry.is_billed" class="text-xs px-2 py-0.5 rounded-full bg-green-50 text-green-600 shrink-0">Billed</span>
+                    :class="[badgeBase, entry.is_activity
+                      ? 'bg-amber-50 text-amber-800 inset-ring-amber-600/20'
+                      : 'bg-blue-50 text-blue-700 inset-ring-blue-700/10']"
+                  >{{ entry.label }}</div>
+                  <p
+                    v-if="entry.description"
+                    class="min-w-0 truncate text-sm"
+                    :title="entry.description"
+                  >{{ entry.description }}</p>
+                  <div
+                    v-if="!entry.is_activity && !entry.is_billable"
+                    :class="badgeBase"
+                    class="bg-gray-100 text-gray-600 inset-ring-gray-950/10"
+                  >Non-billable</div>
+                  <div
+                    v-if="entry.is_billed"
+                    :class="badgeBase"
+                    class="bg-green-50 text-green-700 inset-ring-green-600/20"
+                  >Billed</div>
                 </div>
                 <div class="flex items-center gap-4">
                   <span class="tabular-nums w-28 text-right">
