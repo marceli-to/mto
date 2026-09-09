@@ -14,6 +14,10 @@ return [
     |
     */
 
+    'anthropic' => [
+        'receipt_model' => env('ANTHROPIC_RECEIPT_MODEL', 'claude-sonnet-5'),
+    ],
+
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
         'secret' => env('MAILGUN_SECRET'),

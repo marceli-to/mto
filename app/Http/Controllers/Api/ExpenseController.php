@@ -15,6 +15,7 @@ use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Files\Image;
 use Laravel\Ai\Files\Document;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ExpenseController extends Controller
@@ -68,7 +69,7 @@ class ExpenseController extends Controller
                 'Extract the expense data from this receipt.',
                 attachments: [$attachment],
                 provider: Lab::Anthropic,
-                model: 'claude-sonnet-4-20250514',
+                model: config('services.anthropic.receipt_model'),
             );
 
             return response()->json([
@@ -79,6 +80,12 @@ class ExpenseController extends Controller
                 'currency' => $response['currency'] ?? 'CHF',
             ]);
         } catch (\Exception $e) {
+            Log::error('Receipt scan failed', [
+                'file' => $tempFilename,
+                'model' => config('services.anthropic.receipt_model'),
+                'exception' => $e,
+            ]);
+
             return response()->json([
                 'message' => 'Failed to scan receipt: ' . $e->getMessage()
             ], 422);
