@@ -14,7 +14,7 @@ class RevenueOverview extends Command
     protected $description = 'Monthly revenue per year against the revenue target';
 
     /** First and last calendar year of the report. */
-    private const FIRST_YEAR = 2020;
+    private const FIRST_YEAR = 2022;
     private const LAST_YEAR = 2026;
 
     /** Annual net revenue target in CHF, excl. MWST. */
