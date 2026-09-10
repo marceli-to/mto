@@ -32,6 +32,13 @@ const flyout = ref({ show: false, timeEntryId: null })
 const flyoutTitle = computed(() => flyout.value.timeEntryId ? 'Edit Time Entry' : 'New Time Entry')
 
 const badgeBase = 'shrink-0 px-2 py-1 rounded-md text-xs font-medium inset-ring-1'
+const billableBadge = 'bg-green-50 text-green-700 inset-ring-green-600/20'
+const nonBillableBadge = 'bg-amber-50 text-amber-800 inset-ring-amber-600/20'
+
+/** Mirrors the server-side split: activities are never billable, project entries only when flagged. */
+function isBillable(entry) {
+  return !entry.is_activity && entry.is_billable
+}
 
 function openCreate() {
   flyout.value = { show: true, timeEntryId: null }
@@ -195,7 +202,18 @@ onMounted(fetchEntries)
           <div class="flex items-center gap-4">
             <!-- spacer matching the per-entry time span column -->
             <div class="w-28" aria-hidden="true"></div>
-            <div class="w-20 text-right text-sm text-gray-500 tabular-nums">{{ week.total_hours }} h</div>
+            <div class="w-32 flex items-center justify-end gap-1 tabular-nums">
+              <span
+                v-if="week.billable_hours > 0"
+                :class="[badgeBase, billableBadge]"
+                title="Billable hours"
+              >{{ week.billable_hours }} h</span>
+              <span
+                v-if="week.non_billable_hours > 0"
+                :class="[badgeBase, nonBillableBadge]"
+                title="Non-billable hours"
+              >{{ week.non_billable_hours }} h</span>
+            </div>
             <div class="w-24 text-right text-sm text-gray-500 tabular-nums">{{ formatCurrency(week.total_revenue) }}</div>
             <!-- spacer matching the per-entry action column -->
             <div class="w-20" aria-hidden="true"></div>
@@ -214,7 +232,18 @@ onMounted(fetchEntries)
               <div class="flex items-center gap-4">
                 <!-- spacer matching the per-entry time span column -->
                 <div class="w-28" aria-hidden="true"></div>
-                <span class="tabular-nums w-20 text-right">{{ day.total_hours }} h</span>
+                <div class="w-32 flex items-center justify-end gap-1 tabular-nums">
+                  <span
+                    v-if="day.billable_hours > 0"
+                    :class="[badgeBase, billableBadge]"
+                    title="Billable hours"
+                  >{{ day.billable_hours }} h</span>
+                  <span
+                    v-if="day.non_billable_hours > 0"
+                    :class="[badgeBase, nonBillableBadge]"
+                    title="Non-billable hours"
+                  >{{ day.non_billable_hours }} h</span>
+                </div>
                 <span class="tabular-nums w-24 text-right">
                   {{ day.total_revenue > 0 ? formatCurrency(day.total_revenue) : '—' }}
                 </span>
@@ -244,11 +273,6 @@ onMounted(fetchEntries)
                     :title="entry.description"
                   >{{ entry.description }}</p>
                   <div
-                    v-if="!entry.is_activity && !entry.is_billable"
-                    :class="badgeBase"
-                    class="bg-gray-100 text-gray-600 inset-ring-gray-950/10"
-                  >Non-billable</div>
-                  <div
                     v-if="entry.is_billed"
                     :class="badgeBase"
                     class="bg-green-50 text-green-700 inset-ring-green-600/20"
@@ -258,7 +282,12 @@ onMounted(fetchEntries)
                   <span class="tabular-nums w-28 text-right">
                     {{ entry.time_from && entry.time_to ? `${entry.time_from}–${entry.time_to}` : '—' }}
                   </span>
-                  <span class="tabular-nums w-20 text-right">{{ entry.hours }} h</span>
+                  <div class="w-32 flex items-center justify-end tabular-nums">
+                    <span
+                      :class="[badgeBase, isBillable(entry) ? billableBadge : nonBillableBadge]"
+                      :title="isBillable(entry) ? 'Billable hours' : 'Non-billable hours'"
+                    >{{ entry.hours }} h</span>
+                  </div>
                   <span class="tabular-nums w-24 text-right">
                     {{ entry.revenue > 0 ? formatCurrency(entry.revenue) : '—' }}
                   </span>

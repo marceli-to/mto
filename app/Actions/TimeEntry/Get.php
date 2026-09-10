@@ -40,12 +40,16 @@ class Get
             ->groupBy(fn (TimeEntry $e) => $e->date->format('Y-m-d'))
             ->map(function ($group, $date) use ($revenue) {
                 $carbon = Carbon::parse($date);
+                [$billable, $nonBillable] = $group->partition(fn (TimeEntry $e) => $this->isBillable($e));
+
                 return [
-                    'date'          => $date,
-                    'weekday_label' => $carbon->locale('de')->isoFormat('dddd, D. MMMM'),
-                    'total_hours'   => round($group->sum(fn (TimeEntry $e) => (float) $e->hours), 2),
-                    'total_revenue' => round($group->sum(fn (TimeEntry $e) => $revenue[$e->id]['revenue'] ?? 0), 2),
-                    'entries'       => $group->map(fn (TimeEntry $e) => $this->transform($e, $revenue))->values(),
+                    'date'               => $date,
+                    'weekday_label'      => $carbon->locale('de')->isoFormat('dddd, D. MMMM'),
+                    'total_hours'        => round($group->sum(fn (TimeEntry $e) => (float) $e->hours), 2),
+                    'billable_hours'     => round($billable->sum(fn (TimeEntry $e) => (float) $e->hours), 2),
+                    'non_billable_hours' => round($nonBillable->sum(fn (TimeEntry $e) => (float) $e->hours), 2),
+                    'total_revenue'      => round($group->sum(fn (TimeEntry $e) => $revenue[$e->id]['revenue'] ?? 0), 2),
+                    'entries'            => $group->map(fn (TimeEntry $e) => $this->transform($e, $revenue))->values(),
                 ];
             })
             ->values();
@@ -54,11 +58,13 @@ class Get
         $weeks = $days
             ->groupBy(fn (array $day) => Carbon::parse($day['date'])->format('o-\\WW'))
             ->map(fn ($group, $key) => [
-                'key'           => $key,
-                'label'         => $this->weekLabel($group),
-                'total_hours'   => round($group->sum('total_hours'), 2),
-                'total_revenue' => round($group->sum('total_revenue'), 2),
-                'days'          => $group->values(),
+                'key'                => $key,
+                'label'              => $this->weekLabel($group),
+                'total_hours'        => round($group->sum('total_hours'), 2),
+                'billable_hours'     => round($group->sum('billable_hours'), 2),
+                'non_billable_hours' => round($group->sum('non_billable_hours'), 2),
+                'total_revenue'      => round($group->sum('total_revenue'), 2),
+                'days'               => $group->values(),
             ])
             ->values();
 
@@ -86,6 +92,12 @@ class Get
                 'last_month'       => $engine->periodRevenue($lastMonthStart, $lastMonthEnd),
             ],
         ]);
+    }
+
+    /** Activities are never billable; project entries only when flagged. */
+    protected function isBillable(TimeEntry $entry): bool
+    {
+        return !$entry->isActivity() && (bool) $entry->is_billable;
     }
 
     /**
