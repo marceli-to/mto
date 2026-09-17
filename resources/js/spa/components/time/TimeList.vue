@@ -7,6 +7,7 @@ import { useCurrency } from '@/composables/useCurrency'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import Flyout from '@/components/ui/Flyout.vue'
 import TimeForm from './TimeForm.vue'
+import HoursBadge from './HoursBadge.vue'
 
 const { get, del, post } = useApi()
 const { success, error } = useToast()
@@ -32,8 +33,6 @@ const flyout = ref({ show: false, timeEntryId: null })
 const flyoutTitle = computed(() => flyout.value.timeEntryId ? 'Edit Time Entry' : 'New Time Entry')
 
 const badgeBase = 'shrink-0 px-2 py-1 rounded-md text-xs font-medium inset-ring-1'
-const billableBadge = 'bg-green-50 text-green-700 inset-ring-green-600/20'
-const nonBillableBadge = 'bg-amber-50 text-amber-800 inset-ring-amber-600/20'
 
 /** Mirrors the server-side split: activities are never billable, project entries only when flagged. */
 function isBillable(entry) {
@@ -202,17 +201,12 @@ onMounted(fetchEntries)
           <div class="flex items-center gap-4">
             <!-- spacer matching the per-entry time span column -->
             <div class="w-28" aria-hidden="true"></div>
-            <div class="w-32 flex items-center justify-end gap-1 tabular-nums">
-              <span
-                v-if="week.billable_hours > 0"
-                :class="[badgeBase, billableBadge]"
-                title="Billable hours"
-              >{{ week.billable_hours }} h</span>
-              <span
-                v-if="week.non_billable_hours > 0"
-                :class="[badgeBase, nonBillableBadge]"
-                title="Non-billable hours"
-              >{{ week.non_billable_hours }} h</span>
+            <div class="w-40 flex items-center justify-end">
+              <HoursBadge
+                :billable="week.billable_hours"
+                :non-billable="week.non_billable_hours"
+                :total="week.total_hours"
+              />
             </div>
             <div class="w-24 text-right text-sm text-gray-500 tabular-nums">{{ formatCurrency(week.total_revenue) }}</div>
             <!-- spacer matching the per-entry action column -->
@@ -232,17 +226,12 @@ onMounted(fetchEntries)
               <div class="flex items-center gap-4">
                 <!-- spacer matching the per-entry time span column -->
                 <div class="w-28" aria-hidden="true"></div>
-                <div class="w-32 flex items-center justify-end gap-1 tabular-nums">
-                  <span
-                    v-if="day.billable_hours > 0"
-                    :class="[badgeBase, billableBadge]"
-                    title="Billable hours"
-                  >{{ day.billable_hours }} h</span>
-                  <span
-                    v-if="day.non_billable_hours > 0"
-                    :class="[badgeBase, nonBillableBadge]"
-                    title="Non-billable hours"
-                  >{{ day.non_billable_hours }} h</span>
+                <div class="w-40 flex items-center justify-end">
+                  <HoursBadge
+                    :billable="day.billable_hours"
+                    :non-billable="day.non_billable_hours"
+                    :total="day.total_hours"
+                  />
                 </div>
                 <span class="tabular-nums w-24 text-right">
                   {{ day.total_revenue > 0 ? formatCurrency(day.total_revenue) : '—' }}
@@ -282,11 +271,12 @@ onMounted(fetchEntries)
                   <span class="tabular-nums w-28 text-right">
                     {{ entry.time_from && entry.time_to ? `${entry.time_from}–${entry.time_to}` : '—' }}
                   </span>
-                  <div class="w-32 flex items-center justify-end tabular-nums">
-                    <span
-                      :class="[badgeBase, isBillable(entry) ? billableBadge : nonBillableBadge]"
-                      :title="isBillable(entry) ? 'Billable hours' : 'Non-billable hours'"
-                    >{{ entry.hours }} h</span>
+                  <div class="w-40 flex items-center justify-end">
+                    <HoursBadge
+                      :billable="isBillable(entry) ? entry.hours : 0"
+                      :non-billable="isBillable(entry) ? 0 : entry.hours"
+                      :total="entry.hours"
+                    />
                   </div>
                   <span class="tabular-nums w-24 text-right">
                     {{ entry.revenue > 0 ? formatCurrency(entry.revenue) : '—' }}
