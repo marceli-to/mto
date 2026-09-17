@@ -26,8 +26,11 @@ class Get
         $totals['total'] = $invoices->reject->isCancelled()->sum('grandtotal');
 
         // Work on collection projects that is done but not invoiced yet is money owed
-        // just like an open invoice, so it counts towards the open figure.
-        $collectionIds = Project::where('is_collection', true)->pluck('id')->all();
+        // just like an open invoice, so it counts towards the open figure. Archived
+        // projects are considered closed out and no longer expected to be billed.
+        $collectionIds = Project::where('is_collection', true)
+            ->where('is_archive', false)
+            ->pluck('id')->all();
         $totals['unbilled'] = $collectionIds
             ? RevenueEngine::fromDatabase($collectionIds)->unbilledRevenue()
             : 0.0;
