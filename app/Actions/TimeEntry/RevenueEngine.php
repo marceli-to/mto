@@ -141,17 +141,46 @@ class RevenueEngine
      */
     public function unbilledRevenue(): float
     {
-        $perEntry = $this->perEntryRevenue();
         $total = 0.0;
+
+        foreach ($this->unbilledByProject() as $t) {
+            $total += $t['value'];
+        }
+
+        return round($total, 2);
+    }
+
+    /**
+     * Per-project roll-up of the work done but not yet billed, keyed by project id:
+     *   [id => ['count' => int, 'value' => float]]
+     *
+     * Lets a project row warn about what archiving it would take off the books.
+     * Projects with nothing unbilled are absent.
+     */
+    public function perProjectUnbilled(): array
+    {
+        return array_map(
+            fn (array $t) => ['count' => $t['count'], 'value' => round($t['value'], 2)],
+            $this->unbilledByProject()
+        );
+    }
+
+    /** Unrounded per-project unbilled roll-up, shared by the two accessors above. */
+    protected function unbilledByProject(): array
+    {
+        $perEntry = $this->perEntryRevenue();
+        $result = [];
 
         foreach ($this->entries as $entry) {
             if ($entry->isBilled() || !isset($perEntry[$entry->id])) {
                 continue;
             }
-            $total += $perEntry[$entry->id]['revenue'];
+            $result[$entry->project_id] ??= ['count' => 0, 'value' => 0.0];
+            $result[$entry->project_id]['count']++;
+            $result[$entry->project_id]['value'] += $perEntry[$entry->id]['revenue'];
         }
 
-        return round($total, 2);
+        return $result;
     }
 
     /**

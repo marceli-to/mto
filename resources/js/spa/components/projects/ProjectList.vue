@@ -19,6 +19,7 @@ const search = ref('')
 const loading = ref(true)
 const activeFilters = ref(['active'])
 const deleteDialog = ref({ show: false, id: null, loading: false })
+const archiveDialog = ref({ show: false, project: null, loading: false })
 const flyout = ref({ show: false, projectId: null })
 const timeFlyout = ref({ show: false, projectId: null, title: '' })
 
@@ -114,7 +115,32 @@ async function cloneProject(id) {
   }
 }
 
-async function toggleArchive(project) {
+// Archiving takes unbilled work off the open figure, so warn before it silently
+// disappears. Restoring puts it back and needs no warning.
+function toggleArchive(project) {
+  if (!project.is_archive && project.unbilled_count > 0) {
+    archiveDialog.value = { show: true, project, loading: false }
+    return
+  }
+  return runArchive(project)
+}
+
+const archiveMessage = computed(() => {
+  const project = archiveDialog.value.project
+  if (!project) return ''
+  const entries = project.unbilled_count === 1 ? 'entry' : 'entries'
+  return `This project has ${project.unbilled_count} unbilled time ${entries} `
+    + `worth ${formatCurrency(project.unbilled_value)}. `
+    + 'Archiving removes them from the Open total.'
+})
+
+async function confirmArchive() {
+  archiveDialog.value.loading = true
+  await runArchive(archiveDialog.value.project)
+  archiveDialog.value = { show: false, project: null, loading: false }
+}
+
+async function runArchive(project) {
   try {
     const saved = await post(`/api/project/archive/${project.id}`)
     const index = projects.value.findIndex(p => p.id === project.id)
@@ -277,6 +303,16 @@ onMounted(fetchProjects)
       :loading="deleteDialog.loading"
       @confirm="deleteProject"
       @cancel="deleteDialog.show = false"
+    />
+
+    <ConfirmDialog
+      :show="archiveDialog.show"
+      :title="`Archive ${archiveDialog.project?.name ?? ''}?`"
+      :message="archiveMessage"
+      confirm-label="Archive"
+      :loading="archiveDialog.loading"
+      @confirm="confirmArchive"
+      @cancel="archiveDialog.show = false"
     />
 
     <Flyout
