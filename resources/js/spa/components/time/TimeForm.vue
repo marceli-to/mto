@@ -63,8 +63,12 @@ async function fetchLastEnd() {
 
 watch(() => entry.value.date, fetchLastEnd)
 
+// Archived projects are not bookable, but keep the one an existing entry
+// already points at so editing it does not silently blank the select.
 const projectOptions = computed(() =>
-  projects.value.map(p => ({ value: p.id, label: p.name }))
+  projects.value
+    .filter(p => !p.is_archive || String(p.id) === String(entry.value.project_id))
+    .map(p => ({ value: p.id, label: p.name }))
 )
 
 function selectProject() {
