@@ -163,8 +163,9 @@ function setDueDate() {
   }
 }
 
+// Archived projects are done, so they are not offered for invoicing.
 const projectOptions = computed(() =>
-  projects.value.map(p => ({
+  projects.value.filter(p => !p.is_archive).map(p => ({
     value: p.id,
     label: p.client?.acronym ? `${p.name} (${p.client.acronym})` : p.name
   }))
