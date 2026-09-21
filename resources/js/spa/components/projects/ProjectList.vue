@@ -125,12 +125,16 @@ function toggleArchive(project) {
   return runArchive(project)
 }
 
+function unbilledLabel(project) {
+  const entries = project.unbilled_count === 1 ? 'entry' : 'entries'
+  return `${project.unbilled_count} unbilled time ${entries} `
+    + `worth ${formatCurrency(project.unbilled_value)}`
+}
+
 const archiveMessage = computed(() => {
   const project = archiveDialog.value.project
   if (!project) return ''
-  const entries = project.unbilled_count === 1 ? 'entry' : 'entries'
-  return `This project has ${project.unbilled_count} unbilled time ${entries} `
-    + `worth ${formatCurrency(project.unbilled_value)}. `
+  return `This project has ${unbilledLabel(project)}. `
     + 'Archiving removes them from the Open total.'
 })
 
@@ -243,6 +247,14 @@ onMounted(fetchProjects)
               </div>
             </div>
             <div class="flex items-center gap-6">
+              <!-- Archiving takes unbilled work off the books, so flag what was left behind. -->
+              <span
+                v-if="project.is_archive && project.unbilled_count > 0"
+                :title="unbilledLabel(project)"
+                class="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-xs font-medium tabular-nums"
+              >
+                {{ project.unbilled_count }} unbilled &bull; {{ formatCurrency(project.unbilled_value) }}
+              </span>
               <!-- What the project has consumed: revenue for collection work, budget burn for fixed. -->
               <span
                 v-if="project.hours_spent > 0"
