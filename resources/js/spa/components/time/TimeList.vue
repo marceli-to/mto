@@ -145,7 +145,7 @@ onMounted(fetchEntries)
   <div>
     <!-- Page Header -->
     <!-- min-h keeps the page from jumping when the move bar appears -->
-    <div class="flex items-center justify-between gap-4 min-h-12 mb-8">
+    <div class="flex items-center justify-between gap-4 min-h-10 mb-8">
       <div class="flex items-center gap-2">
         <button
           @click="openCreate"

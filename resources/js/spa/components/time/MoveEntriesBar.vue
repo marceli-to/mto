@@ -82,6 +82,7 @@ onMounted(fetchProjects)
         v-model="projectId"
         :options="projectOptions"
         placeholder="Move to project…"
+        compact
       />
     </div>
     <BaseButton :disabled="!projectId" :loading="saving" @click="move">Move</BaseButton>

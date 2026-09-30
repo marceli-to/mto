@@ -19,13 +19,16 @@ const props = defineProps({
   placeholder: String,
   error: String,
   required: Boolean,
-  disabled: Boolean
+  disabled: Boolean,
+  // Matches the search field's height, for toolbars.
+  compact: Boolean
 })
 
 const emit = defineEmits(['update:modelValue'])
 
 const selectClasses = computed(() => [
-  'w-full px-3 py-3 border rounded-md transition-all appearance-none bg-white text-sm',
+  'w-full px-3 border rounded-md transition-all appearance-none bg-white text-sm',
+  props.compact ? 'py-2' : 'py-3',
   'focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300',
   props.error
     ? 'border-red-300 bg-red-50'

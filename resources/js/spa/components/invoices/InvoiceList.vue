@@ -9,6 +9,8 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import Flyout from '@/components/ui/Flyout.vue'
 import InvoiceForm from './InvoiceForm.vue'
 import InvoiceStateForm from './InvoiceStateForm.vue'
+import InvoiceStateBar from './InvoiceStateBar.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 
 const { get, del } = useApi()
 const { success, error } = useToast()
@@ -65,6 +67,28 @@ const filteredInvoices = computed(() => {
 })
 
 const stateFilters = ['open', 'pending', 'paid', 'cancelled']
+
+// Invoices picked for a bulk state change. Only what the filters still show
+// counts, so a hidden invoice is never changed by accident.
+const selected = ref([])
+const visibleIds = computed(() => filteredInvoices.value.map(inv => inv.id))
+const selectedVisible = computed(() => selected.value.filter(id => visibleIds.value.includes(id)))
+const allSelected = computed(() => visibleIds.value.length > 0 && selectedVisible.value.length === visibleIds.value.length)
+
+function toggleSelected(id, checked) {
+  selected.value = checked
+    ? [...selected.value, id]
+    : selected.value.filter(s => s !== id)
+}
+
+function toggleAll(checked) {
+  selected.value = checked ? [...visibleIds.value] : []
+}
+
+function onBulkUpdated() {
+  selected.value = []
+  fetchInvoices()
+}
 
 function toggleFilter(state) {
   const index = activeFilters.value.indexOf(state)
@@ -178,18 +202,34 @@ onMounted(fetchInvoices)
 
     <div v-else>
       <!-- State Filters -->
-      <div class="flex items-center gap-2 mb-6">
-        <button
-          v-for="state in stateFilters"
-          :key="state"
-          @click="toggleFilter(state)"
-          :class="[
-            activeFilters.includes(state) ? stateColors[state] : 'bg-gray-100 text-gray-400',
-            'px-2 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors'
-          ]"
-        >
-          {{ state }}
-        </button>
+      <!-- min-h keeps the list from jumping when the state bar appears -->
+      <div class="flex items-center justify-between gap-4 min-h-10 mb-6">
+        <div class="flex items-center gap-2">
+          <BaseCheckbox
+            :model-value="allSelected"
+            class="mr-2"
+            title="Select all shown"
+            @update:model-value="toggleAll"
+          />
+          <button
+            v-for="state in stateFilters"
+            :key="state"
+            @click="toggleFilter(state)"
+            :class="[
+              activeFilters.includes(state) ? stateColors[state] : 'bg-gray-100 text-gray-400',
+              'px-2 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors'
+            ]"
+          >
+            {{ state }}
+          </button>
+        </div>
+
+        <InvoiceStateBar
+          v-if="selectedVisible.length"
+          :ids="selectedVisible"
+          @updated="onBulkUpdated"
+          @clear="selected = []"
+        />
       </div>
 
       <!-- Invoices List -->
@@ -200,6 +240,10 @@ onMounted(fetchInvoices)
             :key="invoice.id"
             class="flex items-center justify-between py-4 hover:bg-gray-50/50 transition-colors">
             <div class="flex items-center gap-x-6 w-full">
+              <BaseCheckbox
+                :model-value="selected.includes(invoice.id)"
+                @update:model-value="toggleSelected(invoice.id, $event)"
+              />
               <button
                 @click="openStateDialog(invoice)"
                 :class="[stateColors[invoice.state?.description] || 'bg-gray-100', 'px-2 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors']"
