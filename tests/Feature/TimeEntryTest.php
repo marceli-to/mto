@@ -362,6 +362,53 @@ class TimeEntryTest extends TestCase
         $this->assertNull($e1->fresh()->invoice_id);
     }
 
+    public function test_move_reassigns_entries_and_skips_billed_ones(): void
+    {
+        $from = $this->collectionProject();
+        $to = Project::create(['name' => 'Right Project', 'rate_id' => $from->rate_id, 'client_id' => $from->client_id]);
+
+        $open = TimeEntry::create(['project_id' => $from->id, 'date' => '2026-09-05', 'hours' => 2, 'is_billable' => true, 'rate' => 150]);
+        $billed = TimeEntry::create([
+            'project_id' => $from->id, 'date' => '2026-09-05', 'hours' => 1, 'is_billable' => true,
+            'invoice_id' => $this->invoice()->id,
+        ]);
+        $activity = TimeEntry::create(['activity' => 'Admin', 'date' => '2026-09-05', 'hours' => 1, 'is_billable' => false]);
+
+        $res = $this->postJson('/api/time-entries/move', [
+            'project_id' => $to->id,
+            'time_entry_ids' => [$open->id, $billed->id, $activity->id],
+        ]);
+
+        $res->assertOk();
+        $this->assertEqualsCanonicalizing([$open->id, $activity->id], $res->json('moved'));
+        $this->assertSame([$billed->id], $res->json('skipped'));
+
+        $this->assertSame($to->id, $open->fresh()->project_id);
+        $this->assertNull($open->fresh()->rate);
+        $this->assertSame($from->id, $billed->fresh()->project_id);
+
+        $activity->refresh();
+        $this->assertSame($to->id, $activity->project_id);
+        $this->assertNull($activity->activity);
+        $this->assertTrue($activity->is_billable);
+    }
+
+    public function test_move_rejects_an_archived_target(): void
+    {
+        $from = $this->collectionProject();
+        $archived = Project::create([
+            'name' => 'Old', 'rate_id' => $from->rate_id, 'client_id' => $from->client_id, 'is_archive' => 1,
+        ]);
+        $entry = TimeEntry::create(['project_id' => $from->id, 'date' => '2026-09-05', 'hours' => 2, 'is_billable' => true]);
+
+        $this->postJson('/api/time-entries/move', [
+            'project_id' => $archived->id,
+            'time_entry_ids' => [$entry->id],
+        ])->assertStatus(422);
+
+        $this->assertSame($from->id, $entry->fresh()->project_id);
+    }
+
     public function test_flat_rate_project_requires_budget(): void
     {
         $rate = Rate::create(['description' => 'Std', 'amount' => 100]);

@@ -346,7 +346,7 @@ onMounted(fetchProjects)
       size="xl"
       @close="closeTimeFlyout"
     >
-      <ProjectTimeEntries :project-id="timeFlyout.projectId" />
+      <ProjectTimeEntries :project-id="timeFlyout.projectId" @moved="fetchProjects" />
     </Flyout>
   </div>
 </template>

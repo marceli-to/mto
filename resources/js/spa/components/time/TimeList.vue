@@ -8,6 +8,8 @@ import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import Flyout from '@/components/ui/Flyout.vue'
 import TimeForm from './TimeForm.vue'
 import HoursBadge from './HoursBadge.vue'
+import MoveEntriesBar from './MoveEntriesBar.vue'
+import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 
 const { get, del, post } = useApi()
 const { success, error } = useToast()
@@ -29,6 +31,20 @@ const expanded = reactive({}) // date -> bool
 
 const deleteDialog = ref({ show: false, id: null, loading: false })
 const flyout = ref({ show: false, timeEntryId: null })
+
+// Entries picked for a bulk move. Billed entries can't be picked.
+const selected = ref([])
+
+function toggleSelected(id, checked) {
+  selected.value = checked
+    ? [...selected.value, id]
+    : selected.value.filter(s => s !== id)
+}
+
+function onMoved() {
+  selected.value = []
+  fetchEntries()
+}
 
 const flyoutTitle = computed(() => flyout.value.timeEntryId ? 'Edit Time Entry' : 'New Time Entry')
 
@@ -128,7 +144,8 @@ onMounted(fetchEntries)
 <template>
   <div>
     <!-- Page Header -->
-    <div class="flex items-center justify-between mb-8">
+    <!-- min-h keeps the page from jumping when the move bar appears -->
+    <div class="flex items-center justify-between gap-4 min-h-12 mb-8">
       <div class="flex items-center gap-2">
         <button
           @click="openCreate"
@@ -139,6 +156,13 @@ onMounted(fetchEntries)
         </button>
         <h1 class="text-xl text-gray-900 font-bold">Time</h1>
       </div>
+      <MoveEntriesBar
+        v-if="selected.length"
+        :ids="selected"
+        class="w-full max-w-lg"
+        @moved="onMoved"
+        @clear="selected = []"
+      />
     </div>
 
     <!-- Stat cards -->
@@ -250,6 +274,12 @@ onMounted(fetchEntries)
                 :class="{ 'opacity-60': !entry.is_billable && !entry.is_activity }"
               >
                 <div class="flex items-center gap-x-3 min-w-0 flex-1">
+                  <BaseCheckbox
+                    :model-value="selected.includes(entry.id)"
+                    :disabled="entry.is_billed"
+                    :title="entry.is_billed ? 'Billed entries cannot be moved' : 'Select'"
+                    @update:model-value="toggleSelected(entry.id, $event)"
+                  />
                   <div
                     v-if="entry.label"
                     :class="[badgeBase, entry.is_activity
