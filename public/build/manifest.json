@@ -13,12 +13,12 @@
     "src": "resources/img/wallpaper.jpg"
   },
   "resources/js/spa/app.js": {
-    "file": "assets/app-DFTYkvJO.js",
+    "file": "assets/app-BNQyZ2Ah.js",
     "name": "app",
     "src": "resources/js/spa/app.js",
     "isEntry": true,
     "css": [
-      "assets/app-onS2pUhr.css"
+      "assets/app-DwjEObFw.css"
     ]
   }
 }

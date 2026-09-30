@@ -12,6 +12,7 @@ use App\Actions\TimeEntry\Update as UpdateAction;
 use App\Actions\TimeEntry\Delete as DeleteAction;
 use App\Actions\TimeEntry\Bill as BillAction;
 use App\Actions\TimeEntry\Unbill as UnbillAction;
+use App\Actions\TimeEntry\Settle as SettleAction;
 use App\Actions\TimeEntry\Move as MoveAction;
 use App\Actions\TimeEntry\UnbilledForProject as UnbilledForProjectAction;
 use App\Actions\TimeEntry\ForProject as ForProjectAction;
@@ -76,6 +77,11 @@ class TimeEntryController extends Controller
     public function unbill(Request $request)
     {
         return (new UnbillAction)->execute($request);
+    }
+
+    public function settle(Request $request)
+    {
+        return (new SettleAction)->execute($request);
     }
 
     public function move(Request $request)

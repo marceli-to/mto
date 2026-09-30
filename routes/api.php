@@ -139,6 +139,7 @@ Route::middleware('auth:sanctum')->group(function() {
   Route::get('time-entries/last-end/{date}', [TimeEntryController::class, 'lastEnd']);
   Route::post('time-entries/bill', [TimeEntryController::class, 'bill']);
   Route::post('time-entries/unbill', [TimeEntryController::class, 'unbill']);
+  Route::post('time-entries/settle', [TimeEntryController::class, 'settle']);
   Route::post('time-entries/move', [TimeEntryController::class, 'move']);
 
   /**

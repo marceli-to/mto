@@ -16,6 +16,14 @@ defineProps({
     type: String,
     default: 'Delete'
   },
+  confirmVariant: {
+    type: String,
+    default: 'danger'
+  },
+  cancelLabel: {
+    type: String,
+    default: 'Cancel'
+  },
   loading: Boolean
 })
 
@@ -43,9 +51,9 @@ const emit = defineEmits(['confirm', 'cancel'])
           </div>
           <div class="flex justify-end gap-3 mt-8">
             <BaseButton variant="secondary" @click="emit('cancel')">
-              Cancel
+              {{ cancelLabel }}
             </BaseButton>
-            <BaseButton variant="danger" :loading="loading" @click="emit('confirm')">
+            <BaseButton :variant="confirmVariant" :loading="loading" @click="emit('confirm')">
               {{ confirmLabel }}
             </BaseButton>
           </div>

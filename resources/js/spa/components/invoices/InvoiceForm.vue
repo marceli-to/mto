@@ -8,6 +8,7 @@ import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import InvoicePositionForm from './InvoicePositionForm.vue'
 
 const props = defineProps({
@@ -40,6 +41,8 @@ const source = ref('manual')
 const projects = ref([])
 const selectedProjectId = ref('')
 const billableEntries = ref([]) // unbilled entries pulled in for a collection project
+const fixedEntries = ref([]) // unbilled entries of a fixed project, offered to mark as billed on save
+const settleDialog = ref(false)
 const loadingEntries = ref(false)
 
 // BaseSelect emits the raw <option> value, so the id arrives as a string.
@@ -137,6 +140,7 @@ function resetForm() {
   source.value = 'manual'
   selectedProjectId.value = ''
   billableEntries.value = []
+  fixedEntries.value = []
 }
 
 watch(() => props.invoiceId, (newId) => {
@@ -174,6 +178,7 @@ const projectOptions = computed(() =>
 /** Drop only the positions derived from time entries, keeping anything hand-added. */
 function clearEntryPositions() {
   billableEntries.value = []
+  fixedEntries.value = []
   invoice.value.positions = invoice.value.positions.filter(p => !p._from_entry)
 }
 
@@ -195,12 +200,17 @@ async function onProjectSelected() {
     invoice.value.title = selectedProject.value.name || ''
   }
 
-  // Fixed-price projects get their positions by hand.
-  if (!isCollectionProject.value) return
-
   loadingEntries.value = true
   try {
     const data = await get(`/api/time-entries/unbilled/${selectedProjectId.value}`)
+
+    // Fixed-price projects get their positions by hand; their unbilled entries
+    // are only offered to be marked as billed when the invoice is saved.
+    if (!isCollectionProject.value) {
+      fixedEntries.value = data.entries || []
+      return
+    }
+
     billableEntries.value = data.entries || []
     invoice.value.positions = [
       ...invoice.value.positions,
@@ -234,12 +244,39 @@ function validate() {
   return Object.keys(errors.value).length === 0
 }
 
-async function submit() {
+const fixedEntriesValue = computed(() =>
+  fixedEntries.value.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0)
+)
+
+const settleMessage = computed(() => {
+  const n = fixedEntries.value.length
+  return `${selectedProject.value?.name} has ${n} unbilled time ${n === 1 ? 'entry' : 'entries'} `
+    + `worth ${formatCurrency(fixedEntriesValue.value)}. Mark ${n === 1 ? 'it' : 'them'} as billed `
+    + `with this invoice? No positions are added.`
+})
+
+function submit() {
   if (!validate()) {
     error('Please fix the errors')
     return
   }
 
+  // A fixed project's time isn't invoiced line by line, so ask whether this
+  // invoice settles the entries logged so far.
+  if (!isEdit.value && source.value === 'project' && fixedEntries.value.length > 0) {
+    settleDialog.value = true
+    return
+  }
+
+  save()
+}
+
+function onSettleChoice(settle) {
+  settleDialog.value = false
+  save(settle)
+}
+
+async function save(settleFixedEntries = false) {
   // Update totals before saving
   invoice.value.total = total.value
   invoice.value.vat = vat.value
@@ -266,7 +303,15 @@ async function submit() {
       success('Invoice created from time entries')
     } else {
       savedInvoice = await post('/api/invoice/create', invoice.value)
-      success('Invoice created')
+      if (settleFixedEntries) {
+        await post('/api/time-entries/settle', {
+          invoice_id: savedInvoice.invoiceId || savedInvoice.id,
+          time_entry_ids: fixedEntries.value.map(e => e.id)
+        })
+        success('Invoice created, time entries marked as billed')
+      } else {
+        success('Invoice created')
+      }
     }
     emit('saved', savedInvoice)
   } catch (e) {
@@ -369,6 +414,10 @@ onMounted(fetchData)
                   No unbilled time entries — add the positions below.
                 </p>
               </template>
+              <p v-else-if="selectedProject && fixedEntries.length" class="text-sm text-gray-500 mt-2">
+                Fixed price — add the positions below. {{ fixedEntries.length }} unbilled
+                {{ fixedEntries.length === 1 ? 'entry' : 'entries' }} can be marked as billed on save.
+              </p>
             </div>
           </div>
 
@@ -529,6 +578,17 @@ onMounted(fetchData)
       :position="positionDialog.position"
       @close="positionDialog.show = false"
       @save="onPositionSaved"
+    />
+
+    <ConfirmDialog
+      :show="settleDialog"
+      title="Unbilled time entries"
+      :message="settleMessage"
+      confirm-label="Mark as billed"
+      confirm-variant="primary"
+      cancel-label="Leave unbilled"
+      @confirm="onSettleChoice(true)"
+      @cancel="onSettleChoice(false)"
     />
   </div>
 </template>
