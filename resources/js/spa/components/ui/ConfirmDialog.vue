@@ -47,6 +47,7 @@ const emit = defineEmits(['confirm', 'cancel'])
             <div class="flex-1">
               <h3 class="text-lg text-gray-900 mb-4">{{ title }}</h3>
               <p class="text-gray-500">{{ message }}</p>
+              <slot />
             </div>
           </div>
           <div class="flex justify-end gap-3 mt-8">

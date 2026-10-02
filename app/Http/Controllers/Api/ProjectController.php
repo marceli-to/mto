@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Project;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectStoreRequest;
 use App\Actions\Project\Get as GetAction;
@@ -40,9 +41,9 @@ class ProjectController extends Controller
         return (new DuplicateAction)->execute($project);
     }
 
-    public function archive(Project $project)
+    public function archive(Project $project, Request $request)
     {
-        return (new ArchiveAction)->execute($project);
+        return (new ArchiveAction)->execute($project, $request);
     }
 
     public function destroy(Project $project)

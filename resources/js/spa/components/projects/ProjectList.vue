@@ -6,6 +6,7 @@ import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import BaseSelect from '@/components/ui/BaseSelect.vue'
 import Flyout from '@/components/ui/Flyout.vue'
 import ProjectForm from './ProjectForm.vue'
 import ProjectTimeEntries from './ProjectTimeEntries.vue'
@@ -19,7 +20,8 @@ const search = ref('')
 const loading = ref(true)
 const activeFilters = ref(['active'])
 const deleteDialog = ref({ show: false, id: null, loading: false })
-const archiveDialog = ref({ show: false, project: null, loading: false })
+const archiveDialog = ref({ show: false, project: null, loading: false, invoiceId: '' })
+const invoices = ref(null) // loaded on first need, for settling unbilled time on archive
 const flyout = ref({ show: false, projectId: null })
 const timeFlyout = ref({ show: false, projectId: null, title: '' })
 
@@ -119,11 +121,32 @@ async function cloneProject(id) {
 // disappears. Restoring puts it back and needs no warning.
 function toggleArchive(project) {
   if (!project.is_archive && project.unbilled_count > 0) {
-    archiveDialog.value = { show: true, project, loading: false }
+    archiveDialog.value = { show: true, project, loading: false, invoiceId: '' }
+    fetchInvoices()
     return
   }
   return runArchive(project)
 }
+
+async function fetchInvoices() {
+  if (invoices.value) return
+  try {
+    const data = await get('/api/invoices/get')
+    invoices.value = data.data || []
+  } catch (e) {
+    error('Failed to load invoices')
+  }
+}
+
+// The client's invoices, newest first, to pick the one that already covered this work.
+const invoiceOptions = computed(() => {
+  const clientId = archiveDialog.value.project?.client_id
+  const options = (invoices.value || [])
+    .filter(i => i.client_id === clientId)
+    .sort((a, b) => String(b.number).localeCompare(String(a.number)))
+    .map(i => ({ value: String(i.id), label: `${i.number} – ${i.title}` }))
+  return [{ value: '', label: 'Leave unbilled' }, ...options]
+})
 
 function unbilledLabel(project) {
   const entries = project.unbilled_count === 1 ? 'entry' : 'entries'
@@ -135,23 +158,28 @@ const archiveMessage = computed(() => {
   const project = archiveDialog.value.project
   if (!project) return ''
   return `This project has ${unbilledLabel(project)}. `
-    + 'Archiving removes them from the Open total.'
+    + 'Mark them as billed by an existing invoice, or leave them unbilled — '
+    + 'archiving removes them from the Open total either way.'
 })
 
 async function confirmArchive() {
   archiveDialog.value.loading = true
-  await runArchive(archiveDialog.value.project)
-  archiveDialog.value = { show: false, project: null, loading: false }
+  await runArchive(archiveDialog.value.project, archiveDialog.value.invoiceId || null)
+  archiveDialog.value = { show: false, project: null, loading: false, invoiceId: '' }
 }
 
-async function runArchive(project) {
+async function runArchive(project, invoiceId = null) {
   try {
-    const saved = await post(`/api/project/archive/${project.id}`)
+    const saved = await post(`/api/project/archive/${project.id}`, invoiceId ? { invoice_id: invoiceId } : {})
     const index = projects.value.findIndex(p => p.id === project.id)
     if (index !== -1) {
       projects.value[index] = { ...projects.value[index], ...saved }
     }
-    success(saved.is_archive ? 'Project archived' : 'Project restored')
+    if (invoiceId) {
+      success('Project archived, time entries marked as billed')
+    } else {
+      success(saved.is_archive ? 'Project archived' : 'Project restored')
+    }
   } catch (e) {
     error('Failed to change the project state')
   }
@@ -321,11 +349,20 @@ onMounted(fetchProjects)
       :show="archiveDialog.show"
       :title="`Archive ${archiveDialog.project?.name ?? ''}?`"
       :message="archiveMessage"
-      confirm-label="Archive"
+      :confirm-label="archiveDialog.invoiceId ? 'Mark billed & archive' : 'Archive'"
       :loading="archiveDialog.loading"
       @confirm="confirmArchive"
       @cancel="archiveDialog.show = false"
-    />
+    >
+      <div class="mt-6">
+        <BaseSelect
+          v-model="archiveDialog.invoiceId"
+          label="Billed by invoice"
+          :options="invoiceOptions"
+          :disabled="!invoices"
+        />
+      </div>
+    </ConfirmDialog>
 
     <Flyout
       :show="flyout.show"
