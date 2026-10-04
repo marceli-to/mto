@@ -24,6 +24,7 @@ class Get
             $budget = (float) $project->budget;
 
             $project->setAttribute('hours_spent', $t['hours']);
+            $project->setAttribute('value_spent', $t['value']);
             $project->setAttribute('revenue', $t['revenue']);
             $project->setAttribute('unbilled_count', $u['count']);
             $project->setAttribute('unbilled_value', $u['value']);

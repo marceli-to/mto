@@ -373,8 +373,7 @@ onMounted(fetchProjects)
               >
                 {{ project.hours_spent }} h &bull;
                 <template v-if="project.is_collection">{{ formatCurrency(project.revenue) }}</template>
-                <template v-else-if="project.budget_used !== null">{{ project.budget_used }}%</template>
-                <template v-else>&mdash;</template>
+                <template v-else><template v-if="project.budget_used !== null">{{ project.budget_used }}% &bull; </template>{{ formatCurrency(project.value_spent) }}</template>
               </span>
               <div class="flex items-center gap-1">
                 <button
