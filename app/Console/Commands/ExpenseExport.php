@@ -110,8 +110,8 @@ class ExpenseExport extends Command
         $boldAmount = new Style(fontBold: true, format: '#,##0.00');
 
         $options = new Options();
-        $options->setColumnWidth(10, 1);
-        $options->setColumnWidth(12, 2);
+        $options->setColumnWidth(12, 1);
+        $options->setColumnWidth(10, 2);
         $options->setColumnWidth(40, 3);
         $options->setColumnWidth(50, 4);
         $options->setColumnWidth(10, 5);
@@ -123,7 +123,7 @@ class ExpenseExport extends Command
         $writer->getCurrentSheet()->setName("Ausgaben {$year}");
 
         $writer->addRow(Row::fromValuesWithStyle(
-            ['Nummer', 'Datum', 'Titel', 'Beschreibung', 'Währung', 'Betrag', 'Beleg'],
+            ['Datum', 'Nummer', 'Titel', 'Beschreibung', 'Währung', 'Betrag', 'Beleg'],
             $bold
         ));
 
@@ -131,8 +131,8 @@ class ExpenseExport extends Command
             $receipt = $this->receiptPath($expense);
 
             $writer->addRow(new Row([
-                Cell::fromValue($expense->number),
                 Cell::fromValue(new \DateTimeImmutable($expense->date), $date),
+                Cell::fromValue($expense->number),
                 Cell::fromValue($expense->title),
                 Cell::fromValue($expense->description ?? ''),
                 Cell::fromValue($expense->currency ?? 'CHF'),

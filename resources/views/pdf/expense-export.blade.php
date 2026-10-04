@@ -135,8 +135,8 @@
   <table class="small">
     <thead>
       <tr>
-        <th>Nr.</th>
         <th>Datum</th>
+        <th>Nr.</th>
         <th>Titel</th>
         <th>Beschreibung</th>
         <th class="text-right">Betrag</th>
@@ -145,8 +145,8 @@
     <tbody>
       @foreach ($expenses as $expense)
         <tr>
-          <td class="nowrap">{{ $expense->number }}</td>
           <td class="nowrap">{{ $expense->dateFormated }}</td>
+          <td class="nowrap">{{ $expense->number }}</td>
           <td>{{ $expense->title }}</td>
           <td>{{ $expense->description }}</td>
           <td class="text-right nowrap">{{ $expense->currency }} {{ $money($expense->amount) }}</td>
