@@ -24,7 +24,10 @@ ws.code-workspace
 # Ignore node_modules
 node_modules/
 
-# Ignore .env
+# Ignore .env and any variant of it (.env.backup, .env.production, ...),
+# so a stray copy can never be committed with credentials in it.
 .env
+.env.*
+!.env.example
 
 storage
