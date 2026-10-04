@@ -27,7 +27,7 @@
 
           <!-- Card -->
           <tr>
-            <td style="background-color:#ffffff; border-radius:12px; padding:40px;">
+            <td style="background-color:#ffffff; border-radius:12px; padding:20px;">
 
               @foreach($paragraphs as $paragraph)
                 <p style="margin:0 0 16px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:24px; color:{{ $text }};">{!! nl2br(e($paragraph)) !!}</p>
