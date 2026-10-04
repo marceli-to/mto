@@ -399,7 +399,7 @@ onMounted(fetchInvoices)
     <Flyout
       :show="sendFlyout.show"
       title="Send Invoice"
-      size="xl"
+      size="lg"
       @close="closeSend"
     >
       <InvoiceSendForm

@@ -99,14 +99,14 @@ onMounted(fetchDefaults)
 
   <form v-else @submit.prevent="submit" class="space-y-6">
     <!-- What is being sent -->
-    <div class="flex items-center justify-between gap-4 pb-6 border-b border-gray-100">
-      <div class="flex items-center gap-x-6 text-sm">
+    <div class="flex flex-col gap-2 pb-6 border-b border-gray-100">
+      <div class="flex items-center gap-x-4 text-sm">
         <span class="font-bold">{{ invoice.client?.acronym }}</span>
         <span>{{ invoice.number }}</span>
         <span class="text-gray-500">{{ invoice.title }}</span>
       </div>
-      <div class="flex items-center gap-2 text-sm text-gray-400 shrink-0">
-        <PhPaperclip class="w-4 h-4" />
+      <div class="flex items-center gap-2 text-sm text-gray-400 min-w-0">
+        <PhPaperclip class="w-4 h-4 shrink-0" />
         {{ attachment }}
       </div>
     </div>
@@ -162,7 +162,7 @@ onMounted(fetchDefaults)
     <BaseTextarea
       v-model="form.body"
       label="Message"
-      :rows="14"
+      :rows="9"
       :error="errors.body"
       required
     />

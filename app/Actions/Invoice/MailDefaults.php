@@ -51,12 +51,14 @@ class MailDefaults
             ? "die {$invoice->reminder_level}. Mahnung zur Rechnung {$invoice->number}"
             : "die Rechnung {$invoice->number}";
 
-        // The sign-off and contact details are fixed in the mail template, so
-        // they are deliberately not part of the editable body.
+        // The contact block below the sign-off is fixed in the mail template,
+        // so it is deliberately not part of the editable body.
         return implode("\n\n", [
             'Guten Tag',
             "Im Anhang erhalten Sie {$subject}.",
             'Vielen Dank.',
+            'Lieber Gruss',
+            'Marcel',
         ]);
     }
 

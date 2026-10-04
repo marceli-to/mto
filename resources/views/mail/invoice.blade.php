@@ -33,16 +33,10 @@
                 <p style="margin:0 0 16px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:24px; color:{{ $text }};">{!! nl2br(e($paragraph)) !!}</p>
               @endforeach
 
-              <!-- Sign-off, fixed: not part of the editable message -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0 0;">
+              <!-- Contact block, fixed: not part of the editable message -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:24px; color:{{ $text }};">
-                    Lieber Gruss<br><br>
-                    Marcel
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:20px 0 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:21px; color:{{ $text }};">
+                  <td style="padding:8px 0 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:21px; color:{{ $text }};">
                     +++<br>
                     marceli.to<br>
                     {{ config('invoice.beneficiary_name') }}<br>
