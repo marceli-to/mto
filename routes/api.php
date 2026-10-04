@@ -94,6 +94,8 @@ Route::middleware('auth:sanctum')->group(function() {
   Route::post('invoice/update/{invoice}', [InvoiceController::class, 'update']);
   Route::post('invoice/update/state/{invoice}', [InvoiceStateController::class, 'update']);
   Route::post('invoices/update/state', [InvoiceStateController::class, 'bulkUpdate']);
+  Route::get('invoice/mail/{invoice}', [InvoiceController::class, 'mail']);
+  Route::post('invoice/send/{invoice}', [InvoiceController::class, 'send']);
   Route::get('invoice/duplicate/{invoice}', [InvoiceController::class, 'duplicate']);
   Route::delete('invoice/destroy/{invoice}', [InvoiceController::class, 'destroy']);
   Route::delete('invoice/position/destroy/{invoicePosition}', [InvoicePositionController::class, 'destroy']);

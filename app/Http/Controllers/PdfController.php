@@ -7,56 +7,41 @@ use App\Models\Expense;
 use App\Models\Quote;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\LaravelPdf\PdfBuilder;
+use App\Actions\Pdf\Build as BuildPdf;
+use App\Actions\Invoice\Pdf as InvoicePdf;
+use App\Actions\Invoice\QrBill as QrBillAction;
 
 class PdfController extends Controller
 {
  	protected string $filenamePrefix = 'mto-';
 
+ 	/**
+ 	 * The QR bill on its own, as HTML. Useful for checking placement and
+ 	 * contents without rendering a whole invoice.
+ 	 */
+ 	public function qr(Invoice $invoice)
+ 	{
+ 		$part = (new QrBillAction)->execute($invoice);
+
+ 		abort_if($part === null, 404, 'This invoice has nothing to pay.');
+
+ 		return response($part);
+ 	}
+
  	public function invoice(Invoice $invoice)
  	{
- 		$invoice->load(['positions', 'client']);
-
- 		// Generate cached filename with updated_at timestamp
- 		$timestamp = $invoice->updated_at->format('d-m-Y-H-i-s');
- 		$cachedFilename = "invoices/{$this->filenamePrefix}{$invoice->number}-{$invoice->client->acronym}-{$timestamp}.pdf";
- 		$storagePath = "public/media/{$cachedFilename}";
-
- 		// Check if cached PDF exists
- 		if (Storage::exists($storagePath)) {
- 			return response()->file(
- 				Storage::path($storagePath),
- 				[
- 					'Content-Type' => 'application/pdf',
- 					'Cache-Control' => 'no-cache, no-store, must-revalidate',
- 					'Pragma' => 'no-cache',
- 					'Expires' => '0',
- 				]
- 			)->setContentDisposition('inline', $this->getInvoiceFilename($invoice));
- 		}
-
- 		// Ensure directory exists with proper permissions
-		$dir = Storage::path('public/media/invoices');
-		if (!is_dir($dir)) {
-			mkdir($dir, 0755, true);
-		}
-
- 		// Generate and save PDF
- 		$this->buildPdf('pdf.invoice', ['invoice' => $invoice])
- 			->headerView('pdf.partials.header')
- 			->footerView('pdf.partials.footer')
- 			->save(Storage::path($storagePath));
+ 		$pdf = new InvoicePdf;
 
  		return response()->file(
- 			Storage::path($storagePath),
+ 			$pdf->execute($invoice),
  			[
  				'Content-Type' => 'application/pdf',
  				'Cache-Control' => 'no-cache, no-store, must-revalidate',
  				'Pragma' => 'no-cache',
  				'Expires' => '0',
  			]
- 		)->setContentDisposition('inline', $this->getInvoiceFilename($invoice));
+ 		)->setContentDisposition('inline', $pdf->filename($invoice));
  	}
 
  	public function quote(Quote $quote)
@@ -149,32 +134,7 @@ class PdfController extends Controller
 
  	protected function buildPdf(string $view, array $data = [], array $margins = [30, 20, 30, 20]): PdfBuilder
  	{
- 		$pdf = Pdf::view($view, $data)
- 			->format('a4')
- 			->margins(...$margins);
-
- 		if (app()->environment('production')) {
- 			$pdf->onLambda();
- 		} else {
- 			$pdf->withBrowsershot(function (\Spatie\Browsershot\Browsershot $browsershot) {
- 				$browsershot
- 					->setNodeBinary('/Users/marceli.to/.nvm/versions/node/v22.19.0/bin/node')
- 					->setNpmBinary('/Users/marceli.to/.nvm/versions/node/v22.19.0/bin/npm');
- 			});
- 		}
-
- 		return $pdf;
- 	}
-
- 	protected function getInvoiceFilename(Invoice $invoice): string
- 	{
- 		return sprintf(
- 			'%s%s-%s-%s.pdf',
- 			$this->filenamePrefix,
- 			$invoice->number,
- 			$invoice->client->acronym,
- 			Str::slug(str_replace('www.', '', $invoice->title))
- 		);
+ 		return (new BuildPdf)->execute($view, $data, $margins);
  	}
 
  	protected function getQuoteFilename(Quote $quote): string

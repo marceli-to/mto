@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhCopy, PhFilePdf, PhCaretDown, PhCaretUp } from '@phosphor-icons/vue'
+import { PhPlus, PhPencil, PhTrash, PhCopy, PhFilePdf, PhPaperPlaneTilt, PhCaretDown, PhCaretUp } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
@@ -10,6 +10,7 @@ import Flyout from '@/components/ui/Flyout.vue'
 import InvoiceForm from './InvoiceForm.vue'
 import InvoiceStateForm from './InvoiceStateForm.vue'
 import InvoiceStateBar from './InvoiceStateBar.vue'
+import InvoiceSendForm from './InvoiceSendForm.vue'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 
 const { get, del } = useApi()
@@ -25,6 +26,7 @@ const showSubtotals = ref(false)
 const deleteDialog = ref({ show: false, id: null, loading: false })
 const stateDialog = ref({ show: false, invoice: null })
 const flyout = ref({ show: false, invoiceId: null })
+const sendFlyout = ref({ show: false, invoice: null })
 
 const flyoutTitle = computed(() => flyout.value.invoiceId ? 'Edit Invoice' : 'New Invoice')
 
@@ -162,6 +164,19 @@ function downloadPdf(id) {
   window.open(`/invoice/pdf/${id}`, '_blank')
 }
 
+function openSend(invoice) {
+  sendFlyout.value = { show: true, invoice }
+}
+
+function closeSend() {
+  sendFlyout.value = { show: false, invoice: null }
+}
+
+function onInvoiceSent() {
+  closeSend()
+  fetchInvoices()
+}
+
 onMounted(fetchInvoices)
 </script>
 
@@ -263,6 +278,13 @@ onMounted(fetchInvoices)
               </div>
             </div>
             <div class="flex items-center gap-1">
+              <button
+                @click="openSend(invoice)"
+                class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+                title="Send Invoice"
+              >
+                <PhPaperPlaneTilt class="w-5 h-5" />
+              </button>
               <button
                 @click="downloadPdf(invoice.id)"
                 class="p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
@@ -373,6 +395,20 @@ onMounted(fetchInvoices)
       @close="stateDialog.show = false"
       @updated="onStateUpdated"
     />
+
+    <Flyout
+      :show="sendFlyout.show"
+      title="Send Invoice"
+      size="xl"
+      @close="closeSend"
+    >
+      <InvoiceSendForm
+        v-if="sendFlyout.invoice"
+        :invoice="sendFlyout.invoice"
+        @sent="onInvoiceSent"
+        @cancel="closeSend"
+      />
+    </Flyout>
 
     <Flyout
       :show="flyout.show"

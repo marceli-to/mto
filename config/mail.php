@@ -62,6 +62,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Blind Copy Address
+    |--------------------------------------------------------------------------
+    |
+    | Every invoice mail sent from the app is blind copied here, so there is
+    | always a record of what went out. Leave empty to send no copy.
+    |
+    */
+
+    'bcc' => [
+        'address' => env('MAIL_BCC_ADDRESS'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | E-Mail Encryption Protocol
     |--------------------------------------------------------------------------
     |
