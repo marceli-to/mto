@@ -61,16 +61,6 @@
             </td>
           </tr>
 
-          <!-- Footer -->
-          <tr>
-            <td style="padding:28px 8px 0 8px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; line-height:20px; color:#999999;">
-              {{ config('invoice.beneficiary_name') }} &middot; {{ config('invoice.beneficiary_street') }} {{ config('invoice.beneficiary_building') }} &middot; {{ config('invoice.beneficiary_zip') }} {{ config('invoice.beneficiary_city') }}
-              @if(config('invoice.vat_number'))
-                &middot; {{ config('invoice.vat_number') }}
-              @endif
-            </td>
-          </tr>
-
         </table>
 
       </td>
