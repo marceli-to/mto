@@ -25,7 +25,8 @@ class MailDefaults
                 'email' => $contact->email,
                 'name' => $this->fullName($contact),
             ]),
-            'to' => $recipient?->email ?? '',
+            // A billing address set on the client beats picking a contact.
+            'to' => $invoice->client->billing_email ?: ($recipient?->email ?? ''),
             'cc' => '',
             'subject' => $this->subject($invoice),
             'body' => $this->body($invoice),

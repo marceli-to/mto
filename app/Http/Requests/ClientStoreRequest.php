@@ -25,6 +25,7 @@ class ClientStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string',
+            'billing_email' => 'nullable|email',
         ];
     }
 

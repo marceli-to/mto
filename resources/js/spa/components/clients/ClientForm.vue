@@ -31,7 +31,8 @@ const client = ref({
   byline: '',
   street: '',
   zip: '',
-  city: ''
+  city: '',
+  billing_email: ''
 })
 
 async function fetchClient() {
@@ -56,7 +57,8 @@ function resetForm() {
     byline: '',
     street: '',
     zip: '',
-    city: ''
+    city: '',
+    billing_email: ''
   }
   errors.value = {}
   originalAcronym.value = null
@@ -117,6 +119,12 @@ async function submit() {
     }
     emit('saved', savedClient)
   } catch (e) {
+    const fieldErrors = e?.response?.data?.errors
+    if (fieldErrors) {
+      errors.value = Object.fromEntries(
+        Object.entries(fieldErrors).map(([key, messages]) => [key, messages[0]])
+      )
+    }
     error('Failed to save client')
   } finally {
     saving.value = false
@@ -167,6 +175,15 @@ onMounted(fetchClient)
         <BaseInput
           v-model="client.city"
           label="City"
+        />
+
+        <BaseInput
+          v-model="client.billing_email"
+          label="Billing Email"
+          type="email"
+          placeholder="Default recipient for invoices"
+          :error="errors.billing_email"
+          @focus="errors.billing_email = null"
         />
       </div>
 

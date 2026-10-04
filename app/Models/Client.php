@@ -14,6 +14,7 @@ class Client extends Model
         'street',
         'zip',
         'city',
+        'billing_email',
     ];
 
     /**
