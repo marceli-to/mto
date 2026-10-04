@@ -95,6 +95,67 @@ const filteredProjects = computed(() => {
   return result
 })
 
+// What the projects in view have on the books but not on an invoice yet. Collection
+// work is money owed — it is what feeds the Open figure on the invoice list — while
+// fixed-price projects are billed by hand, so the two are totalled apart rather than
+// folded into one misleading number.
+const unbilledTotals = computed(() => {
+  const totals = {
+    collections: { count: 0, value: 0 },
+    projects: { count: 0, value: 0 },
+    all: { count: 0, value: 0 },
+  }
+
+  for (const project of filteredProjects.value) {
+    if (!project.unbilled_count) continue
+    const bucket = project.is_collection ? totals.collections : totals.projects
+    bucket.count += project.unbilled_count
+    bucket.value += Number(project.unbilled_value) || 0
+    totals.all.count += project.unbilled_count
+    totals.all.value += Number(project.unbilled_value) || 0
+  }
+
+  return totals
+})
+
+// One pill, up to three sections — a kind that has nothing unbilled is left out, and
+// the neutral grand total only earns its place when both kinds are present.
+const unbilledSections = computed(() => {
+  const { collections, projects, all } = unbilledTotals.value
+  const sections = []
+
+  if (collections.count > 0) {
+    sections.push({
+      key: 'collections',
+      value: collections.value,
+      title: `Collections: ${entryCount(collections.count)} unbilled, counts towards Open`,
+      class: 'bg-amber-50 text-amber-800 inset-ring-amber-600/20',
+    })
+  }
+  if (projects.count > 0) {
+    sections.push({
+      key: 'projects',
+      value: projects.value,
+      title: `Fixed-price projects: ${entryCount(projects.count)} unbilled, billed by hand`,
+      class: 'bg-blue-50 text-blue-700 inset-ring-blue-600/20',
+    })
+  }
+  if (sections.length > 1) {
+    sections.push({
+      key: 'all',
+      value: all.value,
+      title: `Total unbilled: ${entryCount(all.count)}`,
+      class: 'bg-gray-50 text-gray-600 inset-ring-gray-500/20',
+    })
+  }
+
+  return sections
+})
+
+function entryCount(count) {
+  return `${count} ${count === 1 ? 'entry' : 'entries'}`
+}
+
 async function fetchProjects() {
   loading.value = true
   try {
@@ -236,19 +297,41 @@ onMounted(fetchProjects)
     </div>
 
     <template v-else>
-      <!-- State Filters -->
-      <div class="flex items-center gap-2 mb-6">
-        <button
-          v-for="state in stateFilters"
-          :key="state"
-          @click="toggleFilter(state)"
-          :class="[
-            activeFilters.includes(state) ? stateColors[state] : 'bg-gray-100 text-gray-400',
-            'px-2 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors'
-          ]"
-        >
-          {{ state }}
-        </button>
+      <!-- State Filters + unbilled roll-up for whatever they leave in view -->
+      <div class="flex items-center justify-between gap-4 mb-6">
+        <div class="flex items-center gap-2">
+          <button
+            v-for="state in stateFilters"
+            :key="state"
+            @click="toggleFilter(state)"
+            :class="[
+              activeFilters.includes(state) ? stateColors[state] : 'bg-gray-100 text-gray-400',
+              'px-2 py-1 rounded-md text-xs font-medium capitalize cursor-pointer transition-colors'
+            ]"
+          >
+            {{ state }}
+          </button>
+        </div>
+
+        <div v-if="unbilledSections.length" class="flex items-center gap-2">
+          <span class="text-xs text-gray-400">
+            {{ entryCount(unbilledTotals.all.count) }} unbilled
+          </span>
+          <!-- Sections overlap by a pixel so neighbouring rings collapse into one divider line. -->
+          <div class="inline-flex shrink-0 items-stretch text-xs font-medium tabular-nums">
+            <span
+              v-for="(section, index) in unbilledSections"
+              :key="section.key"
+              :title="section.title"
+              :class="[
+                section.class,
+                index === 0 ? 'rounded-l-md' : '-ml-px',
+                index === unbilledSections.length - 1 ? 'rounded-r-md' : '',
+              ]"
+              class="px-2 py-1 inset-ring-1"
+            >{{ formatCurrency(section.value) }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Empty State -->
