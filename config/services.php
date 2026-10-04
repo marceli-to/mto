@@ -24,6 +24,13 @@ return [
         'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
     ],
 
+    'resend' => [
+        // Only used by the "resend" mailer (the API transport), which also
+        // needs composer require resend/resend-laravel. Sending over Resend's
+        // SMTP endpoint does not use this.
+        'key' => env('RESEND_KEY'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],
