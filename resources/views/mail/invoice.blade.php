@@ -27,8 +27,7 @@
           <!-- Wordmark -->
           <tr>
             <td style="padding:0 8px 24px 8px;">
-              <span style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:22px; font-weight:600; letter-spacing:-0.5px; color:#111111;">marceli.to</span>
-              <div style="width:28px; height:3px; background-color:{{ $accent }}; margin-top:6px;"></div>
+              <img src="{{ $message->embed(public_path('logo.png')) }}" alt="marceli.to" width="174" style="display:block; width:174px; max-width:174px; height:auto; border:0; outline:none; text-decoration:none;">
             </td>
           </tr>
 
@@ -44,8 +43,36 @@
                 <p style="margin:0 0 16px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:24px; color:#333333;">{!! nl2br(e($paragraph)) !!}</p>
               @endforeach
 
-              <!-- Summary -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0; background-color:#f9f9f8; border-radius:8px;">
+              <!-- Sign-off, fixed: not part of the editable message -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0 0;">
+                <tr>
+                  <td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:24px; color:#333333;">
+                    Lieber Gruss<br><br>
+                    Marcel
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:20px 0 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:21px; color:#888888;">
+                    <span style="color:{{ $accent }};">+++</span><br>
+                    marceli.to<br>
+                    {{ config('invoice.beneficiary_name') }}<br>
+                    <a href="mailto:{{ config('mail.from.address') }}" style="color:#888888; text-decoration:none;">{{ config('mail.from.address') }}</a><br>
+                    {{ config('invoice.phone') }}
+                  </td>
+                </tr>
+                {{-- Temporary notice — delete this row when it no longer applies. --}}
+                <tr>
+                  <td style="padding:16px 0 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:21px; color:#888888;">
+                    Ich bin neu Montag bis Donnerstag im B&uuml;ro erreichbar.
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Invoice details, kept clear of the letter itself -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0; border-top:1px solid #ececea;">
+                <tr><td style="padding:24px 0 0 0;">
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f9f9f8; border-radius:8px;">
                 <tr>
                   <td style="padding:20px 24px;">
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -70,7 +97,6 @@
                 </tr>
               </table>
 
-              <!-- Attachment hint -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0 0 0;">
                 <tr>
                   <td style="padding:12px 16px; border-left:3px solid {{ $accent }}; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#666666;">
@@ -80,14 +106,16 @@
                 </tr>
               </table>
 
+                </td></tr>
+              </table>
+
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
             <td style="padding:28px 8px 0 8px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:12px; line-height:20px; color:#999999;">
-              {{ config('invoice.beneficiary_name') }} &middot; {{ config('invoice.beneficiary_street') }} {{ config('invoice.beneficiary_building') }} &middot; {{ config('invoice.beneficiary_zip') }} {{ config('invoice.beneficiary_city') }}<br>
-              <a href="mailto:{{ config('mail.from.address') }}" style="color:#999999; text-decoration:underline;">{{ config('mail.from.address') }}</a>
+              {{ config('invoice.beneficiary_name') }} &middot; {{ config('invoice.beneficiary_street') }} {{ config('invoice.beneficiary_building') }} &middot; {{ config('invoice.beneficiary_zip') }} {{ config('invoice.beneficiary_city') }}
               @if(config('invoice.vat_number'))
                 &middot; {{ config('invoice.vat_number') }}
               @endif
