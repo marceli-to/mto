@@ -33,9 +33,10 @@ const emit = defineEmits(['confirm', 'cancel'])
 <template>
   <Teleport to="body">
     <Transition name="modal">
+      <!-- Above flyouts (z-50): it is often opened from inside one. -->
       <div
         v-if="show"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4"
       >
         <div
           class="absolute inset-0 bg-black/10"

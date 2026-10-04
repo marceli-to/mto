@@ -6,6 +6,7 @@ import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseTextarea from '@/components/ui/BaseTextarea.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 const props = defineProps({
   invoice: Object
@@ -24,6 +25,7 @@ const attachment = ref('')
 const copyTo = ref('')
 const marksPending = ref(false)
 const errors = ref({})
+const confirming = ref(false)
 
 const form = ref({
   to: '',
@@ -69,12 +71,23 @@ async function fetchDefaults() {
   }
 }
 
-async function submit() {
+// The mail goes straight to the client, so sending always takes a second,
+// explicit step that shows exactly who will receive it.
+function requestSend() {
   errors.value = {}
+  if (!recipientList(form.value.to).length) {
+    errors.value.to = 'A recipient is required!'
+    return
+  }
+  confirming.value = true
+}
+
+async function send() {
   sending.value = true
   try {
     await post(`/api/invoice/send/${props.invoice.id}`, form.value)
     success(`Invoice sent to ${recipientList(form.value.to).join(', ')}`)
+    confirming.value = false
     emit('sent')
   } catch (e) {
     const response = e?.response?.data
@@ -83,10 +96,16 @@ async function submit() {
         Object.entries(response.errors).map(([key, messages]) => [key, messages[0]])
       )
     }
+    // Back to the form, so whatever failed can be corrected.
+    confirming.value = false
     error(response?.message || 'Failed to send the invoice')
   } finally {
     sending.value = false
   }
+}
+
+function cancelSend() {
+  if (!sending.value) confirming.value = false
 }
 
 onMounted(fetchDefaults)
@@ -97,7 +116,7 @@ onMounted(fetchDefaults)
     <div class="animate-pulse">Loading...</div>
   </div>
 
-  <form v-else @submit.prevent="submit" class="space-y-6">
+  <form v-else @submit.prevent="requestSend" class="space-y-6">
     <!-- What is being sent -->
     <div class="flex flex-col gap-2 pb-6 border-b border-gray-100">
       <div class="flex items-center gap-x-4 text-sm">
@@ -184,10 +203,35 @@ onMounted(fetchDefaults)
         Cancel
       </button>
 
-      <BaseButton type="submit" :loading="sending">
+      <BaseButton type="submit">
         <PhPaperPlaneTilt class="w-4 h-4" />
         Send Invoice
       </BaseButton>
     </div>
+
+    <ConfirmDialog
+      :show="confirming"
+      title="Send invoice?"
+      :message="`Invoice ${invoice.number} will be emailed to:`"
+      confirm-label="Send"
+      confirm-variant="primary"
+      :loading="sending"
+      @confirm="send"
+      @cancel="cancelSend"
+    >
+      <dl class="mt-4 space-y-2 text-sm">
+        <div class="flex gap-3">
+          <dt class="w-10 shrink-0 text-gray-400">To</dt>
+          <dd class="text-gray-900 break-all">{{ recipientList(form.to).join(', ') }}</dd>
+        </div>
+        <div v-if="recipientList(form.cc).length" class="flex gap-3">
+          <dt class="w-10 shrink-0 text-gray-400">CC</dt>
+          <dd class="text-gray-900 break-all">{{ recipientList(form.cc).join(', ') }}</dd>
+        </div>
+      </dl>
+      <p v-if="marksPending" class="mt-4 text-sm text-gray-500">
+        The invoice will be marked as pending.
+      </p>
+    </ConfirmDialog>
   </form>
 </template>
