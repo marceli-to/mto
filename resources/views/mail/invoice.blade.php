@@ -1,7 +1,6 @@
 @php
-  $isReminder = (bool) $invoice->is_reminder;
   $paragraphs = preg_split("/\n\s*\n/", trim($body));
-  $accent = '#e94364';
+  $text = '#333333';
 @endphp
 <!DOCTYPE html>
 <html lang="de">
@@ -12,11 +11,6 @@
   <title>{{ $mailSubject }}</title>
 </head>
 <body style="margin:0; padding:0; background-color:#f4f4f2; -webkit-font-smoothing:antialiased;">
-
-  {{-- Preheader: the one-line teaser mail clients show next to the subject. --}}
-  <div style="display:none; max-height:0; overflow:hidden; opacity:0;">
-    {{ $isReminder ? $invoice->reminder_level . '. Mahnung' : 'Rechnung' }} {{ $invoice->number }} &middot; CHF {{ number_format($invoice->grandtotal, 2, '.', "'") }} &middot; PDF im Anhang
-  </div>
 
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f4f4f2;">
     <tr>
@@ -35,78 +29,33 @@
           <tr>
             <td style="background-color:#ffffff; border-radius:12px; padding:40px;">
 
-              <h1 style="margin:0 0 28px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:19px; font-weight:600; line-height:26px; color:#111111;">
-                @if($isReminder){{ $invoice->reminder_level }}. Mahnung @else Rechnung @endif {{ $invoice->number }}
-              </h1>
-
               @foreach($paragraphs as $paragraph)
-                <p style="margin:0 0 16px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:24px; color:#333333;">{!! nl2br(e($paragraph)) !!}</p>
+                <p style="margin:0 0 16px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:24px; color:{{ $text }};">{!! nl2br(e($paragraph)) !!}</p>
               @endforeach
 
               <!-- Sign-off, fixed: not part of the editable message -->
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:28px 0 0 0;">
                 <tr>
-                  <td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:24px; color:#333333;">
+                  <td style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:15px; line-height:24px; color:{{ $text }};">
                     Lieber Gruss<br><br>
                     Marcel
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:20px 0 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:21px; color:#888888;">
-                    <span style="color:{{ $accent }};">+++</span><br>
+                  <td style="padding:20px 0 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:21px; color:{{ $text }};">
+                    +++<br>
                     marceli.to<br>
                     {{ config('invoice.beneficiary_name') }}<br>
-                    <a href="mailto:{{ config('mail.from.address') }}" style="color:#888888; text-decoration:none;">{{ config('mail.from.address') }}</a><br>
+                    <a href="mailto:{{ config('mail.from.address') }}" style="color:{{ $text }}; text-decoration:none;">{{ config('mail.from.address') }}</a><br>
                     {{ config('invoice.phone') }}
                   </td>
                 </tr>
                 {{-- Temporary notice — delete this row when it no longer applies. --}}
                 <tr>
-                  <td style="padding:16px 0 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:21px; color:#888888;">
+                  <td style="padding:16px 0 0 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:21px; color:{{ $text }};">
                     Ich bin neu Montag bis Donnerstag im B&uuml;ro erreichbar.
                   </td>
                 </tr>
-              </table>
-
-              <!-- Invoice details, kept clear of the letter itself -->
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0 0; border-top:1px solid #ececea;">
-                <tr><td style="padding:24px 0 0 0;">
-
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f9f9f8; border-radius:8px;">
-                <tr>
-                  <td style="padding:20px 24px;">
-                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-                      <tr>
-                        <td style="padding:4px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#888888;">Nummer</td>
-                        <td align="right" style="padding:4px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#333333;">{{ $invoice->number }}</td>
-                      </tr>
-                      <tr>
-                        <td style="padding:4px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#888888;">Datum</td>
-                        <td align="right" style="padding:4px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#333333;">{{ \Carbon\Carbon::parse($invoice->date)->format('d.m.Y') }}</td>
-                      </tr>
-                      <tr>
-                        <td style="padding:4px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#888888;">Zahlbar bis</td>
-                        <td align="right" style="padding:4px 0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#333333;">{{ \Carbon\Carbon::parse($invoice->date_due)->format('d.m.Y') }}</td>
-                      </tr>
-                      <tr>
-                        <td style="padding:14px 0 0 0; border-top:1px solid #ececea; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:14px; line-height:20px; font-weight:600; color:#111111;">Total</td>
-                        <td align="right" style="padding:14px 0 0 0; border-top:1px solid #ececea; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:14px; line-height:20px; font-weight:600; color:#111111;">{{ config('invoice.currency') }} {{ number_format($invoice->grandtotal, 2, '.', "'") }}</td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-              </table>
-
-              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:20px 0 0 0;">
-                <tr>
-                  <td style="padding:12px 16px; border-left:3px solid {{ $accent }}; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px; line-height:20px; color:#666666;">
-                    Im Anhang: <span style="color:#333333;">{{ $pdfName }}</span><br>
-                    Die Zahlungsangaben finden Sie auf der Rechnung.
-                  </td>
-                </tr>
-              </table>
-
-                </td></tr>
               </table>
 
             </td>
