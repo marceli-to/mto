@@ -19,6 +19,8 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.PORT || 22 }}
           script: |
+            # Non-interactive SSH skips ~/.profile, where the shell picks PHP 8.4
+            export PATH="/usr/local/php84/bin:$PATH"
             cd /home/pumutuxu/www/crm.marceli.to
             git pull origin master
             composer install --no-dev --optimize-autoloader
