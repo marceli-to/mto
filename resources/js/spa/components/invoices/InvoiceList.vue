@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhCopy, PhFilePdf, PhPaperPlaneTilt, PhCaretDown, PhCaretUp } from '@phosphor-icons/vue'
+import { PhPlus, PhPencil, PhTrash, PhCopy, PhFilePdf, PhPaperPlaneTilt, PhCaretDown, PhCaretUp, PhBank } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
@@ -11,6 +11,7 @@ import InvoiceForm from './InvoiceForm.vue'
 import InvoiceStateForm from './InvoiceStateForm.vue'
 import InvoiceStateBar from './InvoiceStateBar.vue'
 import InvoiceSendForm from './InvoiceSendForm.vue'
+import InvoicePaymentImport from './InvoicePaymentImport.vue'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 
 const { get, del } = useApi()
@@ -27,6 +28,7 @@ const deleteDialog = ref({ show: false, id: null, loading: false })
 const stateDialog = ref({ show: false, invoice: null })
 const flyout = ref({ show: false, invoiceId: null })
 const sendFlyout = ref({ show: false, invoice: null })
+const paymentFlyout = ref(false)
 
 const flyoutTitle = computed(() => flyout.value.invoiceId ? 'Edit Invoice' : 'New Invoice')
 
@@ -177,6 +179,11 @@ function onInvoiceSent() {
   fetchInvoices()
 }
 
+function onPaymentsApplied() {
+  paymentFlyout.value = false
+  fetchInvoices()
+}
+
 onMounted(fetchInvoices)
 </script>
 
@@ -196,6 +203,13 @@ onMounted(fetchInvoices)
         <h1 class="text-xl text-gray-900 font-bold">
           Invoices
         </h1>
+        <button
+          @click="paymentFlyout = true"
+          class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
+          title="Import payments from bank statement"
+        >
+          <PhBank class="w-4 h-4" />
+        </button>
       </div>
 
       <!-- Search -->
@@ -407,6 +421,20 @@ onMounted(fetchInvoices)
         :invoice="sendFlyout.invoice"
         @sent="onInvoiceSent"
         @cancel="closeSend"
+      />
+    </Flyout>
+
+    <Flyout
+      :show="paymentFlyout"
+      title="Import Payments"
+      size="lg"
+      @close="paymentFlyout = false"
+    >
+      <InvoicePaymentImport
+        v-if="paymentFlyout"
+        :invoices="invoices"
+        @applied="onPaymentsApplied"
+        @cancel="paymentFlyout = false"
       />
     </Flyout>
 

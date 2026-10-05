@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\InvoiceStateController;
 use App\Http\Controllers\Api\InvoicePositionController;
+use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ExpenseController;
 use App\Http\Controllers\Api\TimeEntryController;
 use App\Http\Controllers\Api\RateController;
@@ -100,6 +101,8 @@ Route::middleware('auth:sanctum')->group(function() {
   Route::delete('invoice/destroy/{invoice}', [InvoiceController::class, 'destroy']);
   Route::delete('invoice/position/destroy/{invoicePosition}', [InvoicePositionController::class, 'destroy']);
   Route::get('invoice/states', [InvoiceStateController::class, 'index']);
+  Route::post('invoices/payments/scan', [PaymentController::class, 'scan']);
+  Route::post('invoices/payments/apply', [PaymentController::class, 'apply']);
 
   /**
    * Quote routes
