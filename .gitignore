@@ -31,3 +31,5 @@ node_modules/
 !.env.example
 
 storage
+# Managed on the server (Hostpoint adds its PHP handler block)
+/public/.htaccess
