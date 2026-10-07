@@ -139,19 +139,15 @@
 
 </div>
 
+@foreach($receiptPages as $page)
 <!-- Page Break -->
 <div class="page-break"></div>
 
-<!-- Receipt Image -->
-@php
-  $receiptPath = storage_path('app/public/media/expenses/' . $expense->number . '.jpg');
-  $receiptBase64 = file_exists($receiptPath) ? base64_encode(file_get_contents($receiptPath)) : null;
-@endphp
-@if($receiptBase64)
+<!-- Receipt -->
 <div class="receipt-container">
-  <img src="data:image/jpeg;base64,{{ $receiptBase64 }}" alt="Receipt">
+  <img src="{{ $page }}" alt="Receipt">
 </div>
-@endif
+@endforeach
 
 </body>
 </html>

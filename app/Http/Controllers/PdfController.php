@@ -11,6 +11,7 @@ use Spatie\LaravelPdf\PdfBuilder;
 use App\Actions\Pdf\Build as BuildPdf;
 use App\Actions\Invoice\Pdf as InvoicePdf;
 use App\Actions\Invoice\QrBill as QrBillAction;
+use App\Actions\Expense\Receipt as ExpenseReceipt;
 
 class PdfController extends Controller
 {
@@ -116,7 +117,10 @@ class PdfController extends Controller
 		}
 
  		// Generate and save PDF
- 		$this->buildPdf('pdf.expense', ['expense' => $expense])
+ 		$this->buildPdf('pdf.expense', [
+ 			'expense' => $expense,
+ 			'receiptPages' => (new ExpenseReceipt)->execute($expense),
+ 		])
  			->headerView('pdf.partials.header')
  			->footerView('pdf.partials.footer')
  			->save(Storage::path($storagePath));

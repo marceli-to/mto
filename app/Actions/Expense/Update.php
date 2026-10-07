@@ -19,12 +19,18 @@ class Update
 
         $this->moveUploadedFile($expense, $request->input('temp_file'));
 
+        // The cached PDF is keyed on updated_at, which a receipt-only change
+        // leaves alone; touch it so the PDF is rendered with the new receipt
+        if ($request->input('delete_file') || $request->input('temp_file')) {
+            $expense->touch();
+        }
+
         return response()->json($expense);
     }
 
     protected function deleteExistingFile(Expense $expense): void
     {
-        foreach (['jpg', 'png', 'pdf'] as $ext) {
+        foreach (['jpg', 'jpeg', 'png', 'pdf'] as $ext) {
             $filePath = 'public/media/expenses/' . $expense->number . '.' . $ext;
             if (Storage::exists($filePath)) {
                 Storage::delete($filePath);
