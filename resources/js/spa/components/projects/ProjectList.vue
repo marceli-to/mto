@@ -95,6 +95,13 @@ const filteredProjects = computed(() => {
   return result
 })
 
+// Collection vs fixed-price colours, shared by the unbilled roll-up and each row's badge.
+const kindColors = {
+  collection: 'bg-amber-50 text-amber-800 inset-ring-amber-600/20',
+  fixed: 'bg-blue-50 text-blue-700 inset-ring-blue-600/20',
+  all: 'bg-gray-50 text-gray-600 inset-ring-gray-500/20',
+}
+
 // What the projects in view have on the books but not on an invoice yet. Collection
 // work is money owed — it is what feeds the Open figure on the invoice list — while
 // fixed-price projects are billed by hand, so the two are totalled apart rather than
@@ -129,7 +136,7 @@ const unbilledSections = computed(() => {
       key: 'collections',
       value: collections.value,
       title: `Collections: ${entryCount(collections.count)} unbilled, counts towards Open`,
-      class: 'bg-amber-50 text-amber-800 inset-ring-amber-600/20',
+      class: kindColors.collection,
     })
   }
   if (projects.count > 0) {
@@ -137,7 +144,7 @@ const unbilledSections = computed(() => {
       key: 'projects',
       value: projects.value,
       title: `Fixed-price projects: ${entryCount(projects.count)} unbilled, billed by hand`,
-      class: 'bg-blue-50 text-blue-700 inset-ring-blue-600/20',
+      class: kindColors.fixed,
     })
   }
   if (sections.length > 1) {
@@ -145,7 +152,7 @@ const unbilledSections = computed(() => {
       key: 'all',
       value: all.value,
       title: `Total unbilled: ${entryCount(all.count)}`,
-      class: 'bg-gray-50 text-gray-600 inset-ring-gray-500/20',
+      class: kindColors.all,
     })
   }
 
@@ -369,7 +376,8 @@ onMounted(fetchProjects)
               <!-- What the project has consumed: revenue for collection work, budget burn for fixed. -->
               <span
                 v-if="project.hours_spent > 0"
-                class="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs font-medium tabular-nums"
+                :class="kindColors[project.is_collection ? 'collection' : 'fixed']"
+                class="px-2 py-1 rounded-md inset-ring-1 text-xs font-medium tabular-nums"
               >
                 {{ project.hours_spent }} h &bull;
                 <template v-if="project.is_collection">{{ formatCurrency(project.revenue) }}</template>
