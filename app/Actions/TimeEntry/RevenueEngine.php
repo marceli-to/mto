@@ -184,6 +184,27 @@ class RevenueEngine
     }
 
     /**
+     * Unbilled revenue per calendar month of the entry date, keyed 'Y-m':
+     *   ['2026-09' => float, ...]
+     */
+    public function unbilledByMonth(): array
+    {
+        $perEntry = $this->perEntryRevenue();
+        $result = [];
+
+        foreach ($this->entries as $entry) {
+            if ($entry->isBilled() || !isset($perEntry[$entry->id])) {
+                continue;
+            }
+            $date = $entry->date instanceof Carbon ? $entry->date : Carbon::parse($entry->date);
+            $key = $date->format('Y-m');
+            $result[$key] = ($result[$key] ?? 0.0) + $perEntry[$entry->id]['revenue'];
+        }
+
+        return array_map(fn ($v) => round($v, 2), $result);
+    }
+
+    /**
      * Revenue attributable to entries dated within [from, to] (inclusive),
      * given budget already consumed by all earlier entries.
      */

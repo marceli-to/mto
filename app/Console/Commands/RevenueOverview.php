@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\TimeEntry\RevenueEngine;
 use App\Models\InvoiceState;
+use App\Models\Project;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -41,7 +43,10 @@ class RevenueOverview extends Command
     public function handle()
     {
         $revenue = $this->revenueByMonth();
+        $unbilled = $this->unbilledByMonth();
         $partial = false;
+        $grandInvoiced = 0.0;
+        $grandUnbilled = 0.0;
         $grandTotal = 0.0;
         $grandReached = 0;
         $grandElapsed = 0;
@@ -53,11 +58,14 @@ class RevenueOverview extends Command
         $this->info('Revenue overview ' . self::FIRST_YEAR . ' - ' . self::LAST_YEAR);
         $this->line('Target   ' . $this->chf(self::TARGET_YEAR) . ' / year, ' . $this->chf($targetMonth) . ' / month');
         $this->line('Revenue  invoices.' . self::REVENUE_DATE . ', CHF net of MWST, ' . $this->stateLabel());
+        $this->line('Unbilled time entries not yet invoiced, by entry date (active collection projects, budget-capped)');
 
         $summary = [];
 
         for ($year = self::FIRST_YEAR; $year <= self::LAST_YEAR; $year++) {
             $rows = [];
+            $invoiced = 0.0;
+            $open = 0.0;
             $total = 0.0;
             $reached = 0;
             $elapsed = 0;
@@ -68,11 +76,15 @@ class RevenueOverview extends Command
 
                 // A month that has not happened yet is not a missed target.
                 if (Carbon::create($year, $month, 1)->startOfMonth()->gt($today)) {
-                    $rows[] = [$label, '-', '-', '-', '-'];
+                    $rows[] = [$label, '-', '-', '-', '-', '-', '-'];
                     continue;
                 }
 
-                $net = $revenue[$key] ?? 0.0;
+                $billed = $revenue[$key] ?? 0.0;
+                $pending = $unbilled[$key] ?? 0.0;
+                $net = $billed + $pending;
+                $invoiced += $billed;
+                $open += $pending;
                 $total += $net;
 
                 // The current month is still running, so it counts towards the
@@ -80,6 +92,8 @@ class RevenueOverview extends Command
                 if ($year === $today->year && $month === $today->month) {
                     $rows[] = [
                         $label,
+                        $this->chf($billed),
+                        $this->chf($pending),
                         $this->chf($net),
                         $this->chf($targetMonth),
                         $this->signed($net - $targetMonth),
@@ -94,6 +108,8 @@ class RevenueOverview extends Command
 
                 $rows[] = [
                     $label,
+                    $this->chf($billed),
+                    $this->chf($pending),
                     $this->chf($net),
                     $this->chf($targetMonth),
                     $this->signed($net - $targetMonth),
@@ -104,6 +120,8 @@ class RevenueOverview extends Command
             $rows[] = new \Symfony\Component\Console\Helper\TableSeparator();
             $rows[] = [
                 'Total',
+                $this->chf($invoiced),
+                $this->chf($open),
                 $this->chf($total),
                 $this->chf(self::TARGET_YEAR),
                 $this->signed($total - self::TARGET_YEAR),
@@ -112,11 +130,13 @@ class RevenueOverview extends Command
 
             $this->line('');
             $this->info($year . ($elapsed < 12 ? '  (in progress, ' . $elapsed . ' of 12 months complete)' : ''));
-            $this->table(['Month', 'Net revenue', 'Target', 'Delta', 'Goal'], $rows);
+            $this->table(['Month', 'Invoiced', 'Unbilled', 'Net revenue', 'Target', 'Delta', 'Goal'], $rows);
             $this->line('Months on target: ' . $reached . ' of ' . $elapsed . ' complete');
 
             $summary[] = [
                 $year . ($elapsed < 12 ? ' *' : ''),
+                $this->chf($invoiced),
+                $this->chf($open),
                 $this->chf($total),
                 $this->chf(self::TARGET_YEAR),
                 $this->signed($total - self::TARGET_YEAR),
@@ -126,6 +146,8 @@ class RevenueOverview extends Command
             ];
 
             $partial = $partial || $elapsed < 12;
+            $grandInvoiced += $invoiced;
+            $grandUnbilled += $open;
             $grandTotal += $total;
             $grandReached += $reached;
             $grandElapsed += $elapsed;
@@ -137,6 +159,8 @@ class RevenueOverview extends Command
         $summary[] = new \Symfony\Component\Console\Helper\TableSeparator();
         $summary[] = [
             'Total',
+            $this->chf($grandInvoiced),
+            $this->chf($grandUnbilled),
             $this->chf($grandTotal),
             $this->chf($grandTarget),
             $this->signed($grandTotal - $grandTarget),
@@ -147,7 +171,7 @@ class RevenueOverview extends Command
 
         $this->line('');
         $this->info('Results ' . self::FIRST_YEAR . ' - ' . self::LAST_YEAR);
-        $this->table(['Year', 'Net revenue', 'Target', 'Delta', '%', 'Goal', 'Months on target'], $summary);
+        $this->table(['Year', 'Invoiced', 'Unbilled', 'Net revenue', 'Target', 'Delta', '%', 'Goal', 'Months on target'], $summary);
 
         if ($partial) {
             $this->line('* year not complete');
@@ -178,6 +202,21 @@ class RevenueOverview extends Command
             ->keyBy('ym')
             ->map(fn ($row) => (float) $row->net)
             ->all();
+    }
+
+    /**
+     * Work done but not invoiced yet, per calendar month of the entry date. Same
+     * scope as the open figure on the invoice list: collection projects only (fixed
+     * projects are invoiced independently of their entries) and not archived, since
+     * archived means billed and done.
+     */
+    private function unbilledByMonth(): array
+    {
+        $projectIds = Project::where('is_collection', true)
+            ->where('is_archive', false)
+            ->pluck('id')->all();
+
+        return $projectIds ? RevenueEngine::fromDatabase($projectIds)->unbilledByMonth() : [];
     }
 
     /** Human-readable state list, read from the states table so it cannot drift. */
