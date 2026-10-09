@@ -15,7 +15,7 @@ const props = defineProps({
 
 const emit = defineEmits(['moved'])
 
-const { get } = useApi()
+const { get, post } = useApi()
 const { error } = useToast()
 const { formatCurrency } = useCurrency()
 
@@ -42,6 +42,38 @@ function onMoved() {
   selected.value = []
   fetchEntries()
   emit('moved')
+}
+
+// Inline description edit: click to edit, saved on blur, Enter saves, Escape cancels.
+const editingId = ref(null)
+const draft = ref('')
+
+function startEdit(entry) {
+  if (entry.is_billed) return
+  editingId.value = entry.id
+  draft.value = entry.description || ''
+}
+
+function cancelEdit() {
+  editingId.value = null
+}
+
+async function saveEdit(entry) {
+  // Escape already closed the field; a trailing blur must not save.
+  if (editingId.value !== entry.id) return
+  editingId.value = null
+
+  const description = draft.value.trim()
+  const previous = entry.description
+  if (description === (previous || '')) return
+
+  entry.description = description || null
+  try {
+    await post(`/api/time-entry/description/${entry.id}`, { description: entry.description })
+  } catch (e) {
+    entry.description = previous
+    error(e?.response?.data?.message || 'Failed to save description')
+  }
 }
 
 async function fetchEntries() {
@@ -86,7 +118,7 @@ watch(() => props.projectId, fetchEntries, { immediate: true })
         class="flex items-center justify-between gap-4 py-4"
         :class="{ 'opacity-60': !entry.is_billable }"
       >
-        <div class="flex items-center gap-x-3 min-w-0">
+        <div class="flex items-center gap-x-3 min-w-0 flex-1">
           <BaseCheckbox
             :model-value="selected.includes(entry.id)"
             :disabled="entry.is_billed"
@@ -94,7 +126,29 @@ watch(() => props.projectId, fetchEntries, { immediate: true })
             @update:model-value="toggleSelected(entry.id, $event)"
           />
           <span class="tabular-nums text-gray-500 shrink-0">{{ entry.periode }}</span>
-          <span v-if="entry.description" class="truncate">{{ entry.description }}</span>
+          <input
+            v-if="editingId === entry.id"
+            :ref="el => el?.focus()"
+            v-model="draft"
+            type="text"
+            class="min-w-0 flex-1 -my-1 px-2 py-1 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300"
+            @blur="saveEdit(entry)"
+            @keydown.enter.prevent="$event.target.blur()"
+            @keydown.esc.prevent="cancelEdit"
+          />
+          <span
+            v-else-if="entry.is_billed"
+            class="truncate"
+            title="Billed entries cannot be edited"
+          >{{ entry.description }}</span>
+          <button
+            v-else
+            type="button"
+            class="truncate text-left cursor-text rounded-sm hover:bg-gray-50"
+            :class="{ 'text-gray-300': !entry.description }"
+            title="Click to edit"
+            @click="startEdit(entry)"
+          >{{ entry.description || 'Add description' }}</button>
           <span v-if="!entry.is_billable" class="bg-amber-100 text-amber-800 px-2 py-1 rounded-md text-xs font-medium shrink-0">
             Non-billable
           </span>

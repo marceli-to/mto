@@ -9,6 +9,7 @@ use App\Actions\TimeEntry\Get as GetAction;
 use App\Actions\TimeEntry\Show as ShowAction;
 use App\Actions\TimeEntry\Store as StoreAction;
 use App\Actions\TimeEntry\Update as UpdateAction;
+use App\Actions\TimeEntry\UpdateDescription as UpdateDescriptionAction;
 use App\Actions\TimeEntry\Delete as DeleteAction;
 use App\Actions\TimeEntry\Bill as BillAction;
 use App\Actions\TimeEntry\Unbill as UnbillAction;
@@ -47,6 +48,11 @@ class TimeEntryController extends Controller
     public function update(TimeEntry $timeEntry, TimeEntryStoreRequest $request)
     {
         return (new UpdateAction)->execute($timeEntry, $request);
+    }
+
+    public function updateDescription(TimeEntry $timeEntry, Request $request)
+    {
+        return (new UpdateDescriptionAction)->execute($timeEntry, $request);
     }
 
     public function destroy(TimeEntry $timeEntry)
