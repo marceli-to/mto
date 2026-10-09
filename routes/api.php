@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\QuoteController;
 use App\Http\Controllers\Api\QuoteSectionController;
 use App\Http\Controllers\Api\QuotePositionController;
+use App\Http\Controllers\Api\LiquidityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -146,6 +147,17 @@ Route::middleware('auth:sanctum')->group(function() {
   Route::post('time-entries/unbill', [TimeEntryController::class, 'unbill']);
   Route::post('time-entries/settle', [TimeEntryController::class, 'settle']);
   Route::post('time-entries/move', [TimeEntryController::class, 'move']);
+
+  /**
+   * Liquidity routes
+   */
+
+  Route::get('liquidity/sources', [LiquidityController::class, 'sources']);
+  Route::get('liquidity/snapshots/get', [LiquidityController::class, 'get']);
+  Route::post('liquidity/snapshot/create', [LiquidityController::class, 'store']);
+  Route::get('liquidity/snapshot/edit/{snapshot}', [LiquidityController::class, 'edit']);
+  Route::post('liquidity/snapshot/update/{snapshot}', [LiquidityController::class, 'update']);
+  Route::delete('liquidity/snapshot/destroy/{snapshot}', [LiquidityController::class, 'destroy']);
 
   /**
    * Upload routes

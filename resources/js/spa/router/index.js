@@ -10,6 +10,7 @@ import InvoiceList from '@/components/invoices/InvoiceList.vue'
 import QuoteList from '@/components/quotes/QuoteList.vue'
 import ExpenseList from '@/components/expenses/ExpenseList.vue'
 import TimeList from '@/components/time/TimeList.vue'
+import LiquidityTracker from '@/components/liquidity/LiquidityTracker.vue'
 
 const routes = [
   {
@@ -72,6 +73,13 @@ const routes = [
     path: '/projects',
     name: 'projects',
     component: ProjectList
+  },
+
+  // Liquidity
+  {
+    path: '/liquidity',
+    name: 'liquidity',
+    component: LiquidityTracker
   },
 
   // Catch all - redirect to time

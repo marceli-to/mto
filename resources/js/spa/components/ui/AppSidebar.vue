@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { PhFolder, PhUsers, PhReceipt, PhCurrencyCircleDollar, PhSignOut, PhGear, PhQuestion, PhChartBar, PhFileText, PhClock } from '@phosphor-icons/vue'
+import { PhFolder, PhUsers, PhReceipt, PhCurrencyCircleDollar, PhSignOut, PhGear, PhQuestion, PhChartBar, PhFileText, PhClock, PhBank } from '@phosphor-icons/vue'
 
 const route = useRoute()
 const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.content
@@ -14,6 +14,7 @@ const navigation = [
   { name: 'Clients', route: 'clients', icon: PhUsers },
   { name: 'Quotes', route: 'quotes', icon: PhFileText },
   { name: 'Statistics', route: 'statistics', icon: PhChartBar },
+  { name: 'Liquidity', route: 'liquidity', icon: PhBank },
 ]
 
 const isActive = (routeName) => {
