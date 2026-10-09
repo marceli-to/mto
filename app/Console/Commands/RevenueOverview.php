@@ -58,7 +58,7 @@ class RevenueOverview extends Command
         $this->info('Revenue overview ' . self::FIRST_YEAR . ' - ' . self::LAST_YEAR);
         $this->line('Target   ' . $this->chf(self::TARGET_YEAR) . ' / year, ' . $this->chf($targetMonth) . ' / month');
         $this->line('Revenue  invoices.' . self::REVENUE_DATE . ', CHF net of MWST, ' . $this->stateLabel());
-        $this->line('Unbilled time entries not yet invoiced, by entry date (active collection projects, budget-capped)');
+        $this->line('Unbilled time entries not yet invoiced, by entry date (active collection and fixed projects, budget-capped)');
 
         $summary = [];
 
@@ -205,15 +205,15 @@ class RevenueOverview extends Command
     }
 
     /**
-     * Work done but not invoiced yet, per calendar month of the entry date. Same
-     * scope as the open figure on the invoice list: collection projects only (fixed
-     * projects are invoiced independently of their entries) and not archived, since
-     * archived means billed and done.
+     * Work done but not invoiced yet, per calendar month of the entry date. Covers
+     * collection and fixed projects alike: fixed-price entries are settled against
+     * their invoice, which takes them off the unbilled figure, so invoiced work is
+     * not counted twice. Archived projects are left out, since archived means
+     * billed and done.
      */
     private function unbilledByMonth(): array
     {
-        $projectIds = Project::where('is_collection', true)
-            ->where('is_archive', false)
+        $projectIds = Project::where('is_archive', false)
             ->pluck('id')->all();
 
         return $projectIds ? RevenueEngine::fromDatabase($projectIds)->unbilledByMonth() : [];
