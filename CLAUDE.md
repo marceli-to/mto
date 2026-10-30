@@ -102,7 +102,7 @@ The application manages:
 - `resources/js/spa/App.vue` - Root component
 - `resources/js/spa/router/index.js` - Vue Router configuration
 - `resources/js/spa/components/` - Components organized by feature (clients, contacts, projects, invoices, quotes, expenses, dashboard, ui)
-- `resources/js/spa/composables/` - Shared composables (`useApi`, `useCurrency`, `useToast`)
+- `resources/js/spa/composables/` - Shared composables (`useApi`, `useCurrency`, `useToast`, `useConfirm`)
 - `resources/css/app.css` - Tailwind CSS entry
 - Vite alias `@` → `resources/js/spa`
 
@@ -131,6 +131,9 @@ Generated via DomPDF. Invoice PDFs embed Swiss QR bills. Blade templates live in
 - Single-page application with Vue Router 4
 - State/shared logic via composables (not Vuex)
 - Forms are presented as flyouts (see existing feature components for the pattern)
+- Small forms (positions, status changes) use `components/ui/Modal.vue`: title + close button, the backdrop does **not** close it
+- Confirmations go through `useConfirm()` (`if (!(await confirm({ title, message }))) return`), never the browser's `confirm()`; one `ConfirmDialog` is mounted app-wide via `AppConfirm` in `App.vue`
+- Reuse the `components/ui/` building blocks before hand-rolling an overlay or dialog
 - API communication via axios; auth token persisted client-side
 - Vite builds assets to `public/build/`
 
