@@ -206,7 +206,7 @@ function onPositionSaved(position) {
             <tbody class="divide-y divide-gray-100">
               <tr v-for="(position, posIndex) in section.positions" :key="posIndex">
                 <td class="py-2">{{ position.description }}</td>
-                <td class="py-2 text-right font-medium w-32">
+                <td class="py-2 text-right w-32">
                   {{ position.amount_text || formatAmount(section, position.amount) }}
                 </td>
                 <td class="py-2 w-20">
