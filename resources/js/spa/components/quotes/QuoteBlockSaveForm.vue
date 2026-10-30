@@ -4,6 +4,7 @@ import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import Modal from '@/components/ui/Modal.vue'
 import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 
 // Saves the content of a quote page as a new block in the text block library.
@@ -56,27 +57,20 @@ async function submit() {
 </script>
 
 <template>
-  <Teleport to="body">
-    <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50" @click.self="emit('close')">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
-        <div class="px-6 py-4 border-b border-gray-100">
-          <h3 class="font-bold text-gray-900">Save to Text Blocks</h3>
-        </div>
-        <form @submit.prevent="submit" class="p-6 space-y-6">
-          <BaseInput
-            v-model="form.title"
-            label="Name"
-            required
-            :error="errors.title"
-            @focus="errors.title = null"
-          />
-          <BaseCheckbox v-model="form.is_default" label="Add to new quotes automatically" />
-          <div class="flex justify-end gap-3 pt-2">
-            <BaseButton type="button" variant="secondary" @click="emit('close')">Cancel</BaseButton>
-            <BaseButton type="submit" :loading="saving">Save</BaseButton>
-          </div>
-        </form>
+  <Modal title="Save to Text Blocks" size="md" @close="emit('close')">
+    <form @submit.prevent="submit" class="space-y-6">
+      <BaseInput
+        v-model="form.title"
+        label="Name"
+        required
+        :error="errors.title"
+        @focus="errors.title = null"
+      />
+      <BaseCheckbox v-model="form.is_default" label="Add to new quotes automatically" />
+      <div class="flex justify-end gap-3 pt-2">
+        <BaseButton type="button" variant="secondary" @click="emit('close')">Cancel</BaseButton>
+        <BaseButton type="submit" :loading="saving">Save</BaseButton>
       </div>
-    </div>
-  </Teleport>
+    </form>
+  </Modal>
 </template>

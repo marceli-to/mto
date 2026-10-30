@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { PhPlus, PhTrash, PhArrowUp, PhArrowDown, PhBookmarkSimple, PhCurrencyCircleDollar, PhCaretRight } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 import { useCurrency } from '@/composables/useCurrency'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
@@ -22,6 +23,7 @@ const emit = defineEmits(['saved', 'cancel', 'loaded'])
 
 const { get, post } = useApi()
 const { success, error } = useToast()
+const { confirm } = useConfirm()
 const { formatCurrency } = useCurrency()
 
 const isEdit = computed(() => !!props.quoteId)
@@ -196,12 +198,12 @@ function movePage(index, direction) {
   ;[pages[index], pages[target]] = [pages[target], pages[index]]
 }
 
-function deletePage(index) {
+async function deletePage(index) {
   const page = quote.value.pages[index]
   if (page.type === 'prices') {
-    if (!confirm('Delete the prices page with all its sections and positions?')) return
+    if (!(await confirm({ title: 'Delete page', message: 'Delete the prices page with all its sections and positions?' }))) return
     quote.value.sections = []
-  } else if (page.content && !confirm('Delete this page?')) {
+  } else if (page.content && !(await confirm({ title: 'Delete page', message: 'Delete this page?' }))) {
     return
   }
   quote.value.pages.splice(index, 1)

@@ -4,6 +4,7 @@ import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 const props = defineProps({
   quote: {
@@ -42,24 +43,17 @@ async function submit() {
 </script>
 
 <template>
-  <Teleport to="body">
-    <div class="fixed inset-0 bg-black/30 flex items-center justify-center z-50" @click.self="emit('close')">
-      <div class="bg-white rounded-lg shadow-xl w-full max-w-sm mx-4">
-        <div class="px-6 py-4 border-b border-gray-100">
-          <h3 class="font-bold text-gray-900">Update Status</h3>
-        </div>
-        <form @submit.prevent="submit" class="p-6 space-y-6">
-          <BaseSelect
-            v-model="status"
-            label="Status"
-            :options="statusOptions"
-          />
-          <div class="flex justify-end gap-3 pt-2">
-            <BaseButton type="button" variant="secondary" @click="emit('close')">Cancel</BaseButton>
-            <BaseButton type="submit" :loading="saving">Update</BaseButton>
-          </div>
-        </form>
+  <Modal title="Update Status" size="sm" @close="emit('close')">
+    <form @submit.prevent="submit" class="space-y-6">
+      <BaseSelect
+        v-model="status"
+        label="Status"
+        :options="statusOptions"
+      />
+      <div class="flex justify-end gap-3 pt-2">
+        <BaseButton type="button" variant="secondary" @click="emit('close')">Cancel</BaseButton>
+        <BaseButton type="submit" :loading="saving">Update</BaseButton>
       </div>
-    </div>
-  </Teleport>
+    </form>
+  </Modal>
 </template>

@@ -2,6 +2,7 @@
 import AppSidebar from '@/components/ui/AppSidebar.vue'
 import AppMobileHeader from '@/components/ui/AppMobileHeader.vue'
 import AppToast from '@/components/ui/AppToast.vue'
+import AppConfirm from '@/components/ui/AppConfirm.vue'
 </script>
 
 <template>
@@ -22,5 +23,6 @@ import AppToast from '@/components/ui/AppToast.vue'
     </main>
     
     <AppToast />
+    <AppConfirm />
   </div>
 </template>

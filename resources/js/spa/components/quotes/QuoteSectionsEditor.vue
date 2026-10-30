@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { PhPlus, PhPencil, PhTrash, PhArrowUp, PhArrowDown, PhCaretRight } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 import { useCurrency } from '@/composables/useCurrency'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
@@ -19,6 +20,7 @@ const props = defineProps({
 
 const { del } = useApi()
 const { error } = useToast()
+const { confirm } = useConfirm()
 const { formatCurrency } = useCurrency()
 
 const positionDialog = ref({ show: false, sectionIndex: null, position: null })
@@ -61,7 +63,7 @@ function addSection() {
 }
 
 async function deleteSection(index) {
-  if (!confirm('Delete this section and all its positions?')) return
+  if (!(await confirm({ title: 'Delete section', message: 'Delete this section and all its positions?' }))) return
 
   const section = props.sections[index]
   if (section.id) {
@@ -96,7 +98,7 @@ function editPosition(sectionIndex, positionIndex) {
 }
 
 async function deletePosition(sectionIndex, positionIndex) {
-  if (!confirm('Delete this position?')) return
+  if (!(await confirm({ title: 'Delete position', message: 'Delete this position?' }))) return
 
   const position = props.sections[sectionIndex].positions[positionIndex]
   props.sections[sectionIndex].positions.splice(positionIndex, 1)

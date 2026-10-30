@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { PhPlus, PhPencil, PhTrash } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
+import { useConfirm } from '@/composables/useConfirm'
 import { useCurrency } from '@/composables/useCurrency'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
@@ -22,6 +23,7 @@ const emit = defineEmits(['saved', 'cancel'])
 
 const { get, post, del } = useApi()
 const { success, error } = useToast()
+const { confirm } = useConfirm()
 const { formatCurrency, formatDecimal } = useCurrency()
 
 const isEdit = computed(() => !!props.invoiceId)
@@ -330,7 +332,7 @@ function editPosition(position, index) {
 }
 
 async function deletePosition(position, index) {
-  if (!confirm('Delete this position?')) return
+  if (!(await confirm({ title: 'Delete position', message: 'Delete this position?' }))) return
 
   // Remove from local array
   invoice.value.positions.splice(index, 1)

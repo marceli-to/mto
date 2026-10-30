@@ -1,11 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { PhX } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import Modal from '@/components/ui/Modal.vue'
 
 const props = defineProps({
   invoice: Object
@@ -63,47 +63,35 @@ function onStateChange() {
 </script>
 
 <template>
-  <Teleport to="body">
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div class="absolute inset-0 bg-black/50" @click="emit('close')" />
-      <div class="relative bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="">Update Invoice Status</h3>
-          <button @click="emit('close')" class="p-1 hover:bg-gray-100 rounded">
-            <PhX class="w-5 h-5" />
-          </button>
-        </div>
+  <Modal title="Update Invoice Status" size="md" @close="emit('close')">
+    <form @submit.prevent="submit" class="space-y-6">
+      <BaseSelect
+        v-model="form.state_id"
+        label="Status"
+        :options="stateOptions"
+        @change="onStateChange"
+      />
 
-        <form @submit.prevent="submit" class="space-y-6">
-          <BaseSelect
-            v-model="form.state_id"
-            label="Status"
-            :options="stateOptions"
-            @change="onStateChange"
-          />
+      <BaseInput
+        v-model="form.date_paid"
+        label="Date Paid"
+        type="date"
+      />
 
-          <BaseInput
-            v-model="form.date_paid"
-            label="Date Paid"
-            type="date"
-          />
+      <BaseInput
+        v-if="showRemarks"
+        v-model="form.remarks"
+        label="Remarks"
+      />
 
-          <BaseInput
-            v-if="showRemarks"
-            v-model="form.remarks"
-            label="Remarks"
-          />
-
-          <div class="flex justify-end gap-3 pt-4">
-            <BaseButton variant="secondary" @click="emit('close')">
-              Cancel
-            </BaseButton>
-            <BaseButton type="submit" :loading="saving">
-              Update
-            </BaseButton>
-          </div>
-        </form>
+      <div class="flex justify-end gap-3 pt-4">
+        <BaseButton variant="secondary" @click="emit('close')">
+          Cancel
+        </BaseButton>
+        <BaseButton type="submit" :loading="saving">
+          Update
+        </BaseButton>
       </div>
-    </div>
-  </Teleport>
+    </form>
+  </Modal>
 </template>
