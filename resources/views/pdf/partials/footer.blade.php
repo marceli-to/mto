@@ -29,13 +29,7 @@
 </head>
 <body>
   <footer>
-    {!! collect([
-      config('invoice.beneficiary_name'),
-      config('invoice.beneficiary_street') . ' ' . config('invoice.beneficiary_building'),
-      config('invoice.beneficiary_zip') . ' ' . config('invoice.beneficiary_city'),
-      '078 749 74 09',
-      'm@marceli.to',
-    ])->map(fn ($item) => e($item))->implode('&thinsp;&thinsp;•&thinsp;&thinsp;') !!}
+    @include('pdf.partials.footer-address')
     @if ($pageNumbers ?? false)<span class="pageNumber" style="position: absolute; right: 20mm;"></span>@endif
   </footer>
 </body>

@@ -99,9 +99,7 @@
     position: fixed;
     bottom: 0;
     left: 0;
-    display: flex;
-    align-items: center;
-    gap: 7px;
+    white-space: nowrap;
     font-size: 8pt;
     line-height: 1;
     font-weight: 300;
@@ -194,7 +192,7 @@
 <body class="font-light">
 
   <div class="page-footer">
-    <span>{{ config('invoice.beneficiary_name') }}</span>+<span>{{ config('invoice.beneficiary_street') }} {{ config('invoice.beneficiary_building') }}</span>+<span>{{ config('invoice.beneficiary_zip') }} {{ config('invoice.beneficiary_city') }}</span>+<span>078 749 74 09</span>+<span>m@marceli.to</span>+<span>marceli.to</span>
+    @include('pdf.partials.footer-address')
   </div>
 
   <table class="page-layout">

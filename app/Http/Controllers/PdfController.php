@@ -74,7 +74,8 @@ class PdfController extends Controller
 		}
 
  		// Generate and save PDF
- 		$this->buildPdf('pdf.quote', ['quote' => $quote])
+ 		// Taller top margin than invoices: the running title sits well below the logo
+		$this->buildPdf('pdf.quote', ['quote' => $quote], [55, 20, 30, 20])
  			->headerView('pdf.partials.header')
  			->footerView('pdf.partials.footer', ['pageNumbers' => true])
  			->save(Storage::path($storagePath));

@@ -64,7 +64,7 @@
   }
 
   .page > thead > tr > td {
-    padding-bottom: 8mm;
+    padding-bottom: 5.75mm;
   }
 
   .page > tbody > tr > td {
@@ -195,7 +195,7 @@
 
   {{-- ==================== PAGE 1: LETTER ==================== --}}
   <div>
-    <div style="margin-top: 15mm;">
+    <div>
       <strong>{{ $quote->client->name }}</strong><br>
       @if ($quote->client->byline){{ $quote->client->byline }}<br>@endif
       @if ($quote->client->street){{ $quote->client->street }}<br>@endif
