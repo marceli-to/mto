@@ -35,7 +35,7 @@
       config('invoice.beneficiary_zip') . ' ' . config('invoice.beneficiary_city'),
       '078 749 74 09',
       'm@marceli.to',
-    ])->map(fn ($item) => e($item))->implode('&thinsp;•&thinsp;') !!}
+    ])->map(fn ($item) => e($item))->implode('&thinsp;&thinsp;•&thinsp;&thinsp;') !!}
     @if ($pageNumbers ?? false)<span class="pageNumber" style="position: absolute; right: 20mm;"></span>@endif
   </footer>
 </body>
