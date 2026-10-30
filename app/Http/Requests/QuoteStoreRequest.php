@@ -14,6 +14,7 @@ class QuoteStoreRequest extends FormRequest
     public function rules()
     {
         return [
+            'label' => 'required|string|max:50',
             'title' => 'required|string',
             'date' => 'required',
             'client_id' => 'required',
@@ -23,6 +24,7 @@ class QuoteStoreRequest extends FormRequest
     public function messages()
     {
         return [
+            'label.required' => 'Label is required',
             'title.required' => 'Title is required',
             'date.required' => 'Date is required',
             'client_id.required' => 'Client is required',

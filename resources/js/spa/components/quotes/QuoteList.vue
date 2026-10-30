@@ -1,13 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhCopy, PhFilePdf } from '@phosphor-icons/vue'
+import { useRouter } from 'vue-router'
+import { PhPlus, PhPencil, PhTrash, PhCopy, PhFilePdf, PhTextAlignLeft } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
 import SearchInput from '@/components/ui/SearchInput.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
-import Flyout from '@/components/ui/Flyout.vue'
-import QuoteForm from './QuoteForm.vue'
 import QuoteStatusForm from './QuoteStatusForm.vue'
 
 const { get, del } = useApi()
@@ -20,25 +19,14 @@ const loading = ref(true)
 const activeFilters = ref(['draft', 'sent'])
 const deleteDialog = ref({ show: false, id: null, loading: false })
 const statusDialog = ref({ show: false, quote: null })
-const flyout = ref({ show: false, quoteId: null })
-
-const flyoutTitle = computed(() => flyout.value.quoteId ? 'Edit Quote' : 'New Quote')
+const router = useRouter()
 
 function openCreate() {
-  flyout.value = { show: true, quoteId: null }
+  router.push({ name: 'quote-create' })
 }
 
 function openEdit(id) {
-  flyout.value = { show: true, quoteId: id }
-}
-
-function closeFlyout() {
-  flyout.value = { show: false, quoteId: null }
-}
-
-function onQuoteSaved() {
-  closeFlyout()
-  fetchQuotes()
+  router.push({ name: 'quote-edit', params: { id } })
 }
 
 const filteredQuotes = computed(() => {
@@ -80,9 +68,13 @@ const statusColors = {
 
 function quoteTotal(quote) {
   if (!quote.sections) return 0
-  return quote.sections.reduce((sum, section) => {
-    return sum + (section.positions || []).reduce((sSum, p) => sSum + parseFloat(p.amount || 0), 0)
-  }, 0)
+  return quote.sections
+    .filter(s => !s.currency || s.currency === 'CHF')
+    .reduce((sum, section) => {
+      return sum + (section.positions || [])
+        .filter(p => !p.amount_text)
+        .reduce((sSum, p) => sSum + parseFloat(p.amount || 0), 0)
+    }, 0)
 }
 
 async function fetchQuotes() {
@@ -188,6 +180,13 @@ onMounted(fetchQuotes)
         >
           {{ state }}
         </button>
+        <router-link
+          :to="{ name: 'quote-blocks' }"
+          class="ml-auto p-2.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-sm transition-colors"
+          title="Text Blocks"
+        >
+          <PhTextAlignLeft class="w-5 h-5" />
+        </router-link>
       </div>
 
       <!-- Quotes List -->
@@ -266,18 +265,5 @@ onMounted(fetchQuotes)
       @close="statusDialog.show = false"
       @updated="onStatusUpdated"
     />
-
-    <Flyout
-      :show="flyout.show"
-      :title="flyoutTitle"
-      size="2xl"
-      @close="closeFlyout"
-    >
-      <QuoteForm
-        :quote-id="flyout.quoteId"
-        @saved="onQuoteSaved"
-        @cancel="closeFlyout"
-      />
-    </Flyout>
   </div>
 </template>

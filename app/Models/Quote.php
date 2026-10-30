@@ -18,6 +18,7 @@ class Quote extends Model
 
     protected $fillable = [
         'number',
+        'label',
         'title',
         'date',
         'client_id',
@@ -25,13 +26,6 @@ class Quote extends Model
         'intro_greeting',
         'intro_text',
         'vat_rate',
-        'daily_rate',
-        'hourly_rate',
-        'include_terms_page',
-    ];
-
-    protected $casts = [
-        'include_terms_page' => 'boolean',
     ];
 
     public function client()
@@ -42,6 +36,11 @@ class Quote extends Model
     public function sections()
     {
         return $this->hasMany(QuoteSection::class)->orderBy('sort_order');
+    }
+
+    public function pages()
+    {
+        return $this->hasMany(QuotePage::class)->orderBy('sort_order');
     }
 
     public function generateNumber(): void

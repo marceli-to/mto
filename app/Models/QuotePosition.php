@@ -10,6 +10,7 @@ class QuotePosition extends Model
         'quote_section_id',
         'description',
         'amount',
+        'amount_text',
         'sort_order',
     ];
 

@@ -15,20 +15,16 @@ class Duplicate
 
         $clone->generateNumber();
 
+        foreach ($quote->pages as $page) {
+            $clone->pages()->save($page->replicate(['quote_id']));
+        }
+
         // Deep clone sections and positions
         foreach ($quote->sections as $section) {
-            $clonedSection = $clone->sections()->create([
-                'title' => $section->title,
-                'total_label' => $section->total_label,
-                'sort_order' => $section->sort_order,
-            ]);
+            $clonedSection = $clone->sections()->save($section->replicate(['quote_id']));
 
             foreach ($section->positions as $position) {
-                $clonedSection->positions()->create([
-                    'description' => $position->description,
-                    'amount' => $position->amount,
-                    'sort_order' => $position->sort_order,
-                ]);
+                $clonedSection->positions()->save($position->replicate(['quote_section_id']));
             }
         }
 

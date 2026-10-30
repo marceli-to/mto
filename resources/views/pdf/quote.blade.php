@@ -3,10 +3,10 @@
   $fontLight = base64_encode(file_get_contents($fontPath . 'Poppins-Light.woff2'));
   $fontMedium = base64_encode(file_get_contents($fontPath . 'Poppins-Medium.woff2'));
 @endphp
+<!DOCTYPE html>
 <html lang="de">
 <head>
-<title>Angebot {{ $quote->title }}</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<title>{{ $quote->label }} {{ $quote->title }}</title>
 <style>
   @font-face {
     font-family: 'Poppins';
@@ -20,237 +20,269 @@
     font-weight: 500;
     font-style: normal;
   }
-  strong {
+  * {
+    margin: 0;
+    padding: 0;
+  }
+  strong, b {
     font-weight: 500;
   }
   body {
     font-family: 'Poppins', sans-serif;
     font-weight: 300;
-  }
-
-  .font-size-xs {
-    font-size: 9pt;
-    line-height: 13pt;
-  }
-
-  .font-size-sm {
     font-size: 10pt;
     line-height: 15pt;
   }
 
-  .font-size-md {
-    font-size: 12pt;
-    line-height: 16pt;
+  .font-size-xs {
+    font-size: 8pt;
+    line-height: 12pt;
   }
 
   .font-size-lg {
-    font-size: 16pt;
-    line-height: 20pt;
+    font-size: 13pt;
+    line-height: 18pt;
   }
 
   .text-highlight {
     color: #e94364;
   }
 
-  .keep-together {
+  .doc-title strong:not(.text-highlight) {
+    font-weight: 300;
+  }
+
+  /*
+   * Every page after the letter is a table whose header holds the title:
+   * Chromium repeats a <thead> on each printed page, so the title also
+   * appears on pages that long text spills onto.
+   */
+  .page {
+    width: 100%;
+    border-collapse: collapse;
+    break-before: page;
+  }
+
+  .page > thead > tr > td {
+    padding-bottom: 8mm;
+  }
+
+  .page > tbody > tr > td {
+    padding: 0;
+    vertical-align: top;
+  }
+
+  /* Tiptap HTML */
+  .rich > * + * {
+    margin-top: 4.5mm;
+  }
+
+  .rich.letter > * + * {
+    margin-top: 3mm;
+  }
+
+  .rich h2,
+  .rich h3 {
+    font-size: 10pt;
+    line-height: 15pt;
+    font-weight: 500;
+    break-after: avoid;
+  }
+
+  .rich > h2:not(:first-child) {
+    margin-top: 8mm;
+  }
+
+  .rich > h2 + *,
+  .rich > h3 + * {
+    margin-top: 0;
+  }
+
+  .rich h2 + h3 {
+    margin-top: 4.5mm !important;
+  }
+
+  .rich ul,
+  .rich ol {
+    list-style: none;
+  }
+
+  .rich li {
+    position: relative;
+    padding-left: 4mm;
+  }
+
+  .rich li + li {
+    margin-top: 1mm;
+  }
+
+  .rich ul > li::before {
+    content: '–';
+    position: absolute;
+    left: 0;
+  }
+
+  .rich ol {
+    counter-reset: item;
+  }
+
+  .rich ol > li {
+    counter-increment: item;
+    padding-left: 5mm;
+  }
+
+  .rich ol > li::before {
+    content: counter(item) '.';
+    position: absolute;
+    left: 0;
+  }
+
+  .rich a {
+    color: inherit;
+  }
+
+  /* Prices */
+  .rich + .prices {
+    margin-top: 8mm;
+  }
+
+  .section {
     break-inside: avoid;
   }
 
-  .page-break {
-    page-break-before: always;
+  .section + .section {
+    margin-top: 8mm;
   }
 
-  /* Intro text styling for Tiptap HTML output */
-  .intro-content h2 {
-    font-weight: 500;
-    font-size: 10pt;
-    line-height: 15pt;
-    margin-top: 6mm;
-    margin-bottom: 1mm;
+  .section.has-note + .section {
+    margin-top: 16mm;
   }
 
-  .intro-content h3 {
-    font-weight: 500;
-    font-size: 10pt;
-    line-height: 15pt;
-    margin-top: 6mm;
-    margin-bottom: 1mm;
-  }
-
-  .intro-content p {
-    font-size: 10pt;
-    line-height: 15pt;
-    margin-bottom: 2mm;
-  }
-
-  .intro-content ul {
-    font-size: 10pt;
-    line-height: 15pt;
-    padding-left: 5mm;
-    margin-bottom: 2mm;
-  }
-
-  .intro-content ul li {
-    list-style-type: disc;
-  }
-
-  /* Section positions table */
   .section-table {
     width: 100%;
     border-collapse: collapse;
   }
 
   .section-table td {
-    font-weight: 300;
-    font-size: 10pt;
-    line-height: 15pt;
-    padding: 1.5mm 0;
+    padding: 3mm 0 1mm;
     border-bottom: .1mm solid #000000;
+    vertical-align: bottom;
+  }
+
+  .section-table td.amount {
+    text-align: right;
+    white-space: nowrap;
+    padding-left: 8mm;
+  }
+
+  .section-table .spacer td {
+    padding: 0;
+    height: 7mm;
   }
 
   .section-table .total-row td {
-    border-bottom: .6mm solid #000000;
     font-weight: 500;
+    padding-top: 3.5mm;
   }
 
-  /* Terms page styling */
-  .terms-content h3 {
-    font-weight: 500;
-    font-size: 10pt;
-    line-height: 15pt;
-    margin-top: 6mm;
-    margin-bottom: 1mm;
-  }
-
-  .terms-content p {
-    font-size: 10pt;
-    line-height: 15pt;
-    margin-bottom: 2mm;
+  .vat-note {
+    text-align: right;
+    margin-top: 2mm;
   }
 </style>
 </head>
 <body>
 
-  {{-- ==================== PAGE 1: INTRO ==================== --}}
+  {{-- ==================== PAGE 1: LETTER ==================== --}}
   <div>
-    <!-- Recipient Address -->
-    <div style="margin-top: 15mm;" class="font-size-sm">
+    <div style="margin-top: 15mm;">
       <strong>{{ $quote->client->name }}</strong><br>
       @if ($quote->client->byline){{ $quote->client->byline }}<br>@endif
       @if ($quote->client->street){{ $quote->client->street }}<br>@endif
       {{ $quote->client->zip }} {{ $quote->client->city }}
     </div>
 
-    <!-- Date -->
-    <div style="margin-top: 20mm;" class="font-size-sm">
+    <div style="margin-top: 20mm;">
       Zürich, {{ \Carbon\Carbon::parse($quote->date)->locale('de')->isoFormat('D. MMMM YYYY') }}
     </div>
 
-    <!-- Title -->
-    <div style="margin-top: 10mm;" class="font-size-lg">
-      <strong class="text-highlight">Angebot</strong> {{ $quote->title }}
+    <div style="margin-top: 15mm;" class="font-size-lg doc-title">
+      <strong class="text-highlight">{{ $quote->label }}</strong> {{ $quote->title }}
     </div>
 
-    <!-- Greeting -->
     @if($quote->intro_greeting)
-    <div style="margin-top: 8mm;" class="font-size-sm">
+    <div style="margin-top: 6mm;">
       {{ $quote->intro_greeting }}
     </div>
     @endif
 
-    <!-- Intro Text (Tiptap HTML) -->
     @if($quote->intro_text)
-    <div style="margin-top: 4mm;" class="intro-content">
+    <div style="margin-top: 6mm;" class="rich letter">
       {!! $quote->intro_text !!}
     </div>
     @endif
   </div>
 
-  {{-- ==================== PAGE 2+: POSITIONS ==================== --}}
-  @if($quote->sections->count() > 0)
-  <div class="page-break">
-    <!-- Repeated Title -->
-    <div class="font-size-lg" style="margin-bottom: 8mm;">
-      <strong class="text-highlight">Angebot</strong> {{ $quote->title }}
-    </div>
+  {{-- ==================== PAGES ==================== --}}
+  @foreach($quote->pages as $page)
+  <table class="page">
+    <thead>
+      <tr>
+        <td class="font-size-lg doc-title">
+          <strong class="text-highlight">{{ $quote->label }}</strong> {{ $quote->title }}
+        </td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          @if($page->content && strip_tags($page->content) !== '')
+          <div class="rich">
+            {!! $page->content !!}
+          </div>
+          @endif
 
-    @foreach($quote->sections as $section)
-    <div class="keep-together" style="margin-bottom: 10mm;">
-      <!-- Section Heading -->
-      <div class="font-size-sm" style="margin-bottom: 3mm;">
-        <strong>{{ $section->title }}</strong>
-      </div>
+          @if($page->type === \App\Models\QuotePage::PRICES && $quote->sections->count() > 0)
+          <div class="prices">
+            @foreach($quote->sections as $section)
+            <div @class(['section', 'has-note' => $section->show_vat_note])>
+              @if($section->title)
+              <div><strong>{{ $section->title }}</strong></div>
+              @endif
 
-      <!-- Section Positions -->
-      <table class="section-table">
-        <tbody>
-          @foreach($section->positions as $position)
-          <tr>
-            <td>{{ $position->description }}</td>
-            <td style="text-align: right; width: 20%;">{{ number_format($position->amount, 2, '.', "'") }}</td>
-          </tr>
-          @endforeach
+              <table class="section-table">
+                <tbody>
+                  @foreach($section->positions as $position)
+                  <tr>
+                    <td>{{ $position->description }}</td>
+                    <td class="amount">{{ $position->amount_text ?: $section->formatAmount($position->amount) }}</td>
+                  </tr>
+                  @endforeach
 
-          <!-- Section Total -->
-          <tr class="total-row">
-            <td><strong>{{ $section->total_label }}</strong></td>
-            <td style="text-align: right;"><strong>{{ number_format($section->positions->sum('amount'), 2, '.', "'") }}</strong></td>
-          </tr>
-        </tbody>
-      </table>
+                  @if($section->show_total)
+                  <tr class="spacer"><td colspan="2"></td></tr>
+                  <tr class="total-row">
+                    <td>{{ $section->total_label }}</td>
+                    <td class="amount">{{ $section->formatAmount($section->total) }}</td>
+                  </tr>
+                  @endif
+                </tbody>
+              </table>
 
-      <!-- VAT Note -->
-      <div class="font-size-xs" style="text-align: right; margin-top: 2mm;">
-        Beträge in CHF und exklusive {{ number_format($quote->vat_rate, 1) }}% MwSt.
-      </div>
-    </div>
-    @endforeach
-  </div>
-  @endif
-
-  {{-- ==================== PAGE 3: TERMS (OPTIONAL) ==================== --}}
-  @if($quote->include_terms_page)
-  <div class="page-break terms-content">
-    <!-- Repeated Title -->
-    <div class="font-size-lg" style="margin-bottom: 8mm;">
-      <strong class="text-highlight">Angebot</strong> {{ $quote->title }}
-    </div>
-
-    <h3>Budget</h3>
-    <p>
-      Das Budget basiert auf einer Schätzung des Arbeitsaufwandes. Sofern Änderungen im Projekt eintreten, welche das Budget beeinflussen, wird rechtzeitig auf diesen Umstand aufmerksam gemacht und die Offerte revidiert.
-      @if($quote->daily_rate)<br>Tagesansatz: Fr. {{ number_format($quote->daily_rate, 2, '.', "'") }}@endif
-      @if($quote->hourly_rate)<br>Stundenansatz: Fr. {{ number_format($quote->hourly_rate, 2, '.', "'") }}@endif
-    </p>
-
-    <h3>Upgrades</h3>
-    <p>
-      Die jährlichen Kosten für Upgrades belaufen sich auf Fr. 150.00. Diese beinhalten die Upgrade-Gebühren (Fr. 60.00) des CMS-Anbieters.
-    </p>
-
-    <h3>Technische Voraussetzungen Webhosting</h3>
-    <p>
-      Webserver: Linux/Unix-Umgebung mit Apache, Scriptsprache: PHP 8+, Datenbank: MySQL 5+, Composer und GIT
-    </p>
-
-    <h3>Konditionen</h3>
-    <p>
-      Diese Offerte ist 30 Tage gültig. Die Preise verstehen sich exklusiv Mehrwertsteuer.<br>
-      Zahlungsmodus: Nach der Erbringung der in dieser Offerte beschriebenen Leistungen.<br>
-      Nicht in dieser Offerte enthaltene Leistungen werden anhand einer speziellen Vereinbarung verrechnet.
-    </p>
-
-    <h3>Urheberrecht</h3>
-    <p>
-      Grundsätzlich gilt das Schweizerische Bundesgesetz über das Urheberrecht und verwandte Schutzrechte (Urheberrechtsgesetze, URG).
-    </p>
-
-    <h3>Zahlung</h3>
-    <p>
-      Bei Aufträgen im Wert von über Fr. 10'000.- gelten folgende Zahlungsbedingungen: 1/3 Anzahlung nach Erhalt der Auftragsbestätigung, 2/3 nach Fertigstellung des Projektes.
-    </p>
-  </div>
-  @endif
+              @if($section->show_vat_note)
+              <div class="vat-note font-size-xs">
+                Beträge in {{ $section->currency ?: 'CHF' }}@if($quote->vat_rate > 0) und exklusive {{ number_format($quote->vat_rate, 1) }}% MwSt.@else.@endif
+              </div>
+              @endif
+            </div>
+            @endforeach
+          </div>
+          @endif
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  @endforeach
 
 </body>
 </html>

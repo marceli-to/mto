@@ -8,6 +8,8 @@ import ClientList from '@/components/clients/ClientList.vue'
 import ProjectList from '@/components/projects/ProjectList.vue'
 import InvoiceList from '@/components/invoices/InvoiceList.vue'
 import QuoteList from '@/components/quotes/QuoteList.vue'
+import QuoteBlockList from '@/components/quotes/QuoteBlockList.vue'
+import QuoteEdit from '@/components/quotes/QuoteEdit.vue'
 import ExpenseList from '@/components/expenses/ExpenseList.vue'
 import TimeList from '@/components/time/TimeList.vue'
 import LiquidityTracker from '@/components/liquidity/LiquidityTracker.vue'
@@ -45,6 +47,21 @@ const routes = [
     path: '/quotes',
     name: 'quotes',
     component: QuoteList
+  },
+  {
+    path: '/quotes/create',
+    name: 'quote-create',
+    component: QuoteEdit
+  },
+  {
+    path: '/quotes/:id/edit',
+    name: 'quote-edit',
+    component: QuoteEdit
+  },
+  {
+    path: '/quotes/blocks',
+    name: 'quote-blocks',
+    component: QuoteBlockList
   },
 
   // Expenses

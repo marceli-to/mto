@@ -7,6 +7,10 @@ const props = defineProps({
   position: {
     type: Object,
     default: null
+  },
+  currency: {
+    type: String,
+    default: 'CHF'
   }
 })
 
@@ -15,6 +19,7 @@ const emit = defineEmits(['close', 'save'])
 const form = ref({
   description: '',
   amount: 0,
+  amount_text: '',
 })
 
 onMounted(() => {
@@ -22,6 +27,7 @@ onMounted(() => {
     form.value = {
       description: props.position.description || '',
       amount: props.position.amount || 0,
+      amount_text: props.position.amount_text || '',
     }
   }
 })
@@ -32,6 +38,7 @@ function submit() {
   const data = {
     ...form.value,
     amount: parseFloat(form.value.amount) || 0,
+    amount_text: form.value.amount_text?.trim() || null,
   }
 
   if (props.position) {
@@ -62,9 +69,15 @@ function submit() {
           </div>
           <BaseInput
             v-model="form.amount"
-            label="Amount (CHF)"
+            :label="`Amount (${currency})`"
             type="number"
             step="0.01"
+            :disabled="!!form.amount_text"
+          />
+          <BaseInput
+            v-model="form.amount_text"
+            label="Text instead of amount"
+            placeholder="Fixpreis folgt"
           />
           <div class="flex justify-end gap-3 pt-2">
             <BaseButton type="button" variant="secondary" @click="emit('close')">Cancel</BaseButton>

@@ -32,6 +32,7 @@
 <body>
   <footer>
     <span>{{ config('invoice.beneficiary_name') }}</span>+<span>{{ config('invoice.beneficiary_street') }} {{ config('invoice.beneficiary_building') }}</span>+<span>{{ config('invoice.beneficiary_zip') }} {{ config('invoice.beneficiary_city') }}</span>+<span>078 749 74 09</span>+<span>m@marceli.to</span>+<span>marceli.to</span>
+    @if ($pageNumbers ?? false)<span class="pageNumber" style="position: absolute; right: 20mm;"></span>@endif
   </footer>
 </body>
 </html>

@@ -1,15 +1,15 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { PhPlus, PhPencil, PhTrash, PhArrowUp, PhArrowDown } from '@phosphor-icons/vue'
+import { PhPlus, PhTrash, PhArrowUp, PhArrowDown, PhBookmarkSimple, PhCurrencyCircleDollar, PhCaretRight } from '@phosphor-icons/vue'
 import { useApi } from '@/composables/useApi'
 import { useToast } from '@/composables/useToast'
 import { useCurrency } from '@/composables/useCurrency'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseSelect from '@/components/ui/BaseSelect.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseCheckbox from '@/components/ui/BaseCheckbox.vue'
 import TiptapEditor from '@/components/ui/TiptapEditor.vue'
-import QuotePositionForm from './QuotePositionForm.vue'
+import QuoteSectionsEditor from './QuoteSectionsEditor.vue'
+import QuoteBlockSaveForm from './QuoteBlockSaveForm.vue'
 
 const props = defineProps({
   quoteId: {
@@ -18,20 +18,21 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['saved', 'cancel'])
+const emit = defineEmits(['saved', 'cancel', 'loaded'])
 
-const { get, post, del } = useApi()
+const { get, post } = useApi()
 const { success, error } = useToast()
 const { formatCurrency } = useCurrency()
 
 const isEdit = computed(() => !!props.quoteId)
-const title = computed(() => isEdit.value ? 'Edit Quote' : 'New Quote')
 
 const loading = ref(false)
 const saving = ref(false)
 const errors = ref({})
 const clients = ref([])
-const positionDialog = ref({ show: false, sectionIndex: null, position: null })
+const blocks = ref([])
+const selectedBlock = ref('')
+const saveBlockDialog = ref({ show: false, title: '', content: '' })
 
 const vatOptions = [
   { value: 0, label: 'None' },
@@ -39,35 +40,54 @@ const vatOptions = [
   { value: 8.1, label: '8.1%' }
 ]
 
-const quote = ref({
-  title: '',
-  date: '',
-  client_id: '',
-  intro_greeting: '',
-  intro_text: '',
-  vat_rate: 8.1,
-  daily_rate: '',
-  hourly_rate: '',
-  include_terms_page: true,
-  sections: []
-})
-
-// Computed totals
-const grandTotal = computed(() => {
-  return quote.value.sections.reduce((sum, section) => {
-    return sum + section.positions.reduce((sSum, p) => sSum + parseFloat(p.amount || 0), 0)
-  }, 0)
-})
-
-function sectionTotal(section) {
-  return section.positions.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0)
+// Pages need a stable key so their editors survive reordering
+let pageKey = 0
+function makePage(type, content = '', id = null, collapsed = false) {
+  return { id, type, content, _key: ++pageKey, _collapsed: collapsed }
 }
+
+function emptyQuote() {
+  return {
+    label: 'Offerte',
+    title: '',
+    date: formatDateForInput(new Date()),
+    client_id: '',
+    intro_greeting: '',
+    intro_text: '',
+    vat_rate: 8.1,
+    pages: [],
+    sections: []
+  }
+}
+
+const quote = ref(emptyQuote())
+
+const hasPricesPage = computed(() => quote.value.pages.some(p => p.type === 'prices'))
+
+// Sums CHF positions only; other currencies (licence fees in USD) don't add up
+const grandTotal = computed(() => {
+  return quote.value.sections
+    .filter(s => !s.currency || s.currency === 'CHF')
+    .reduce((sum, section) => {
+      return sum + section.positions
+        .filter(p => !p.amount_text)
+        .reduce((sSum, p) => sSum + parseFloat(p.amount || 0), 0)
+    }, 0)
+})
+
+const blockOptions = computed(() =>
+  blocks.value.map(b => ({ value: b.id, label: b.title }))
+)
 
 async function fetchData() {
   loading.value = true
   try {
-    const clientsData = await get('/api/clients/get')
+    const [clientsData, blocksData] = await Promise.all([
+      get('/api/clients/get'),
+      get('/api/quote-blocks/get')
+    ])
     clients.value = clientsData.data || []
+    blocks.value = blocksData.data || []
 
     if (isEdit.value) {
       const data = await get(`/api/quote/edit/${props.quoteId}`)
@@ -75,16 +95,19 @@ async function fetchData() {
         ...data,
         client_id: data.client_id || '',
         date: formatDateForInput(data.date),
-        daily_rate: data.daily_rate || '',
-        hourly_rate: data.hourly_rate || '',
+        pages: (data.pages || []).map(p => makePage(p.type, p.content || '', p.id, true)),
         sections: (data.sections || []).map(s => ({
           ...s,
           positions: s.positions || []
         }))
       }
+      emit('loaded', data)
     } else {
-      const today = new Date()
-      quote.value.date = formatDateForInput(today)
+      quote.value = emptyQuote()
+      quote.value.pages = [
+        makePage('prices'),
+        ...blocks.value.filter(b => b.is_default).map(b => makePage('text', b.content, null, true))
+      ]
     }
   } catch (e) {
     error('Failed to load data')
@@ -94,30 +117,9 @@ async function fetchData() {
   }
 }
 
-function resetForm() {
-  const today = new Date()
-  quote.value = {
-    title: '',
-    date: formatDateForInput(today),
-    client_id: '',
-    intro_greeting: '',
-    intro_text: '',
-    vat_rate: 8.1,
-    daily_rate: '',
-    hourly_rate: '',
-    include_terms_page: true,
-    sections: []
-  }
+watch(() => props.quoteId, () => {
   errors.value = {}
-}
-
-watch(() => props.quoteId, (newId) => {
-  if (newId) {
-    fetchData()
-  } else {
-    resetForm()
-    fetchData()
-  }
+  fetchData()
 })
 
 function formatDateForInput(date) {
@@ -132,6 +134,9 @@ function validate() {
   if (!quote.value.title?.trim()) {
     errors.value.title = 'Title is required'
   }
+  if (!quote.value.label?.trim()) {
+    errors.value.label = 'Label is required'
+  }
   return Object.keys(errors.value).length === 0
 }
 
@@ -141,24 +146,17 @@ async function submit() {
     return
   }
 
-  // Assign sort_order to sections and positions
-  quote.value.sections.forEach((section, si) => {
-    section.sort_order = si
-    section.positions.forEach((position, pi) => {
-      position.sort_order = pi
-    })
-  })
-
   saving.value = true
   try {
     if (isEdit.value) {
       await post(`/api/quote/update/${props.quoteId}`, quote.value)
       success('Quote updated')
+      emit('saved', Number(props.quoteId))
     } else {
-      await post('/api/quote/create', quote.value)
+      const data = await post('/api/quote/create', quote.value)
       success('Quote created')
+      emit('saved', data.quoteId)
     }
-    emit('saved')
   } catch (e) {
     error('Failed to save quote')
   } finally {
@@ -166,81 +164,64 @@ async function submit() {
   }
 }
 
-// Section management
-function addSection() {
-  quote.value.sections.push({
-    id: null,
-    title: '',
-    total_label: 'Total',
-    sort_order: quote.value.sections.length,
-    positions: []
-  })
+// Page management
+function addTextPage() {
+  quote.value.pages.push(makePage('text'))
 }
 
-async function deleteSection(index) {
-  if (!confirm('Delete this section and all its positions?')) return
+function addPricesPage() {
+  if (hasPricesPage.value) return
+  quote.value.pages.push(makePage('prices'))
+}
 
-  const section = quote.value.sections[index]
-  if (section.id) {
-    try {
-      await del(`/api/quote/section/destroy/${section.id}`)
-    } catch (e) {
-      error('Failed to delete section')
-      return
-    }
+function addBlockPage() {
+  const block = blocks.value.find(b => b.id === Number(selectedBlock.value))
+  if (!block) return
+  quote.value.pages.push(makePage('text', block.content || ''))
+  selectedBlock.value = ''
+}
+
+const allCollapsed = computed(() => quote.value.pages.every(p => p._collapsed))
+
+function toggleAllPages() {
+  const collapse = !allCollapsed.value
+  quote.value.pages.forEach(p => { p._collapsed = collapse })
+}
+
+function movePage(index, direction) {
+  const target = index + direction
+  const pages = quote.value.pages
+  if (target < 0 || target >= pages.length) return
+  ;[pages[index], pages[target]] = [pages[target], pages[index]]
+}
+
+function deletePage(index) {
+  const page = quote.value.pages[index]
+  if (page.type === 'prices') {
+    if (!confirm('Delete the prices page with all its sections and positions?')) return
+    quote.value.sections = []
+  } else if (page.content && !confirm('Delete this page?')) {
+    return
   }
-  quote.value.sections.splice(index, 1)
+  quote.value.pages.splice(index, 1)
 }
 
-function moveSectionUp(index) {
-  if (index === 0) return
-  const sections = quote.value.sections
-  ;[sections[index - 1], sections[index]] = [sections[index], sections[index - 1]]
+// Label for a page card: its first heading, else the start of its text
+function pageLabel(page) {
+  if (page.type === 'prices') return 'Prices'
+  const doc = new DOMParser().parseFromString(page.content || '', 'text/html')
+  const heading = doc.querySelector('h2, h3')?.textContent?.trim()
+  const text = heading || doc.body.textContent.trim()
+  return text ? text.slice(0, 60) : 'Text page'
 }
 
-function moveSectionDown(index) {
-  if (index >= quote.value.sections.length - 1) return
-  const sections = quote.value.sections
-  ;[sections[index], sections[index + 1]] = [sections[index + 1], sections[index]]
+function saveToLibrary(page) {
+  saveBlockDialog.value = { show: true, title: pageLabel(page), content: page.content }
 }
 
-// Position management
-function addPosition(sectionIndex) {
-  positionDialog.value = { show: true, sectionIndex, position: null }
-}
-
-function editPosition(sectionIndex, positionIndex) {
-  const position = quote.value.sections[sectionIndex].positions[positionIndex]
-  positionDialog.value = {
-    show: true,
-    sectionIndex,
-    position: { ...position, _index: positionIndex }
-  }
-}
-
-async function deletePosition(sectionIndex, positionIndex) {
-  if (!confirm('Delete this position?')) return
-
-  const position = quote.value.sections[sectionIndex].positions[positionIndex]
-  quote.value.sections[sectionIndex].positions.splice(positionIndex, 1)
-
-  if (position.id) {
-    try {
-      await del(`/api/quote/position/destroy/${position.id}`)
-    } catch (e) {
-      error('Failed to delete position')
-    }
-  }
-}
-
-function onPositionSaved(position) {
-  const si = positionDialog.value.sectionIndex
-  if (position._index !== undefined) {
-    quote.value.sections[si].positions[position._index] = position
-  } else {
-    quote.value.sections[si].positions.push(position)
-  }
-  positionDialog.value.show = false
+function onBlockSaved(block) {
+  blocks.value.push(block)
+  saveBlockDialog.value.show = false
 }
 
 const clientOptions = computed(() =>
@@ -257,15 +238,27 @@ onMounted(fetchData)
     </div>
 
     <form v-else @submit.prevent="submit" class="space-y-6">
-      <!-- Basic Fields -->
+      <!-- Letter (page 1) -->
       <div class="space-y-6">
-        <BaseInput
-          v-model="quote.title"
-          label="Title"
-          required
-          :error="errors.title"
-          @focus="errors.title = null"
-        />
+        <div class="grid grid-cols-4 gap-4">
+          <BaseInput
+            v-model="quote.label"
+            label="Label"
+            placeholder="Offerte"
+            required
+            :error="errors.label"
+            @focus="errors.label = null"
+          />
+          <div class="col-span-3">
+            <BaseInput
+              v-model="quote.title"
+              label="Title"
+              required
+              :error="errors.title"
+              @focus="errors.title = null"
+            />
+          </div>
+        </div>
 
         <BaseSelect
           v-model="quote.client_id"
@@ -274,11 +267,18 @@ onMounted(fetchData)
           placeholder="Select a client..."
         />
 
-        <BaseInput
-          v-model="quote.date"
-          label="Date"
-          type="date"
-        />
+        <div class="grid grid-cols-2 gap-4">
+          <BaseInput
+            v-model="quote.date"
+            label="Date"
+            type="date"
+          />
+          <BaseSelect
+            v-model="quote.vat_rate"
+            label="VAT"
+            :options="vatOptions"
+          />
+        </div>
 
         <BaseInput
           v-model="quote.intro_greeting"
@@ -290,88 +290,87 @@ onMounted(fetchData)
           v-model="quote.intro_text"
           label="Intro Text"
         />
-
-        <div class="grid grid-cols-3 gap-4">
-          <BaseSelect
-            v-model="quote.vat_rate"
-            label="VAT"
-            :options="vatOptions"
-          />
-          <BaseInput
-            v-model="quote.daily_rate"
-            label="Daily Rate"
-            type="number"
-            step="0.01"
-            placeholder="1120.00"
-          />
-          <BaseInput
-            v-model="quote.hourly_rate"
-            label="Hourly Rate"
-            type="number"
-            step="0.01"
-            placeholder="140.00"
-          />
-        </div>
-
-        <BaseCheckbox v-model="quote.include_terms_page" label="Include terms page" />
       </div>
 
-      <!-- Sections -->
+      <!-- Pages -->
       <div>
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold">Sections</h2>
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="font-bold">Pages</h2>
           <button
+            v-if="quote.pages.length > 0"
             type="button"
-            @click="addSection"
-            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
-            title="Add Section"
+            @click="toggleAllPages"
+            class="text-sm text-gray-500 hover:text-black cursor-pointer transition-colors"
           >
-            <PhPlus class="w-5 h-5" />
+            {{ allCollapsed ? 'Expand all' : 'Collapse all' }}
           </button>
         </div>
+        <p class="text-sm text-gray-500 mb-4">
+          Each page starts on a new sheet after the letter. Long text continues on the next sheet automatically.
+        </p>
 
-        <div v-if="quote.sections.length === 0" class="text-center py-8 text-gray-500">
-          No sections yet. Add one to get started.
+        <div v-if="quote.pages.length === 0" class="text-center py-8 text-gray-500">
+          No pages yet.
         </div>
 
-        <div v-else class="space-y-6">
+        <div v-else class="space-y-4">
           <div
-            v-for="(section, sectionIndex) in quote.sections"
-            :key="sectionIndex"
-            class="border border-gray-200 rounded-md p-4"
+            v-for="(page, pageIndex) in quote.pages"
+            :key="page._key"
+            class="border border-gray-200 rounded-md"
           >
-            <!-- Section Header -->
-            <div class="flex items-start gap-3 mb-4">
-              <div class="flex-1 grid grid-cols-2 gap-3">
-                <BaseInput
-                  v-model="section.title"
-                  placeholder="Section title (e.g., Phase 1: Landingpage)"
+            <div
+              :class="[page._collapsed ? 'rounded-md' : 'border-b border-gray-200 rounded-t-md', 'flex items-center gap-3 px-4 py-2 bg-gray-50']"
+            >
+              <button
+                type="button"
+                @click="page._collapsed = !page._collapsed"
+                class="flex-1 min-w-0 flex items-center gap-3 text-left cursor-pointer"
+                :title="page._collapsed ? 'Expand' : 'Collapse'"
+              >
+                <PhCaretRight
+                  :class="[page._collapsed ? '' : 'rotate-90', 'w-3.5 h-3.5 text-gray-400 shrink-0 transition-transform']"
                 />
-                <BaseInput
-                  v-model="section.total_label"
-                  placeholder="Total label (e.g., Total)"
-                />
-              </div>
+                <span class="text-xs text-gray-400 w-5">{{ pageIndex + 2 }}</span>
+                <span
+                  :class="[page.type === 'prices' ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-700', 'px-2 py-0.5 rounded-md text-xs font-medium']"
+                >
+                  {{ page.type === 'prices' ? 'Prices' : 'Text' }}
+                </span>
+                <span class="flex-1 text-sm text-gray-700 truncate">
+                  {{ page.type === 'prices' ? quote.sections.map(s => s.title).filter(Boolean).join(', ') : pageLabel(page) }}
+                </span>
+              </button>
               <div class="flex items-center gap-1">
                 <button
+                  v-if="page.type === 'text'"
                   type="button"
-                  @click="moveSectionUp(sectionIndex)"
-                  :disabled="sectionIndex === 0"
+                  @click="saveToLibrary(page)"
+                  :disabled="!page.content"
+                  class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors disabled:opacity-30 disabled:cursor-default"
+                  title="Save to text blocks"
+                >
+                  <PhBookmarkSimple class="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  @click="movePage(pageIndex, -1)"
+                  :disabled="pageIndex === 0"
                   class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors disabled:opacity-30 disabled:cursor-default"
                 >
                   <PhArrowUp class="w-4 h-4" />
                 </button>
                 <button
                   type="button"
-                  @click="moveSectionDown(sectionIndex)"
-                  :disabled="sectionIndex >= quote.sections.length - 1"
+                  @click="movePage(pageIndex, 1)"
+                  :disabled="pageIndex >= quote.pages.length - 1"
                   class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors disabled:opacity-30 disabled:cursor-default"
                 >
                   <PhArrowDown class="w-4 h-4" />
                 </button>
                 <button
                   type="button"
-                  @click="deleteSection(sectionIndex)"
+                  @click="deletePage(pageIndex)"
                   class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-100 cursor-pointer rounded-sm transition-colors"
                 >
                   <PhTrash class="w-4 h-4" />
@@ -379,86 +378,69 @@ onMounted(fetchData)
               </div>
             </div>
 
-            <!-- Positions within section -->
-            <div class="ml-0">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-sm text-gray-500">Positions</span>
-                <button
-                  type="button"
-                  @click="addPosition(sectionIndex)"
-                  class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 cursor-pointer rounded-sm transition-colors"
-                  title="Add Position"
-                >
-                  <PhPlus class="w-4 h-4" />
-                </button>
-              </div>
+            <div v-show="!page._collapsed" class="p-4 space-y-6">
+              <TiptapEditor
+                v-model="page.content"
+                :label="page.type === 'prices' ? 'Text above the prices (optional)' : null"
+              />
 
-              <div v-if="section.positions.length === 0" class="text-center py-4 text-gray-400 text-sm">
-                No positions
-              </div>
-
-              <div v-else>
-                <table class="w-full text-sm border-b border-gray-100">
-                  <tbody class="divide-y divide-gray-100">
-                    <tr v-for="(position, posIndex) in section.positions" :key="posIndex">
-                      <td class="py-2">{{ position.description }}</td>
-                      <td class="py-2 text-right font-medium w-28">{{ formatCurrency(position.amount) }}</td>
-                      <td class="py-2 w-20">
-                        <div class="flex justify-end gap-1">
-                          <button
-                            type="button"
-                            @click="editPosition(sectionIndex, posIndex)"
-                            class="p-1 cursor-pointer text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-sm"
-                          >
-                            <PhPencil class="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            @click="deletePosition(sectionIndex, posIndex)"
-                            class="p-1 cursor-pointer text-gray-400 hover:text-red-600 hover:bg-red-100 rounded-sm"
-                          >
-                            <PhTrash class="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-
-                <!-- Section Total -->
-                <div class="flex justify-between text-sm font-bold mt-2 pt-2 border-t border-gray-200">
-                  <span>{{ section.total_label || 'Total' }}</span>
-                  <span>{{ formatCurrency(sectionTotal(section)) }}</span>
-                </div>
-              </div>
+              <QuoteSectionsEditor
+                v-if="page.type === 'prices'"
+                :sections="quote.sections"
+              />
             </div>
+          </div>
+        </div>
+
+        <!-- Add pages -->
+        <div class="flex flex-wrap items-center gap-2 mt-4">
+          <BaseButton type="button" variant="secondary" @click="addTextPage">
+            <PhPlus class="w-4 h-4" /> Text page
+          </BaseButton>
+          <BaseButton v-if="!hasPricesPage" type="button" variant="secondary" @click="addPricesPage">
+            <PhCurrencyCircleDollar class="w-4 h-4" /> Prices page
+          </BaseButton>
+          <div class="flex items-center gap-2 ml-auto">
+            <div class="w-64">
+              <BaseSelect
+                v-model="selectedBlock"
+                :options="blockOptions"
+                placeholder="Insert text block..."
+                compact
+              />
+            </div>
+            <BaseButton type="button" variant="secondary" :disabled="!selectedBlock" @click="addBlockPage">
+              Insert
+            </BaseButton>
           </div>
         </div>
 
         <!-- Grand Total -->
         <div v-if="quote.sections.length > 0" class="mt-6 bg-gray-50 rounded-sm px-4 py-3">
           <div class="flex justify-between font-bold">
-            <span>Grand Total</span>
+            <span>Grand Total (CHF)</span>
             <span>{{ formatCurrency(grandTotal) }}</span>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-3 mt-8">
+      <!-- Stays in view while scrolling through long quotes -->
+      <div class="sticky bottom-0 z-10 flex items-center justify-end gap-3 mt-8 py-4 bg-white border-t border-gray-100">
         <BaseButton type="button" variant="secondary" @click="emit('cancel')">
-          Cancel
+          {{ isEdit ? 'Close' : 'Cancel' }}
         </BaseButton>
         <BaseButton type="submit" :loading="saving">
-          {{ isEdit ? 'Update' : 'Create' }}
+          {{ isEdit ? 'Save' : 'Create' }}
         </BaseButton>
       </div>
     </form>
 
-    <QuotePositionForm
-      v-if="positionDialog.show"
-      :position="positionDialog.position"
-      @close="positionDialog.show = false"
-      @save="onPositionSaved"
+    <QuoteBlockSaveForm
+      v-if="saveBlockDialog.show"
+      :title="saveBlockDialog.title"
+      :content="saveBlockDialog.content"
+      @close="saveBlockDialog.show = false"
+      @saved="onBlockSaved"
     />
   </div>
 </template>

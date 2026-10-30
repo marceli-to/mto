@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\QuoteController;
 use App\Http\Controllers\Api\QuoteSectionController;
 use App\Http\Controllers\Api\QuotePositionController;
 use App\Http\Controllers\Api\LiquidityController;
+use App\Http\Controllers\Api\QuoteBlockController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,6 +119,10 @@ Route::middleware('auth:sanctum')->group(function() {
   Route::delete('quote/destroy/{quote}', [QuoteController::class, 'destroy']);
   Route::delete('quote/section/destroy/{quoteSection}', [QuoteSectionController::class, 'destroy']);
   Route::delete('quote/position/destroy/{quotePosition}', [QuotePositionController::class, 'destroy']);
+  Route::get('quote-blocks/get', [QuoteBlockController::class, 'get']);
+  Route::post('quote-block/create', [QuoteBlockController::class, 'store']);
+  Route::post('quote-block/update/{quoteBlock}', [QuoteBlockController::class, 'update']);
+  Route::delete('quote-block/destroy/{quoteBlock}', [QuoteBlockController::class, 'destroy']);
 
   /**
    * Expense routes

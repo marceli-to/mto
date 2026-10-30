@@ -121,6 +121,9 @@ watch(() => props.modelValue, (value) => {
   margin-bottom: 0.25rem;
 }
 .tiptap p {
+  margin-bottom: 0.75rem;
+}
+.tiptap li p {
   margin-bottom: 0.25rem;
 }
 .tiptap ul {

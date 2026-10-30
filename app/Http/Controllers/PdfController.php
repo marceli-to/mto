@@ -47,7 +47,7 @@ class PdfController extends Controller
 
  	public function quote(Quote $quote)
  	{
- 		$quote->load(['sections.positions', 'client']);
+ 		$quote->load(['pages', 'sections.positions', 'client']);
 
  		// Generate cached filename with updated_at timestamp
  		$timestamp = $quote->updated_at->format('d-m-Y-H-i-s');
@@ -76,7 +76,7 @@ class PdfController extends Controller
  		// Generate and save PDF
  		$this->buildPdf('pdf.quote', ['quote' => $quote])
  			->headerView('pdf.partials.header')
- 			->footerView('pdf.partials.footer')
+ 			->footerView('pdf.partials.footer', ['pageNumbers' => true])
  			->save(Storage::path($storagePath));
 
  		return response()->file(

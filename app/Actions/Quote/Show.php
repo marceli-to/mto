@@ -8,6 +8,6 @@ class Show
 {
     public function execute(Quote $quote)
     {
-        return response()->json($quote->load('sections.positions', 'client'));
+        return response()->json($quote->load('pages', 'sections.positions', 'client'));
     }
 }
