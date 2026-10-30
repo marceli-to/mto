@@ -22,16 +22,20 @@
   }
 
   footer {
-    display: flex;
-    align-items: center;
-    gap: 7px;
     margin-bottom: 5mm;
+    white-space: nowrap;
   }
 </style>
 </head>
 <body>
   <footer>
-    <span>{{ config('invoice.beneficiary_name') }}</span>+<span>{{ config('invoice.beneficiary_street') }} {{ config('invoice.beneficiary_building') }}</span>+<span>{{ config('invoice.beneficiary_zip') }} {{ config('invoice.beneficiary_city') }}</span>+<span>078 749 74 09</span>+<span>m@marceli.to</span>+<span>marceli.to</span>
+    {!! collect([
+      config('invoice.beneficiary_name'),
+      config('invoice.beneficiary_street') . ' ' . config('invoice.beneficiary_building'),
+      config('invoice.beneficiary_zip') . ' ' . config('invoice.beneficiary_city'),
+      '078 749 74 09',
+      'm@marceli.to',
+    ])->map(fn ($item) => e($item))->implode('&thinsp;•&thinsp;') !!}
     @if ($pageNumbers ?? false)<span class="pageNumber" style="position: absolute; right: 20mm;"></span>@endif
   </footer>
 </body>
