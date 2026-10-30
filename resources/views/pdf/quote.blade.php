@@ -20,6 +20,10 @@
     font-weight: 500;
     font-style: normal;
   }
+  /* The letter keeps its address position; later pages pull the title up */
+  @page :first {
+    margin-top: 55mm;
+  }
   * {
     margin: 0;
     padding: 0;
@@ -64,7 +68,7 @@
   }
 
   .page > thead > tr > td {
-    padding-bottom: 5.75mm;
+    padding-bottom: 7.5mm;
   }
 
   .page > tbody > tr > td {
@@ -155,7 +159,7 @@
   }
 
   .section.has-note + .section {
-    margin-top: 16mm;
+    margin-top: 12mm;
   }
 
   .section-table {

@@ -98,7 +98,8 @@ async function fetchData() {
         pages: (data.pages || []).map(p => makePage(p.type, p.content || '', p.id, true)),
         sections: (data.sections || []).map(s => ({
           ...s,
-          positions: s.positions || []
+          positions: s.positions || [],
+          _collapsed: true
         }))
       }
       emit('loaded', data)
