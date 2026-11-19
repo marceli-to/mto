@@ -1,25 +1,8 @@
-@php
-  $fontPath = resource_path('sidecar-browsershot/fonts/');
-  $fontLight = base64_encode(file_get_contents($fontPath . 'Poppins-Light.woff2'));
-  $fontMedium = base64_encode(file_get_contents($fontPath . 'Poppins-Medium.woff2'));
-@endphp
 <html lang="en">
 <head>
 <title>Ausgabe</title>
-<script src="https://cdn.tailwindcss.com"></script>
+@include('pdf.partials.reset')
 <style>
-  @font-face {
-    font-family: 'Poppins';
-    src: url('data:font/woff2;base64,{{ $fontLight }}') format('woff2');
-    font-weight: 300;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Poppins';
-    src: url('data:font/woff2;base64,{{ $fontMedium }}') format('woff2');
-    font-weight: 500;
-    font-style: normal;
-  }
   strong {
     font-weight: 500;
   }
@@ -108,6 +91,7 @@
 </style>
 </head>
 <body class="font-light">
+@include('pdf.partials.page-frame')
 
 <div>
 

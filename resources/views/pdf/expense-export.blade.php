@@ -1,7 +1,4 @@
 @php
-  $fontPath = resource_path('sidecar-browsershot/fonts/');
-  $fontLight = base64_encode(file_get_contents($fontPath . 'Poppins-Light.woff2'));
-  $fontMedium = base64_encode(file_get_contents($fontPath . 'Poppins-Medium.woff2'));
   $money = fn ($amount) => number_format($amount ?? 0, 2, '.', "'");
 @endphp
 <!DOCTYPE html>
@@ -9,18 +6,6 @@
 <head>
 <title>Ausgaben {{ $year }}</title>
 <style>
-  @font-face {
-    font-family: 'Poppins';
-    src: url('data:font/woff2;base64,{{ $fontLight }}') format('woff2');
-    font-weight: 300;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Poppins';
-    src: url('data:font/woff2;base64,{{ $fontMedium }}') format('woff2');
-    font-weight: 500;
-    font-style: normal;
-  }
   * {
     box-sizing: border-box;
   }
@@ -109,6 +94,7 @@
 </style>
 </head>
 <body>
+@include('pdf.partials.page-frame')
 
 @if ($overview ?? false)
   <h1>Ausgaben {{ $year }}</h1>

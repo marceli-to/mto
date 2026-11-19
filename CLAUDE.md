@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Laravel 13 invoice/quote management application with a Vue 3 SPA frontend. Key technologies:
 
-- **Backend**: Laravel 13 (PHP 8.2+)
+- **Backend**: Laravel 13 (PHP 8.3+)
 - **Frontend**: Vue 3 (Composition API) SPA with Vue Router 4
 - **Database**: MySQL/MariaDB
 - **Asset Building**: Vite (with `laravel-vite-plugin` and `@vitejs/plugin-vue`)
 - **Styling**: Tailwind CSS 4 (`resources/css/app.css`)
 - **Authentication**: Laravel Sanctum (`auth:sanctum` guard)
-- **PDF Generation**: DomPDF (barryvdh/laravel-dompdf)
+- **PDF Generation**: Fagus (nforst/fagus), a browserless HTML/CSS-to-PDF engine
 - **Swiss QR Bills**: sprain/swiss-qr-bill
 - **Image Processing**: Intervention Image
 - **AI**: `laravel/ai` SDK (Anthropic Claude — used for receipt scanning)
@@ -48,7 +48,7 @@ php artisan serve
 # Custom artisan commands (see app/Console/Commands/)
 php artisan invoice:report   # Interactive invoice reports by date range and state
 php artisan expense:report   # Interactive expense reports with CSV export
-# Plus a GeneratePdf command
+php artisan expense:export   # Yearly expense PDF (incl. receipts) and Excel for the accountant
 ```
 
 ### Frontend Commands
@@ -110,7 +110,11 @@ The application manages:
 API routes are protected by the `auth:sanctum` middleware group in `routes/api.php`. The `api` guard uses the Sanctum driver (see `config/auth.php`).
 
 ### PDF Generation
-Generated via DomPDF. Invoice PDFs embed Swiss QR bills. Blade templates live in `resources/views/pdf/` (`invoice.blade.php`, `expense.blade.php`, `quote.blade.php`, plus `partials/`).
+Every PDF goes through `App\Actions\Pdf\Build`, which renders a Blade view with Fagus (a Rust binary Composer installs into `vendor/`; `php artisan fagus:install` reinstalls it). Templates live in `resources/views/pdf/` (`invoice`, `quote`, `expense`, `expense-export`, plus `partials/`).
+- Fagus runs **no JavaScript**: no Tailwind CDN or scripts in PDF views. `partials/reset.blade.php` holds the reset and the few utility classes the invoice and expense views use; add a utility there before using it.
+- Page size and margins are CSS (`@page`). Logo header and address footer come from `partials/page-frame.blade.php` (running elements in the page margin boxes, optional page numbers); the invoice places its own so the QR bill can take the full last sheet.
+- Fonts come from `resources/fonts/` (`config/fagus.php`): Poppins for the documents, Liberation Sans for the Swiss QR bill, whose standard only allows Arial, Frutiger, Helvetica or Liberation Sans. No base64 `@font-face` needed.
+- `tests/Feature/PdfRenderTest.php` renders every view and fails on Fagus diagnostics (unsupported CSS, missing fonts).
 
 ### File Uploads
 - Uploads handled via `UploadController` (temp) and finalized in the relevant entity's Actions.

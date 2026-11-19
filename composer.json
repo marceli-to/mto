@@ -11,16 +11,13 @@
         "php": "^8.3",
         "doctrine/dbal": "^4.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "hammerstone/sidecar": "^0.8",
         "laravel/ai": "^0.3.2",
         "laravel/framework": "^13.0",
         "laravel/sanctum": "^4.2",
         "laravel/tinker": "^3.0",
+        "nforst/fagus": "^0.2",
         "openspout/openspout": "^5.12",
-        "spatie/browsershot": "^5.0",
-        "spatie/laravel-pdf": "^2.0",
-        "sprain/swiss-qr-bill": "^3.3",
-        "wnx/sidecar-browsershot": "^3.0"
+        "sprain/swiss-qr-bill": "^3.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -32,7 +29,10 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "nforst/fagus": true
+        }
     },
     "extra": {
         "laravel": {

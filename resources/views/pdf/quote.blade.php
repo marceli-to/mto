@@ -1,25 +1,8 @@
-@php
-  $fontPath = resource_path('sidecar-browsershot/fonts/');
-  $fontLight = base64_encode(file_get_contents($fontPath . 'Poppins-Light.woff2'));
-  $fontMedium = base64_encode(file_get_contents($fontPath . 'Poppins-Medium.woff2'));
-@endphp
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <title>{{ $quote->label }} {{ $quote->title }}</title>
 <style>
-  @font-face {
-    font-family: 'Poppins';
-    src: url('data:font/woff2;base64,{{ $fontLight }}') format('woff2');
-    font-weight: 300;
-    font-style: normal;
-  }
-  @font-face {
-    font-family: 'Poppins';
-    src: url('data:font/woff2;base64,{{ $fontMedium }}') format('woff2');
-    font-weight: 500;
-    font-style: normal;
-  }
   /* The letter keeps its address position; later pages pull the title up */
   @page :first {
     margin-top: 55mm;
@@ -196,6 +179,7 @@
 </style>
 </head>
 <body>
+  @include('pdf.partials.page-frame', ['margin' => '47mm 20mm 30mm', 'pageNumbers' => true])
 
   {{-- ==================== PAGE 1: LETTER ==================== --}}
   <div>

@@ -7,12 +7,11 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * The expense's receipt as images ready to embed in the expense PDF, one data
- * URI per page. A PDF receipt is rasterised page by page, since Chrome can't
- * place a PDF inside the page it prints.
+ * URI per page. A PDF receipt is rasterised page by page, since an HTML page
+ * can't embed a PDF for the renderer to place.
  *
- * Every page is scaled down to print size and recompressed: the HTML goes to
- * Lambda and the PDF comes back from it, and a full-size phone photo pushes
- * the response past Lambda's 6 MB payload limit.
+ * Every page is scaled down to print size and recompressed, so a full-size
+ * phone photo doesn't bloat the PDF.
  */
 class Receipt
 {

@@ -20,11 +20,9 @@ use Symfony\Component\Process\ExecutableFinder;
  * Exports all expenses of a year for the accountant: a PDF (overview plus
  * one page per expense with its receipt) and an Excel spreadsheet.
  *
- * The PDF is rendered via App\Actions\Pdf\Build (Lambda in production,
- * local Browsershot elsewhere). Lambda caps request/response payloads at 6 MB,
- * so expense pages are rendered in batches of limited receipt size. Receipts
- * that are PDFs themselves are appended after their expense page with
- * pdfunite/ghostscript.
+ * The PDF is rendered via App\Actions\Pdf\Build. Receipts that are PDFs
+ * themselves are appended after their expense page with pdfunite/ghostscript,
+ * so the expense pages are rendered in runs that end at such a receipt.
  */
 class ExpenseExport extends Command
 {
@@ -36,9 +34,6 @@ class ExpenseExport extends Command
 
     /** Receipt images are downscaled to this many pixels on the longer side to keep the PDF small. */
     protected const RECEIPT_MAX_PX = 1800;
-
-    /** Max. receipt image bytes per render call, keeps HTML and PDF well below Lambda's 6 MB payload limit. */
-    protected const BATCH_MAX_BYTES = 2_500_000;
 
     public function handle(): int
     {
@@ -174,11 +169,9 @@ class ExpenseExport extends Command
                 'year' => $year,
             ]);
 
-            // Expense pages are rendered in batches; a batch ends when it gets too
-            // large for Lambda or when an expense has a PDF receipt, which is then
-            // appended right after it.
+            // A run of expense pages ends at an expense with a PDF receipt, which
+            // is then appended right after it.
             $batch = [];
-            $batchBytes = 0;
             $bar = $this->output->createProgressBar($expenses->count());
 
             foreach ($expenses as $expense) {
@@ -187,21 +180,13 @@ class ExpenseExport extends Command
 
                 $image = $receipt && !$isPdf ? $this->imageDataUri($receipt) : null;
 
-                if ($batch && $batchBytes + strlen($image ?? '') > self::BATCH_MAX_BYTES) {
-                    $parts[] = $this->renderPdf($workDir, count($parts), ['pages' => $batch, 'year' => $year]);
-                    $batch = [];
-                    $batchBytes = 0;
-                }
-
                 $batch[] = ['expense' => $expense, 'image' => $image, 'pdf' => $isPdf];
-                $batchBytes += strlen($image ?? '');
                 $bar->advance();
 
                 if ($isPdf) {
                     $parts[] = $this->renderPdf($workDir, count($parts), ['pages' => $batch, 'year' => $year]);
                     $parts[] = $receipt;
                     $batch = [];
-                    $batchBytes = 0;
                 }
             }
 
@@ -222,10 +207,7 @@ class ExpenseExport extends Command
     {
         $path = "{$workDir}/part-{$index}.pdf";
 
-        (new Build)->execute('pdf.expense-export', $data)
-            ->headerView('pdf.partials.header')
-            ->footerView('pdf.partials.footer')
-            ->save($path);
+        (new Build)->execute('pdf.expense-export', $data)->save($path);
 
         return $path;
     }

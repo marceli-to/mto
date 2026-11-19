@@ -33,13 +33,13 @@ class Pdf
             mkdir($dir, 0755, true);
         }
 
-        // Rendered full-bleed with no Chrome header/footer: the template places
-        // its own repeating header and footer, which lets the QR bill claim the
-        // whole of the final sheet.
+        // The template places its own repeating header and footer rather than
+        // using pdf.partials.page-frame, which lets the QR bill claim the whole
+        // of the final sheet.
         (new BuildPdf)->execute('pdf.invoice', [
             'invoice' => $invoice,
             'qrBill' => (new QrBill)->execute($invoice),
-        ], [0, 0, 0, 0])->save(Storage::path($storagePath));
+        ])->save(Storage::path($storagePath));
 
         return Storage::path($storagePath);
     }
