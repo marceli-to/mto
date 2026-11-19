@@ -12,6 +12,7 @@ use App\Models\TimeEntry;
 use App\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class TimeEntryTest extends TestCase
@@ -139,7 +140,7 @@ class TimeEntryTest extends TestCase
         $this->assertNull(TimeEntry::first()->project_id); // project dropped in favor of activity
     }
 
-    /** @dataProvider timeFormatProvider */
+    #[DataProvider('timeFormatProvider')]
     public function test_normalizes_the_shapes_people_type(string $typed, ?string $expected): void
     {
         $this->assertSame($expected, TimeEntryStoreRequest::normalizeTime($typed));
