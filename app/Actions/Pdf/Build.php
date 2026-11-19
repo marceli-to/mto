@@ -2,31 +2,24 @@
 
 namespace App\Actions\Pdf;
 
-use Spatie\LaravelPdf\Facades\Pdf;
-use Spatie\LaravelPdf\PdfBuilder;
+use Fagus\Laravel\Facades\Fagus;
+use Fagus\Laravel\PendingPdf;
 
 /**
- * Starting point for every PDF the app renders: picks the right Browsershot
- * runtime for the environment so callers only deal with view and data.
+ * Starting point for every PDF the app renders. Fagus lays the view out
+ * without a browser, in a worker process that stays up between documents.
+ *
+ * Templates own their page setup in CSS: size and margins in @page, headers
+ * and footers via pdf.partials.page-frame. Fonts come from resources/fonts
+ * (see config/fagus.php): Poppins for the documents, Liberation Sans for the
+ * Swiss QR bill, whose standard only allows Arial, Frutiger, Helvetica or
+ * Liberation Sans. Fagus runs no scripts, so nothing in a PDF view may rely on
+ * JavaScript.
  */
 class Build
 {
-    public function execute(string $view, array $data = [], array $margins = [30, 20, 30, 20]): PdfBuilder
+    public function execute(string $view, array $data = []): PendingPdf
     {
-        $pdf = Pdf::view($view, $data)
-            ->format('a4')
-            ->margins(...$margins);
-
-        if (app()->environment('production')) {
-            $pdf->onLambda();
-        } else {
-            $pdf->withBrowsershot(function (\Spatie\Browsershot\Browsershot $browsershot) {
-                $browsershot
-                    ->setNodeBinary('/Users/marceli.to/.nvm/versions/node/v22.19.0/bin/node')
-                    ->setNpmBinary('/Users/marceli.to/.nvm/versions/node/v22.19.0/bin/npm');
-            });
-        }
-
-        return $pdf;
+        return Fagus::view($view, $data);
     }
 }

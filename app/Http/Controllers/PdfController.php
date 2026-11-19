@@ -7,7 +7,6 @@ use App\Models\Expense;
 use App\Models\Quote;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use Spatie\LaravelPdf\PdfBuilder;
 use App\Actions\Pdf\Build as BuildPdf;
 use App\Actions\Invoice\Pdf as InvoicePdf;
 use App\Actions\Invoice\QrBill as QrBillAction;
@@ -73,11 +72,8 @@ class PdfController extends Controller
 			mkdir($dir, 0755, true);
 		}
 
- 		// Generate and save PDF
- 		// Taller top margin than invoices: the running title sits below the logo (the letter page overrides it via @page :first)
-		$this->buildPdf('pdf.quote', ['quote' => $quote], [47, 20, 30, 20])
- 			->headerView('pdf.partials.header')
- 			->footerView('pdf.partials.footer', ['pageNumbers' => true])
+ 		// Generate and save PDF (margins, header and footer are set in the template)
+ 		(new BuildPdf)->execute('pdf.quote', ['quote' => $quote])
  			->save(Storage::path($storagePath));
 
  		return response()->file(
@@ -118,13 +114,10 @@ class PdfController extends Controller
 		}
 
  		// Generate and save PDF
- 		$this->buildPdf('pdf.expense', [
+ 		(new BuildPdf)->execute('pdf.expense', [
  			'expense' => $expense,
  			'receiptPages' => (new ExpenseReceipt)->execute($expense),
- 		])
- 			->headerView('pdf.partials.header')
- 			->footerView('pdf.partials.footer')
- 			->save(Storage::path($storagePath));
+ 		])->save(Storage::path($storagePath));
 
  		return response()->file(
  			Storage::path($storagePath),
@@ -135,11 +128,6 @@ class PdfController extends Controller
  				'Expires' => '0',
  			]
  		)->setContentDisposition('inline', $this->getExpenseFilename($expense));
- 	}
-
- 	protected function buildPdf(string $view, array $data = [], array $margins = [30, 20, 30, 20]): PdfBuilder
- 	{
- 		return (new BuildPdf)->execute($view, $data, $margins);
  	}
 
  	protected function getQuoteFilename(Quote $quote): string
