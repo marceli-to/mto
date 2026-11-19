@@ -17,9 +17,9 @@ class Receipt
 {
     protected const EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf'];
 
-    // Fits the 160 x 220 mm receipt box at roughly 250 dpi
+    // Fits the 160 x 200 mm receipt box at roughly 250 dpi
     protected const MAX_WIDTH = 1600;
-    protected const MAX_HEIGHT = 2200;
+    protected const MAX_HEIGHT = 2000;
 
     protected const QUALITY = 80;
 

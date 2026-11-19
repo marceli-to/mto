@@ -70,7 +70,7 @@
   .receipt-container {
     margin-top: 35mm;
     width: 160mm;       /* Changed from max-width for consistency */
-    height: 220mm;      /* Changed from max-height to define a box */
+    height: 200mm;      /* 35mm + 200mm fits the 237mm between the page margins */
     overflow: hidden;
     margin-left: auto;
     margin-right: auto;
