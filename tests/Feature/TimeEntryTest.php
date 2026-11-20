@@ -341,6 +341,30 @@ class TimeEntryTest extends TestCase
         $this->assertNotNull($e1->fresh()->invoice_position_id);
     }
 
+    public function test_bill_applies_positions_edited_in_the_invoice_form(): void
+    {
+        $project = $this->collectionProject();
+        $invoice = $this->invoice();
+
+        $e1 = TimeEntry::create(['project_id' => $project->id, 'date' => '2026-09-05', 'hours' => 2, 'description' => 'Raw', 'is_billable' => true]);
+        $e2 = TimeEntry::create(['project_id' => $project->id, 'date' => '2026-09-05', 'hours' => 3, 'is_billable' => true]);
+
+        $this->postJson('/api/time-entries/bill', [
+            'invoice_id' => $invoice->id,
+            'time_entry_ids' => [$e1->id, $e2->id],
+            'positions' => [
+                ['time_entry_id' => $e1->id, 'periode' => '05.09.2026', 'description' => 'Edited', 'rate' => 200, 'hours' => 1, 'amount' => 200, 'is_flat' => false],
+            ],
+        ])->assertOk();
+
+        $edited = $invoice->positions()->find($e1->fresh()->invoice_position_id);
+        $this->assertEquals('Edited', $edited->description);
+        $this->assertEquals(200, $edited->amount);
+
+        // e2 had no override and is billed as logged: 1*200 + 3*200 = 800
+        $this->assertEquals(800, $invoice->fresh()->total);
+    }
+
     public function test_unbill_removes_positions_and_restores_total(): void
     {
         $project = $this->collectionProject();

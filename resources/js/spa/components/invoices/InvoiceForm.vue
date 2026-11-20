@@ -293,15 +293,30 @@ async function save(settleFixedEntries = false) {
       savedInvoice = await post(`/api/invoice/update/${props.invoiceId}`, invoice.value)
       success('Invoice updated')
     } else if (billFromEntries) {
-      // Create the invoice WITHOUT the entry-derived positions; Bill creates those
-      // server-side and links each entry (so they can't be double-billed).
-      const payload = { ...invoice.value, positions: [] }
+      // Create the invoice with only the hand-added positions; Bill creates the
+      // entry-derived ones server-side and links each entry (so they can't be
+      // double-billed). The positions as edited in the form are sent along, so
+      // edits made before saving aren't replaced by the raw entry values, and
+      // entries whose position was deleted here stay unbilled.
+      const entryPositions = invoice.value.positions.filter(p => p._from_entry)
+      const payload = { ...invoice.value, positions: invoice.value.positions.filter(p => !p._from_entry) }
       savedInvoice = await post('/api/invoice/create', payload)
       const invoiceId = savedInvoice.invoiceId || savedInvoice.id
-      await post('/api/time-entries/bill', {
-        invoice_id: invoiceId,
-        time_entry_ids: billableEntries.value.map(e => e.id)
-      })
+      if (entryPositions.length > 0) {
+        await post('/api/time-entries/bill', {
+          invoice_id: invoiceId,
+          time_entry_ids: entryPositions.map(p => p._from_entry),
+          positions: entryPositions.map(p => ({
+            time_entry_id: p._from_entry,
+            periode: p.periode,
+            description: p.description,
+            rate: p.rate,
+            hours: p.hours,
+            amount: p.amount,
+            is_flat: !!p.is_flat
+          }))
+        })
+      }
       success('Invoice created from time entries')
     } else {
       savedInvoice = await post('/api/invoice/create', invoice.value)
