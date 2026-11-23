@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Technology Stack
 
-This is a Laravel 12 invoice/quote management application with a Vue 3 SPA frontend. Key technologies:
+This is a Laravel 13 invoice/quote management application with a Vue 3 SPA frontend. Key technologies:
 
-- **Backend**: Laravel 12 (PHP 8.2+)
+- **Backend**: Laravel 13 (PHP 8.2+)
 - **Frontend**: Vue 3 (Composition API) SPA with Vue Router 4
 - **Database**: MySQL/MariaDB
 - **Asset Building**: Vite (with `laravel-vite-plugin` and `@vitejs/plugin-vue`)
