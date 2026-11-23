@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f3cffe3a9baf1a93e21eabf7c38b1419",
+    "content-hash": "11d967f5018b166241972302c8d2abc7",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3083,16 +3083,16 @@
         },
         {
             "name": "nforst/fagus",
-            "version": "v0.2.0",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nforst/fagus.git",
-                "reference": "b2ffcc4de51be2c689e9d0f1ac24c3ed8fe5fe05"
+                "reference": "67104a848c83c27f8f50ec12f896d6a9817f6375"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nforst/fagus/zipball/b2ffcc4de51be2c689e9d0f1ac24c3ed8fe5fe05",
-                "reference": "b2ffcc4de51be2c689e9d0f1ac24c3ed8fe5fe05",
+                "url": "https://api.github.com/repos/nforst/fagus/zipball/67104a848c83c27f8f50ec12f896d6a9817f6375",
+                "reference": "67104a848c83c27f8f50ec12f896d6a9817f6375",
                 "shasum": ""
             },
             "require": {
@@ -3103,11 +3103,14 @@
                 "laravel/framework": "<13.0"
             },
             "require-dev": {
+                "laravel/pint": "^1.32",
                 "orchestra/testbench": "^11.0",
-                "phpunit/phpunit": "^12.0"
+                "phpunit/phpunit": "^12.0",
+                "spatie/laravel-pdf": "^2.0"
             },
             "suggest": {
-                "laravel/framework": "PDFs from Blade views, with a facade, responses and filesystem disks (Laravel 13)"
+                "laravel/framework": "PDFs from Blade views, with a facade, responses and filesystem disks (Laravel 13)",
+                "spatie/laravel-pdf": "Fagus as the `fagus` driver of laravel-pdf (^2.0)"
             },
             "bin": [
                 "php/fagus/bin/fagus-install"
@@ -3160,8 +3163,8 @@
                 "issues": "https://github.com/nforst/fagus/issues",
                 "source": "https://github.com/nforst/fagus"
             },
-            "time": "2026-11-17T22:35:46+00:00",
-            "published-time": "2026-11-17T22:36:34+00:00"
+            "time": "2026-11-20T17:51:04+00:00",
+            "published-time": "2026-11-20T17:51:24+00:00"
         },
         {
             "name": "nikic/php-parser",
